@@ -1,7 +1,7 @@
 from PyQt5.QtCore import QObject, pyqtSlot
 from PyQt5.QtWidgets import QDialog
 
-from project.gui import SettingsDialog, MainMenuWidget, AppWindow
+from project.gui.app_window import AppWindow
 
 
 class AppManager(QObject):
@@ -22,14 +22,13 @@ class AppManager(QObject):
         self.__connect_gui_services()
 
     def start(self):
-        self.main_menu_widget.show()
+        self.app_window.showMaximized()
 
     def __create_gui(self):
-        self.main_menu_widget = MainMenuWidget()
-        self.main_menu_widget.start_app.connect(self.__start_app)
-        self.main_menu_widget.set_settings.connect(self.__set_settings)
-
+        # self.main_menu_widget = MainMenuWidget()
         self.app_window = AppWindow()
+
+        # self.main_menu_widget.set_settings.connect(self.__set_settings)
 
     def __create_services(self):
         pass
