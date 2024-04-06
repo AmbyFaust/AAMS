@@ -1,4 +1,3 @@
-from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QGraphicsView, QHBoxLayout, QWidget, QVBoxLayout, QLabel, QAction
 
 from project.gui.app_window.map_scene import GridScene
@@ -38,7 +37,6 @@ class AppWindow(QMainWindowBase):
 
         self.objects_reviewer = ObjectsReviewer()
         self.objects_reviewer.setMinimumWidth(300)
-
 
         self.x_label = QLabel('X: ')
         self.x_label.setFont(BASE_FONT)
