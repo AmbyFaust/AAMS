@@ -1,0 +1,2 @@
+class SimulationManager:
+    pass
