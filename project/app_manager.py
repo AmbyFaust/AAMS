@@ -22,6 +22,8 @@ class AppManager(QObject):
         # настройка связи между gui и сервисами
         self.__connect_gui_services()
 
+
+
     def start(self):
         self.main_menu_widget.show()
 
@@ -34,7 +36,7 @@ class AppManager(QObject):
         self.app_window = AppWindow()
 
     def __create_services(self):
-        pass
+        self.handler = Handler()
 
     @pyqtSlot()
     def __set_settings(self):
@@ -51,7 +53,7 @@ class AppManager(QObject):
         self.main_menu_widget.close()
 
     def __connect_gui_services(self):
-        self.handler = Handler()
         self.app_window.controller.create_rls.connect(self.handler.create_rls)
+        self.handler.update_objects.connect(self.app_window.controller.update_objects_review)
 
 

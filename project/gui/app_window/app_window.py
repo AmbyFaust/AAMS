@@ -1,11 +1,11 @@
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QGraphicsView, QHBoxLayout, QWidget, QVBoxLayout, QLabel, QAction, QToolBar
 
+from project import ObjectEnum
 from project.gui.app_window.controller import Controller
 from project.gui.app_window.map_scene import GridScene
 from project.gui.app_window.objects_reviewer import ObjectsReviewer
 from project.gui.base_form_classes import QMainWindowBase
-from project.gui.enums import ObjectEnum
 from project.settings import BASE_FONT, RLS_ICON_PATH, TARGET_ICON_PATH
 
 
@@ -23,6 +23,9 @@ class AppWindow(QMainWindowBase):
         self.__create_action()
         self.__create_toolbar()
         self.__create_layout()
+
+        self.controller.update_objects_list.connect(self.objects_reviewer.update_objects)
+
 
     def __create_controller(self):
         self.controller = Controller()
@@ -81,7 +84,7 @@ class AppWindow(QMainWindowBase):
         self.tool_bar.addAction(self.create_rls_action)
 
     def __create_rls(self):
-        self.map.current_obj = ObjectEnum.RLS
+        self.map.current_obj_type = ObjectEnum.RLS
         # self.controller.create_object(ObjectEnum.RLS)
 
 
