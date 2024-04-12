@@ -1,6 +1,7 @@
 from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import QGraphicsView, QHBoxLayout, QWidget, QVBoxLayout, QLabel, QAction, QToolBar
 
+
 from project.gui.app_window.map_scene import GridScene
 from project.gui.app_window.objects_reviewer import ObjectsReviewer
 from project.gui.base_form_classes import QMainWindowBase
