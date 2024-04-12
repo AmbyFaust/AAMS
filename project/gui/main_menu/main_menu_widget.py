@@ -46,6 +46,8 @@ class MainMenuWidget(QWidgetBase):
 
         self.setLayout(main_v_layout)
 
+
+
     def closeEvent(self, a0: QCloseEvent) -> None:
         self.exit_app.emit()
 

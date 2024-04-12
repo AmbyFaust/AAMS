@@ -1,11 +1,12 @@
-from PyQt5.QtGui import QFont, QIcon
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QGraphicsView, QHBoxLayout, QWidget, QVBoxLayout, QLabel, QAction, QToolBar
 
-
+from project.gui.app_window.controller import Controller
 from project.gui.app_window.map_scene import GridScene
 from project.gui.app_window.objects_reviewer import ObjectsReviewer
 from project.gui.base_form_classes import QMainWindowBase
-from project.gui.settings import BASE_FONT
+from project.gui.enums import ObjectEnum
+from project.settings import BASE_FONT, RLS_ICON_PATH, TARGET_ICON_PATH
 
 
 class AppWindow(QMainWindowBase):
@@ -24,17 +25,13 @@ class AppWindow(QMainWindowBase):
         self.__create_layout()
 
     def __create_controller(self):
-        pass
+        self.controller = Controller()
 
     def __create_widgets(self):
         settings_action = QAction("Настройки", self)
         # settings_action.triggered.connect()
 
-        main_menu = self.menuBar()
-        main_menu.setFont(BASE_FONT)
-        main_menu.addAction(settings_action)
-
-        self.map = GridScene(self)
+        self.map = GridScene(self, self.controller)
         self.map_view = QGraphicsView(self.map)
         self.map_view.setGeometry(0, 0, 1300, 900)
         self.map.drawGrid(self.map_view.size())
@@ -70,13 +67,21 @@ class AppWindow(QMainWindowBase):
         self.central_widget.setLayout(common_h_layout)
 
     def __create_action(self):
-        self.create_object_action = QAction('Установить объект')
-        self.create_object_action.setIcon(QIcon('./project/static/create_object_icon.png'))
+        self.create_target_path_action = QAction('Установить путь цели')
+        self.create_target_path_action.setIcon(QIcon(TARGET_ICON_PATH))
+
+        self.create_rls_action = QAction('Установить РЛС')
+        self.create_rls_action.setIcon(QIcon(RLS_ICON_PATH))
+        self.create_rls_action.triggered.connect(self.__create_rls)
 
     def __create_toolbar(self):
         self.tool_bar = QToolBar()
         self.tool_bar.setMovable(False)
-        self.tool_bar.addAction(self.create_object_action)
+        self.tool_bar.addAction(self.create_target_path_action)
+        self.tool_bar.addAction(self.create_rls_action)
 
+    def __create_rls(self):
+        self.map.current_obj = ObjectEnum.RLS
+        # self.controller.create_object(ObjectEnum.RLS)
 
 

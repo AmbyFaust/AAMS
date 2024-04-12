@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QDialog, QLineEdit, QPushButton, QHBoxLayout, QLabel
 from PyQt5 import QtCore
 
 from project.gui.dialogs.open_dialog import QOpenFilesDialog
-from project.gui.settings import BASE_FONT
+from project.settings import BASE_FONT
 
 
 class SettingsDialog(QDialog):

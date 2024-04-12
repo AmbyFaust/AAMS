@@ -1,6 +1,7 @@
 from PyQt5.QtCore import QObject, pyqtSlot
 from PyQt5.QtWidgets import QDialog
 
+from project.core.handler import Handler
 from project.gui import SettingsDialog, MainMenuWidget, AppWindow
 
 
@@ -43,12 +44,14 @@ class AppManager(QObject):
 
     def __start_app(self):
         self.app_window.showMaximized()
+        self.main_menu_widget.hide()
 
     def __exit_app(self):
         self.app_window.close()
         self.main_menu_widget.close()
 
     def __connect_gui_services(self):
-        pass
+        self.handler = Handler()
+        self.app_window.controller.create_rls.connect(self.handler.create_rls)
 
 
