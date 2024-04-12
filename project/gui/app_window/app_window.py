@@ -1,5 +1,5 @@
-from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QGraphicsView, QHBoxLayout, QWidget, QVBoxLayout, QLabel, QAction
+from PyQt5.QtGui import QFont, QIcon
+from PyQt5.QtWidgets import QGraphicsView, QHBoxLayout, QWidget, QVBoxLayout, QLabel, QAction, QToolBar
 
 from project.gui.app_window.map_scene import GridScene
 from project.gui.app_window.objects_reviewer import ObjectsReviewer
@@ -18,6 +18,8 @@ class AppWindow(QMainWindowBase):
         self.setWindowTitle('AAMS')
         self.__create_controller()
         self.__create_widgets()
+        self.__create_action()
+        self.__create_toolbar()
         self.__create_layout()
 
     def __create_controller(self):
@@ -39,7 +41,6 @@ class AppWindow(QMainWindowBase):
         self.objects_reviewer = ObjectsReviewer()
         self.objects_reviewer.setMinimumWidth(300)
 
-
         self.x_label = QLabel('X: ')
         self.x_label.setFont(BASE_FONT)
         self.y_label = QLabel('Y: ')
@@ -57,8 +58,24 @@ class AppWindow(QMainWindowBase):
         map_v_layout.addWidget(self.map_view)
         map_v_layout.addLayout(coords_h_layout)
 
+        objects_v_layout = QVBoxLayout()
+        objects_v_layout.addWidget(self.tool_bar)
+        objects_v_layout.addWidget(self.objects_reviewer)
+
         common_h_layout = QHBoxLayout()
         common_h_layout.addLayout(map_v_layout)
-        common_h_layout.addWidget(self.objects_reviewer)
+        common_h_layout.addLayout(objects_v_layout)
 
         self.central_widget.setLayout(common_h_layout)
+
+    def __create_action(self):
+        self.create_object_action = QAction('Установить объект')
+        self.create_object_action.setIcon(QIcon('./project/static/create_object_icon.png'))
+
+    def __create_toolbar(self):
+        self.tool_bar = QToolBar()
+        self.tool_bar.setMovable(False)
+        self.tool_bar.addAction(self.create_object_action)
+
+
+
