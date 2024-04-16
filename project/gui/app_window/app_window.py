@@ -1,10 +1,10 @@
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QGraphicsView, QHBoxLayout, QWidget, QVBoxLayout, QLabel, QAction, QToolBar
+from PyQt5.QtWidgets import QGraphicsView, QHBoxLayout, QWidget, QVBoxLayout, QLabel, QAction, QToolBar, QGroupBox
 
 from project import ObjectEnum
 from project.gui.app_window.controller import Controller
 from project.gui.app_window.map_scene import GridScene
-from project.gui.app_window.objects_reviewer import ObjectsReviewer
+from project.gui.app_window.objects_reviewer import ObjectsReviewer, ObjectsReviewerBox
 from project.gui.base_form_classes import QMainWindowBase
 from project.settings import BASE_FONT, RLS_ICON_PATH, TARGET_ICON_PATH
 
@@ -24,8 +24,7 @@ class AppWindow(QMainWindowBase):
         self.__create_toolbar()
         self.__create_layout()
 
-        self.controller.update_objects_list.connect(self.objects_reviewer.update_objects)
-
+        self.controller.update_objects_list.connect(self.rls_reviewer.update_objects)
 
     def __create_controller(self):
         self.controller = Controller()
@@ -39,8 +38,9 @@ class AppWindow(QMainWindowBase):
         self.map_view.setGeometry(0, 0, 1300, 900)
         self.map.drawGrid(self.map_view.size())
 
-        self.objects_reviewer = ObjectsReviewer()
-        self.objects_reviewer.setMinimumWidth(300)
+        self.rls_reviewer = ObjectsReviewerBox(ObjectEnum.RLS, self.controller)
+
+        self.target_reviewer = ObjectsReviewerBox(ObjectEnum.TARGET, self.controller)
 
         self.x_label = QLabel('X: ')
         self.x_label.setFont(BASE_FONT)
@@ -61,7 +61,8 @@ class AppWindow(QMainWindowBase):
 
         objects_v_layout = QVBoxLayout()
         objects_v_layout.addWidget(self.tool_bar)
-        objects_v_layout.addWidget(self.objects_reviewer)
+        objects_v_layout.addWidget(self.rls_reviewer)
+        objects_v_layout.addWidget(self.target_reviewer)
 
         common_h_layout = QHBoxLayout()
         common_h_layout.addLayout(map_v_layout)

@@ -38,7 +38,7 @@ class GridScene(QGraphicsScene):
             if self.current_obj_type == ObjectEnum.RLS:
                 self.rls[self.rls_counter] = self.current_object
                 self.rls_counter += 1
-            elif self.current_obj_type == ObjectEnum.Target:
+            elif self.current_obj_type == ObjectEnum.TARGET:
                 self.targets[self.target_counter] = self.current_object
                 self.target_counter += 1
             self.current_obj_type = None
@@ -49,6 +49,6 @@ class GridScene(QGraphicsScene):
         pixmap.scaled(BASE_SIZE_OBJECT)
         self.current_object = QGraphicsPixmapItem(pixmap)
         self.current_object.setScale(1)
-        self.current_object.setPos(event.scenePos() - QPoint(BASE_SIZE_OBJECT.width() / 2, BASE_SIZE_OBJECT.height() / 2))
+        self.current_object.setPos(event.scenePos() - QPoint(BASE_SIZE_OBJECT.width() // 2, BASE_SIZE_OBJECT.height() // 2))
         self.addItem(self.current_object)
 

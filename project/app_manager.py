@@ -54,6 +54,6 @@ class AppManager(QObject):
 
     def __connect_gui_services(self):
         self.app_window.controller.create_rls.connect(self.handler.create_rls)
-        self.handler.update_objects.connect(self.app_window.controller.update_objects_review)
+        self.handler.update_rls.connect(self.app_window.controller.update_rls_reviewer)
 
 
