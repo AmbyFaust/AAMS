@@ -1,6 +1,6 @@
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QListWidget, QAction, QGroupBox, QToolBar, QVBoxLayout
+from PyQt5.QtWidgets import QListWidget, QAction, QGroupBox, QToolBar, QVBoxLayout, QListWidgetItem
 
 from project.settings import BASE_FONT, EDIT_ICON_PATH, DELETE_ICON_PATH
 from project import ObjectEnum
@@ -29,23 +29,15 @@ class ObjectsReviewerBox(QGroupBox):
         self.setLayout(common_v_layout)
 
     def __create_actions(self):
-        self.redact_action = QAction('Изменить')
-        self.redact_action.triggered.connect(self.edit_object)
-        self.redact_action.setIcon(QIcon(EDIT_ICON_PATH))
+        self.update_action = QAction('Изменить')
+        self.update_action.setIcon(QIcon(EDIT_ICON_PATH))
         self.delete_action = QAction('Удалить')
-        self.delete_action.triggered.connect(self.delete_object)
         self.delete_action.setIcon(QIcon(DELETE_ICON_PATH))
-
-    def edit_object(self):
-        pass
-
-    def delete_object(self):
-        pass
 
     def __create_tool_bar(self):
         self.tool_bar = QToolBar()
         self.tool_bar.setMovable(False)
-        self.tool_bar.addAction(self.redact_action)
+        self.tool_bar.addAction(self.update_action)
         self.tool_bar.addAction(self.delete_action)
 
     def update_objects(self, objects: dict):
@@ -53,16 +45,24 @@ class ObjectsReviewerBox(QGroupBox):
 
 
 class ObjectsReviewer(QListWidget):
+    object_selected = pyqtSignal(int)
+
     def __init__(self, type_objects: ObjectEnum, controller):
         super(ObjectsReviewer, self).__init__()
         self.type_objects = type_objects
         self.setSelectionMode(ObjectsReviewer.SingleSelection)
+
+        self.selected_row = None
         self.setAutoScroll(True)
         self.controller = controller
         self.model().rowsInserted.connect(lambda *_: self.scrollToBottom())
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.__create_actions()
+
+        self.currentRowChanged.connect(self.__current_row_changed)
+        self.itemClicked.connect(self.__item_clicked)
+        self.itemDoubleClicked.connect(self.__item_double_clicked)
 
     def __create_actions(self):
         self.redact_action = QAction('Изменить')
@@ -77,13 +77,47 @@ class ObjectsReviewer(QListWidget):
         pass
 
     def update_objects(self, objects):
-        self.clear()
-        index = 0
-        for key, item in objects.items():
-            # self.addItem(ObjectInfoWidgetItem(None, self.controller, self))
-            text = 'Тип: {}\nid: {}\nx: {}\ny: {}\n'.format(self.type_objects.desc, key, 'None', 'None')
-            self.addItem(text)
-            item = self.item(index)
-            item.setFont(BASE_FONT)
+        try:
+            self.clear()
 
-            index += 1
+            for key, item in objects.items():
+                # self.addItem(ObjectInfoWidgetItem(None, self.controller, self))
+                text = 'Тип: {}\nid: {}\nx: {}\ny: {}\n'.format(self.type_objects.desc, key, 'None', 'None')
+                self.addItem(text)
+                item = self.item(self.count() - 1)
+                item.setFont(BASE_FONT)
+                item.setData(Qt.UserRole, key)
+
+            # выбор строки
+            if self.selected_row is not None:
+                if 0 <= self.selected_row < self.count():
+                    self.setCurrentRow(self.selected_row)
+                elif self.count() > 0:
+                    self.selected_row = self.count() - 1
+                    self.setCurrentRow(self.selected_row)
+
+        except BaseException as exp:
+            print(f'Ошибка в обновлении объектов в листе: {exp}')
+
+    def __current_row_changed(self, row: int):
+        if row is None:
+            return
+
+        if 0 <= row < self.count():
+            self.selected_row = row
+            item = self.item(row)
+            if item is None:
+                return
+            key = item.data(Qt.UserRole)
+            if key is not None:
+                self.object_selected.emit(key)
+
+    def __item_clicked(self, item: QListWidgetItem):
+        pass
+
+    def __item_double_clicked(self, item: QListWidgetItem):
+        if item is None:
+            return
+
+        self.__item_clicked(item)
+        self.__current_row_changed(self.row(item))

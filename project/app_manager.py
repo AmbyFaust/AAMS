@@ -53,7 +53,16 @@ class AppManager(QObject):
         self.main_menu_widget.close()
 
     def __connect_gui_services(self):
-        self.app_window.controller.create_rls.connect(self.handler.create_rls)
-        self.handler.update_rls.connect(self.app_window.controller.update_rls_reviewer)
+        # соединение окна приложения с обработчиком
+        self.app_window.controller.create_sar.connect(self.handler.create_sar)
+        self.app_window.controller.create_target.connect(self.handler.create_target)
+        self.app_window.controller.delete_target.connect(self.handler.remove_target)
+        self.app_window.controller.delete_sar.connect(self.handler.remove_sar)
+        self.app_window.controller.update_target.connect(self.handler.update_target)
+
+        # соединение обработчика с окном приложения
+        self.handler.update_sar.connect(self.app_window.controller.update_sar_reviewer)
+        self.handler.update_targets.connect(self.app_window.controller.update_targets_reviewer)
+        self.handler.
 
 
