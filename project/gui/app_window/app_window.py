@@ -30,6 +30,8 @@ class AppWindow(QMainWindowBase):
         # соединение контроллера с другими объектами
         self.controller.update_sar_list.connect(self.sar_reviewer.update_objects)
         self.controller.update_targets_list.connect(self.target_reviewer.update_objects)
+        self.controller.remove_gui_target.connect(self.map.remove_object)
+        self.controller.remove_gui_sar.connect(self.map.remove_object)
 
     def __create_widgets(self):
         settings_action = QAction("Настройки", self)
@@ -85,6 +87,7 @@ class AppWindow(QMainWindowBase):
 
         self.sar_reviewer.delete_action.triggered.connect(self.__remove_sar_action_triggered)
         self.target_reviewer.delete_action.triggered.connect(self.__remove_target_action_triggered)
+
         self.sar_reviewer.update_action.triggered.connect(self.__update_sar_action_triggered)
         self.target_reviewer.update_action.triggered.connect(self.__update_target_action_triggered)
 

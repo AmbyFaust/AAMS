@@ -2,7 +2,7 @@ from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
 
 
 class Handler(QObject):
-    update_sar = pyqtSignal(dict)
+    update_sars = pyqtSignal(dict)
     update_targets = pyqtSignal(dict)
     target_deleted = pyqtSignal(int)
     sar_deleted = pyqtSignal(int)
@@ -20,7 +20,7 @@ class Handler(QObject):
     def create_sar(self, sar_object: object):
         try:
             self.sars[self.sar_id] = sar_object
-            self.update_sar.emit(self.sars)
+            self.update_sars.emit(self.sars)
             self.sar_id += 1
             print('РЛС создано')
 
@@ -46,7 +46,9 @@ class Handler(QObject):
 
             self.sars.pop(sar_id)
 
-            self.sar_deleted.emit()
+            self.update_sars.emit(self.sars)
+
+            self.sar_deleted.emit(sar_id)
         except BaseException as exp:
             print(f'РЛИ с id = {sar_id} не была удалена: {exp}')
 
@@ -58,12 +60,14 @@ class Handler(QObject):
 
             self.targets.pop(target_id)
 
-            self.target_deleted.emit()
+            self.update_targets.emit(self.targets)
+
+            self.target_deleted.emit(target_id)
         except BaseException as exp:
             print(f'Цель с id = {target_id} не была удалена: {exp}')
 
     @pyqtSlot(int)
-    def update_sar(self, sar_id: int):
+    def modify_sar(self, sar_id: int):
         try:
             if sar_id not in self.sars:
                 return
@@ -73,7 +77,7 @@ class Handler(QObject):
             print(f'Не удалось изменить РЛИ с id = {sar_id} не удалось изменить: {exp}')
 
     @pyqtSlot(int)
-    def update_target(self, target_id: int):
+    def modify_target(self, target_id: int):
         try:
             if target_id not in self.targets:
                 return

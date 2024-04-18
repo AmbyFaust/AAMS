@@ -65,16 +65,10 @@ class ObjectsReviewer(QListWidget):
         self.itemDoubleClicked.connect(self.__item_double_clicked)
 
     def __create_actions(self):
-        self.redact_action = QAction('Изменить')
-        self.redact_action.triggered.connect(self.edit_object)
+        self.update_action = QAction('Изменить')
+        self.update_action.setIcon(QIcon(EDIT_ICON_PATH))
         self.delete_action = QAction('Удалить')
-        self.delete_action.triggered.connect(self.delete_object)
-
-    def edit_object(self):
-        pass
-
-    def delete_object(self):
-        pass
+        self.delete_action.setIcon(QIcon(DELETE_ICON_PATH))
 
     def update_objects(self, objects):
         try:

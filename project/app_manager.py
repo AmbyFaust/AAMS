@@ -58,11 +58,13 @@ class AppManager(QObject):
         self.app_window.controller.create_target.connect(self.handler.create_target)
         self.app_window.controller.delete_target.connect(self.handler.remove_target)
         self.app_window.controller.delete_sar.connect(self.handler.remove_sar)
-        self.app_window.controller.update_target.connect(self.handler.update_target)
+        self.app_window.controller.modify_target.connect(self.handler.modify_target)
+        self.app_window.controller.modify_sar.connect(self.handler.modify_sar)
 
         # соединение обработчика с окном приложения
-        self.handler.update_sar.connect(self.app_window.controller.update_sar_reviewer)
+        self.handler.update_sars.connect(self.app_window.controller.update_sar_reviewer)
         self.handler.update_targets.connect(self.app_window.controller.update_targets_reviewer)
-        self.handler.
+        self.handler.sar_deleted.connect(self.app_window.controller.sar_deleted)
+        self.handler.target_deleted.connect(self.app_window.controller.target_deleted)
 
 

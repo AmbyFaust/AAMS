@@ -9,9 +9,11 @@ class Controller(QObject):
     update_sar_list = pyqtSignal(dict)
     update_targets_list = pyqtSignal(dict)
     delete_sar = pyqtSignal(int)
+    remove_gui_sar = pyqtSignal(int, object)
     delete_target = pyqtSignal(int)
-    update_sar = pyqtSignal(int)
-    update_target = pyqtSignal(int)
+    remove_gui_target = pyqtSignal(int, object)
+    modify_sar = pyqtSignal(int)
+    modify_target = pyqtSignal(int)
 
     def __init__(self, parent=None):
         super(Controller, self).__init__(parent)
@@ -64,11 +66,35 @@ class Controller(QObject):
             return
         if self.selected_target not in self.targets:
             return
-        self.update_target.emit(self.selected_target)
+        self.modify_target.emit(self.selected_target)
 
     def update_selected_sar(self):
         if self.selected_sar is None:
             return
         if self.selected_sar not in self.sars:
             return
-        self.update_sar.emit(self.selected_sar)
+        self.modify_sar.emit(self.selected_sar)
+
+    @pyqtSlot(int)
+    def target_deleted(self, target_id: int):
+        try:
+            print(target_id, 'target id')
+            self.targets.pop(target_id)
+
+            self.remove_gui_target.emit(target_id, ObjectEnum.TARGET)
+
+            self.selected_target = None
+        except BaseException as exp:
+            print(f'')
+
+    @pyqtSlot(int)
+    def sar_deleted(self, sar_id: int):
+        try:
+            print(sar_id, 'sar id')
+            self.sars.pop(sar_id)
+
+            self.remove_gui_sar.emit(sar_id, ObjectEnum.SAR)
+
+            self.selected_sar = None
+        except BaseException as exp:
+            print(f'')

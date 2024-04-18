@@ -1,4 +1,4 @@
-from PyQt5.QtCore import Qt, QPoint, QSize
+from PyQt5.QtCore import Qt, QPoint, QSize, pyqtSlot
 from PyQt5.QtGui import QPen, QPixmap
 from PyQt5.QtWidgets import QGraphicsScene, QGraphicsPixmapItem, QGraphicsSceneMouseEvent
 
@@ -79,3 +79,28 @@ class GridScene(QGraphicsScene):
 
         else:
             print(f'Не удалось отрисовать объект, неизвестный тип: {object_type.desc}')
+
+    @pyqtSlot(int, object)
+    def remove_object(self, object_id: int, object_type: object):
+        try:
+            if object_type == ObjectEnum.TARGET:
+                if object_id not in self.targets:
+                    return
+
+                self.current_object = self.targets[object_id]
+                self.removeItem(self.current_object)
+                self.targets.pop(object_id)
+
+            elif object_type == ObjectEnum.SAR:
+                if object_id not in self.sars:
+                    return
+
+                self.current_object = self.sars[object_id]
+                self.removeItem(self.current_object)
+                self.sars.pop(object_id)
+
+            self.current_object = None
+            self.current_obj_type = None
+
+        except BaseException as exp:
+            print(f'')
