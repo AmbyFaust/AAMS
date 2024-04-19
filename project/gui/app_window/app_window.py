@@ -1,5 +1,7 @@
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QGraphicsView, QHBoxLayout, QWidget, QVBoxLayout, QLabel, QAction, QToolBar, QGroupBox
+from PyQt5.QtWidgets import QGraphicsView, QHBoxLayout, QWidget, QVBoxLayout, QLabel, QAction, QToolBar, QGroupBox, \
+    QLineEdit
 
 from project import ObjectEnum
 from project.gui.app_window.controller import Controller
@@ -41,6 +43,7 @@ class AppWindow(QMainWindowBase):
         self.map_view = QGraphicsView(self.map)
         self.map_view.setGeometry(0, 0, 1300, 900)
         self.map.draw_grid(self.map_view.size())
+        self.map.get_current_coordinates.connect(self.__update_coordinates_widgets)
 
         self.sar_reviewer = ObjectsReviewerBox(ObjectEnum.SAR, self.controller)
         self.sar_reviewer.object_reviewer.object_selected.connect(self.__sar_selected)
@@ -53,13 +56,23 @@ class AppWindow(QMainWindowBase):
         self.y_label = QLabel('Y: ')
         self.y_label.setFont(BASE_FONT)
 
+        self.x_line_edit = QLineEdit()
+        self.x_line_edit.setFont(BASE_FONT)
+        self.x_line_edit.setReadOnly(True)
+
+        self.y_line_edit = QLineEdit()
+        self.y_line_edit.setFont(BASE_FONT)
+        self.y_line_edit.setReadOnly(True)
+
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
 
     def __create_layout(self):
         coords_h_layout = QHBoxLayout()
         coords_h_layout.addWidget(self.x_label)
+        coords_h_layout.addWidget(self.x_line_edit)
         coords_h_layout.addWidget(self.y_label)
+        coords_h_layout.addWidget(self.y_line_edit)
 
         map_v_layout = QVBoxLayout()
         map_v_layout.addWidget(self.map_view)
@@ -96,6 +109,11 @@ class AppWindow(QMainWindowBase):
         self.tool_bar.setMovable(False)
         self.tool_bar.addAction(self.create_target_path_action)
         self.tool_bar.addAction(self.create_sar_action)
+
+    @pyqtSlot(int, int)
+    def __update_coordinates_widgets(self, x_position: int, y_position: int):
+        self.x_line_edit.setText(f'{x_position}')
+        self.y_line_edit.setText(f'{y_position}')
 
     def __create_sar(self):
         self.map.current_obj_type = ObjectEnum.SAR

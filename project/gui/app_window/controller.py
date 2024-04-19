@@ -24,19 +24,19 @@ class Controller(QObject):
         self.selected_target = None
 
     def create_object(self, object_type: ObjectEnum, object_instance: object):
-        if object_type == ObjectEnum.SAR:
+        if object_type is ObjectEnum.SAR:
             self.create_sar.emit(object_instance)
-        elif object_type == ObjectEnum.TARGET:
+        elif object_type is ObjectEnum.TARGET:
             self.create_target.emit(object_instance)
 
     @pyqtSlot(dict)
     def update_sar_reviewer(self, sars: dict):
-        self.sars = sars
+        self.sars = sars.copy()
         self.update_sar_list.emit(sars)
 
     @pyqtSlot(dict)
     def update_targets_reviewer(self, targets: dict):
-        self.targets = targets
+        self.targets = targets.copy()
         self.update_targets_list.emit(targets)
 
     def is_sar_selected(self, sar_id: int):
@@ -78,23 +78,33 @@ class Controller(QObject):
     @pyqtSlot(int)
     def target_deleted(self, target_id: int):
         try:
-            print(target_id, 'target id')
             self.targets.pop(target_id)
+
+            self.update_targets_reviewer(self.targets)
 
             self.remove_gui_target.emit(target_id, ObjectEnum.TARGET)
 
             self.selected_target = None
         except BaseException as exp:
-            print(f'')
+            print(exp)
 
     @pyqtSlot(int)
     def sar_deleted(self, sar_id: int):
         try:
-            print(sar_id, 'sar id')
             self.sars.pop(sar_id)
+
+            self.update_sar_reviewer(self.sars)
 
             self.remove_gui_sar.emit(sar_id, ObjectEnum.SAR)
 
             self.selected_sar = None
         except BaseException as exp:
-            print(f'')
+            print(exp)
+
+    @pyqtSlot(int)
+    def target_updated(self, target_id: int):
+        pass
+
+    @pyqtSlot(int)
+    def sar_updated(self, sar_id: int):
+        pass

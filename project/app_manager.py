@@ -66,5 +66,7 @@ class AppManager(QObject):
         self.handler.update_targets.connect(self.app_window.controller.update_targets_reviewer)
         self.handler.sar_deleted.connect(self.app_window.controller.sar_deleted)
         self.handler.target_deleted.connect(self.app_window.controller.target_deleted)
+        self.handler.sar_updated.connect(self.app_window.controller.sar_updated)
+        self.handler.target_updated.connect(self.app_window.controller.target_updated)
 
 

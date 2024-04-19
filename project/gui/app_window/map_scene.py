@@ -1,5 +1,5 @@
-from PyQt5.QtCore import Qt, QPoint, QSize, pyqtSlot
-from PyQt5.QtGui import QPen, QPixmap
+from PyQt5.QtCore import Qt, QPoint, QSize, pyqtSlot, QTimer, pyqtSignal
+from PyQt5.QtGui import QPen, QPixmap, QCursor
 from PyQt5.QtWidgets import QGraphicsScene, QGraphicsPixmapItem, QGraphicsSceneMouseEvent
 
 from project import ObjectEnum
@@ -8,6 +8,8 @@ from project.settings import BASE_SIZE_OBJECT, SAR_ICON_PATH, TARGET_ICON_PATH
 
 
 class GridScene(QGraphicsScene):
+    get_current_coordinates = pyqtSignal(int, int)
+
     def __init__(self, parent=None, controller: Controller = None):
         super().__init__(parent)
         self.controller = controller
@@ -19,12 +21,19 @@ class GridScene(QGraphicsScene):
         self.target_counter = 0
         self.current_object = None
 
+        self.mouse_position_timer = QTimer()
+
     def draw_grid(self, rect: QSize):
+
         pen = QPen(Qt.gray)
         for x in range(0, rect.width() + 1, self.grid_size):
             self.addLine(x, 0, x, rect.height(), pen)
-        for y in range(0, rect.height()+1, self.grid_size):
+        for y in range(0, rect.height() + 1, self.grid_size):
             self.addLine(0, y, rect.width(), y, pen)
+
+        # таймер для обновления координат мыши
+        self.mouse_position_timer.timeout.connect(self.__update_mouse_position)
+        self.mouse_position_timer.start(1)
 
     def mousePressEvent(self, event: QGraphicsSceneMouseEvent):
         if event.button() == Qt.LeftButton:
@@ -60,13 +69,20 @@ class GridScene(QGraphicsScene):
             if self.current_object is not None:
                 self.removeItem(self.current_object)
 
+    def __update_mouse_position(self):
+        mouse_position = QCursor.pos()
+        scene_position = self.views()[0].mapFromGlobal(mouse_position)
+        if (0 < scene_position.x() < self.sceneRect().width()) and (
+                0 < scene_position.y() < self.sceneRect().height()):
+            self.get_current_coordinates.emit(scene_position.x(), scene_position.y())
+
     def __draw_object(self, event: QGraphicsSceneMouseEvent, object_type: ObjectEnum):
         pixmap = None
 
-        if object_type == ObjectEnum.TARGET:
+        if object_type is ObjectEnum.TARGET:
             pixmap = QPixmap(TARGET_ICON_PATH)
 
-        elif object_type == ObjectEnum.SAR:
+        elif object_type is ObjectEnum.SAR:
             pixmap = QPixmap(SAR_ICON_PATH)
 
         if pixmap:
@@ -81,9 +97,9 @@ class GridScene(QGraphicsScene):
             print(f'Не удалось отрисовать объект, неизвестный тип: {object_type.desc}')
 
     @pyqtSlot(int, object)
-    def remove_object(self, object_id: int, object_type: object):
+    def remove_object(self, object_id: int, object_type: ObjectEnum):
         try:
-            if object_type == ObjectEnum.TARGET:
+            if object_type is ObjectEnum.TARGET:
                 if object_id not in self.targets:
                     return
 
@@ -91,7 +107,7 @@ class GridScene(QGraphicsScene):
                 self.removeItem(self.current_object)
                 self.targets.pop(object_id)
 
-            elif object_type == ObjectEnum.SAR:
+            elif object_type is ObjectEnum.SAR:
                 if object_id not in self.sars:
                     return
 
@@ -103,4 +119,4 @@ class GridScene(QGraphicsScene):
             self.current_obj_type = None
 
         except BaseException as exp:
-            print(f'')
+            print(f'Ошибка при удалении объекта "{object_type.desc}" с id = {object_id}: {exp}')

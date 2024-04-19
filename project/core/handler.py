@@ -1,5 +1,8 @@
 from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
 
+from project import ObjectEnum
+from project.gui import ObjectEditDialog
+
 
 class Handler(QObject):
     update_sars = pyqtSignal(dict)
@@ -20,6 +23,7 @@ class Handler(QObject):
     def create_sar(self, sar_object: object):
         try:
             self.sars[self.sar_id] = sar_object
+            print(sar_object.x(), sar_object.y())
             self.update_sars.emit(self.sars)
             self.sar_id += 1
             print('РЛС создано')
@@ -46,8 +50,6 @@ class Handler(QObject):
 
             self.sars.pop(sar_id)
 
-            self.update_sars.emit(self.sars)
-
             self.sar_deleted.emit(sar_id)
         except BaseException as exp:
             print(f'РЛИ с id = {sar_id} не была удалена: {exp}')
@@ -60,8 +62,6 @@ class Handler(QObject):
 
             self.targets.pop(target_id)
 
-            self.update_targets.emit(self.targets)
-
             self.target_deleted.emit(target_id)
         except BaseException as exp:
             print(f'Цель с id = {target_id} не была удалена: {exp}')
@@ -72,6 +72,12 @@ class Handler(QObject):
             if sar_id not in self.sars:
                 return
 
+            dialog = ObjectEditDialog(object_instance=None, object_type=ObjectEnum.SAR)
+            if dialog.exec() == ObjectEditDialog.Accepted:
+                print('SAR dialog')
+            else:
+                return
+
             self.sar_updated.emit(sar_id)
         except BaseException as exp:
             print(f'Не удалось изменить РЛИ с id = {sar_id} не удалось изменить: {exp}')
@@ -80,6 +86,12 @@ class Handler(QObject):
     def modify_target(self, target_id: int):
         try:
             if target_id not in self.targets:
+                return
+
+            dialog = ObjectEditDialog(object_instance=None, object_type=ObjectEnum.TARGET)
+            if dialog.exec() == ObjectEditDialog.Accepted:
+                print('Target dialog')
+            else:
                 return
 
             self.target_updated.emit(target_id)
