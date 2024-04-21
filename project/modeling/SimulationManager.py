@@ -1,22 +1,23 @@
 from ObjectModels.CommandPostObj import CommandPostObj
 import json
 class SimulationManager:
-    ConfigPath = "RadarConfiguration"
-    def __init__(self, ConfigPath):
-        self.ConfigPath
+    def __init__(self, StandartScenario = True, ConfigPath = 'ModelingConfigFile'):
+        self.StandartScenario = StandartScenario
+        self.ConfigPath = ConfigPath
 
     def get_config_data(self):
-        pass
-
-    def make_config_objects(self):
         with open(self.ConfigPath) as json_file:
             ConfigInformation = json.load(json_file)
+    def StandartScenarioConfig(self):
+        pass
 
-        self.Rockets = {}
-        self.CommandPostObj = CommandPostObj()
-        self.Radars = {}
-        self.RocketLaunchers = {}
-        self.Targets = {}
+    def MakeScenarioObjects(self):
+        if self.StandartScenario:
+            ConfigInformation = self.StandartScenarioConfig()
+        else:
+            ConfigInformation = self.get_config_data()
+        for ObjectInformation in ConfigInformation:
+            switch
 
 
     def modeling(self):

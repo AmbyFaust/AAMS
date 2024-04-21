@@ -13,7 +13,7 @@ class Object:
         self.ObjCoords = startcoods
 
     def __str__(self):
-        return self.ObjectName + str(self.Id) + ' In coords ' + str(self.StartCoords)
+        return self.ObjectName + str(self.Id) + ' with coords ' + str(self.ObjCoords)
 
     def destroyed(self):
         self.Islive = False
