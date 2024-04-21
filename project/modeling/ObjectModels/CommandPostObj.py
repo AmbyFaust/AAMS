@@ -1,4 +1,4 @@
-from Object import Object
+from project.modeling.ObjectModels.Object import Object
 
 
 class CommandPostObj(Object):
