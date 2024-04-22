@@ -110,7 +110,6 @@ class Controller(QObject):
 
             self.update_targets_reviewer(self.targets)
 
-            self.redraw_target.emit(target_entity, ObjectEnum.TARGET)
         except BaseException as exp:
             print(f'Обновление ')
 

@@ -2,8 +2,9 @@ from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
 
 from project import ObjectEnum
 from project.core.entities import SarEntity, CoordinatesEntity, TargetEntity
+from project.gui.dialogs import SarEditDialog
 
-from project.gui import ObjectEditDialog
+from project.gui.dialogs.target_edit_dialog import TargetEditDialog
 from project.settings import BASE_SIZE_OBJECT
 
 
@@ -53,7 +54,7 @@ class Handler(QObject):
 
             target_entity = TargetEntity(
                 id=self.target_id,
-                coordinates=coordinates
+                coordinates=[coordinates]
             )
 
             self.targets[self.target_id] = target_entity
@@ -96,9 +97,9 @@ class Handler(QObject):
 
             sar_entity = self.sars[sar_id]
 
-            dialog = ObjectEditDialog(object_instance=sar_entity, object_type=ObjectEnum.SAR)
-            if dialog.exec() == ObjectEditDialog.Accepted:
-                self.sars[sar_id] = dialog.object_instance
+            dialog = SarEditDialog(object_instance=sar_entity, object_type=ObjectEnum.SAR)
+            if dialog.exec() == SarEditDialog.Accepted:
+                self.sars[sar_id] = dialog.sar_instance
             else:
                 return
 
@@ -114,9 +115,9 @@ class Handler(QObject):
 
             target_entity = self.targets[target_id]
 
-            dialog = ObjectEditDialog(object_instance=target_entity, object_type=ObjectEnum.TARGET)
-            if dialog.exec() == ObjectEditDialog.Accepted:
-                self.targets[target_id] = dialog.object_instance
+            dialog = TargetEditDialog(object_instance=target_entity, object_type=ObjectEnum.TARGET)
+            if dialog.exec() == TargetEditDialog.Accepted:
+                self.targets[target_id] = dialog.target_instance
             else:
                 return
 

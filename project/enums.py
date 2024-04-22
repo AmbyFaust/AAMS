@@ -8,3 +8,14 @@ class ObjectEnum(Enum):
     def __init__(self, num: int, desc: int):
         self.num = num
         self.desc = desc
+
+
+class TypeTargetEnum(Enum):
+    first = (0, 'Первый')
+    second = (1, 'Второй')
+
+    def __init__(self, num: int, desc: int):
+        self.num = num
+        self.desc = desc
+
+

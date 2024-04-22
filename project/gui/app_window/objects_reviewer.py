@@ -75,9 +75,13 @@ class ObjectsReviewer(QListWidget):
             self.clear()
 
             for key, item in objects.items():
-                # self.addItem(ObjectInfoWidgetItem(None, self.controller, self))
-                text = 'Тип: {}\nid: {}\nx: {}\ny: {}\n'.format(self.type_objects.desc, key,
-                                                                item.coordinates.x, item.coordinates.y)
+                if self.type_objects == ObjectEnum.SAR:
+                    x = item.coordinates.x
+                    y = item.coordinates.y
+                elif self.type_objects == ObjectEnum.TARGET:
+                    x = item.coordinates[0].x
+                    y = item.coordinates[0].y
+                text = 'Тип: {}\nid: {}\nx: {}\ny: {}\n'.format(self.type_objects.desc, key, x, y)
                 self.addItem(text)
                 item = self.item(self.count() - 1)
                 item.setFont(BASE_FONT)
