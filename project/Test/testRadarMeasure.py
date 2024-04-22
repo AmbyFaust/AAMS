@@ -16,5 +16,5 @@ timesdiskret = 10**-2
 targets = [testPlane1]
 time = 0
 while time<100:
-    Radar1.MakeMeasurement(targets,time)
+    Radar1.MakeMeasurement(targets, time)
     time += timesdiskret

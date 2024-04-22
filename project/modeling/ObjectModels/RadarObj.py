@@ -62,6 +62,7 @@ class RadarObj(Object):
 
     def MakeMeasurement(self, targets,time):
         BeamCoords = self.scanning_procces(self.Measurement)
+        marks = []
         for target in targets:
             targetInfo = target.ReturnPlaneInformation(time)
             targetCoordsUV = GRCStoUV(targetInfo.coordinates, self.ObjCoords)
@@ -71,7 +72,10 @@ class RadarObj(Object):
                 print(TargetSNR)
                 if TargetSNR > self.RadarParams.SNRDetection:
                     print('TargetDetected')
+                    mark = self.CalcMistake(targetCoordsUV.R,TargetSNR)
+                    marks.append(mark)
         self.Measurement += 1
+        return marks
 
     def scanning_procces(self, t):
         # t кратен времени между зондированиями
@@ -161,12 +165,12 @@ if __name__ == "__main__":
     RadarParams1 = radar_params(1000, 2, BW_U=3, BW_V=3, Scanning_V=[10, 70],
                                 Tn=1000, PRF=10 ** 3, SignalTime=10 ** (-6), NPulsesProc=1000,
                                 OperatingFreq=15 * 10 ** 9,
-                                start_time=start_time, start_coords=start_coords, SNRdetection=12)
+                                start_time=start_time, start_coords=start_coords, SNRDetection=12)
     Radar1 = RadarObj(RadarParams1)
     # Radar1 = RadarObj()
     Radar1.ChangeAnglOfViev(1, 1)
     targetcoords1 = [RectCS(10, 10, 5)]
-    targetcoords1New = Radar1.GRCStoLRCS(targetcoords1)
+    # targetcoords1New = GRCStoLRCS(targetcoords1)
     SNR = Radar1.CalculateSNR(1000, 10)
     points = list(range(1, 100))
     x = []
