@@ -76,7 +76,8 @@ class ObjectsReviewer(QListWidget):
 
             for key, item in objects.items():
                 # self.addItem(ObjectInfoWidgetItem(None, self.controller, self))
-                text = 'Тип: {}\nid: {}\nx: {}\ny: {}\n'.format(self.type_objects.desc, key, 'None', 'None')
+                text = 'Тип: {}\nid: {}\nx: {}\ny: {}\n'.format(self.type_objects.desc, key,
+                                                                item.coordinates.x, item.coordinates.y)
                 self.addItem(text)
                 item = self.item(self.count() - 1)
                 item.setFont(BASE_FONT)

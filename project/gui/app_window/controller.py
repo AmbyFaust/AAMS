@@ -14,6 +14,8 @@ class Controller(QObject):
     remove_gui_target = pyqtSignal(int, object)
     modify_sar = pyqtSignal(int)
     modify_target = pyqtSignal(int)
+    redraw_sar = pyqtSignal(object, object)
+    redraw_target = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
         super(Controller, self).__init__(parent)
@@ -32,12 +34,12 @@ class Controller(QObject):
     @pyqtSlot(dict)
     def update_sar_reviewer(self, sars: dict):
         self.sars = sars.copy()
-        self.update_sar_list.emit(sars)
+        self.update_sar_list.emit(self.sars)
 
     @pyqtSlot(dict)
     def update_targets_reviewer(self, targets: dict):
         self.targets = targets.copy()
-        self.update_targets_list.emit(targets)
+        self.update_targets_list.emit(self.targets)
 
     def is_sar_selected(self, sar_id: int):
         if sar_id in self.sars:
@@ -101,10 +103,24 @@ class Controller(QObject):
         except BaseException as exp:
             print(exp)
 
-    @pyqtSlot(int)
-    def target_updated(self, target_id: int):
-        pass
+    @pyqtSlot(object)
+    def target_updated(self, target_entity: object):
+        try:
+            self.targets[target_entity.id] = target_entity
 
-    @pyqtSlot(int)
-    def sar_updated(self, sar_id: int):
-        pass
+            self.update_targets_reviewer(self.targets)
+
+            self.redraw_target.emit(target_entity, ObjectEnum.TARGET)
+        except BaseException as exp:
+            print(f'Обновление ')
+
+    @pyqtSlot(object)
+    def sar_updated(self, sar_entity: object):
+        try:
+            self.sars[sar_entity.id] = sar_entity
+
+            self.update_sar_reviewer(self.sars)
+
+            self.redraw_sar.emit(sar_entity, ObjectEnum.SAR)
+        except BaseException as exp:
+            print(f'Обновление ')

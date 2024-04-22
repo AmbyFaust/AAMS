@@ -71,10 +71,12 @@ class GridScene(QGraphicsScene):
 
     def __update_mouse_position(self):
         mouse_position = QCursor.pos()
-        scene_position = self.views()[0].mapFromGlobal(mouse_position)
+        global_position = self.views()[0].mapFromGlobal(mouse_position)
+        scene_position = self.views()[0].mapToScene(global_position)
+
         if (0 < scene_position.x() < self.sceneRect().width()) and (
                 0 < scene_position.y() < self.sceneRect().height()):
-            self.get_current_coordinates.emit(scene_position.x(), scene_position.y())
+            self.get_current_coordinates.emit(scene_position.x() - 1, scene_position.y() - 1)
 
     def __draw_object(self, event: QGraphicsSceneMouseEvent, object_type: ObjectEnum):
         pixmap = None
@@ -120,3 +122,49 @@ class GridScene(QGraphicsScene):
 
         except BaseException as exp:
             print(f'Ошибка при удалении объекта "{object_type.desc}" с id = {object_id}: {exp}')
+
+    @pyqtSlot(object, object)
+    def redraw_object(self, object_entity: object, object_type: ObjectEnum):
+        try:
+            if object_type is ObjectEnum.TARGET:
+                if object_entity.id not in self.targets:
+                    return
+
+                pixmap = QPixmap(TARGET_ICON_PATH)
+
+                self.removeItem(self.targets[object_entity.id])
+
+                pixmap.scaled(BASE_SIZE_OBJECT)
+                redraw_target = QGraphicsPixmapItem(pixmap)
+                redraw_target.setScale(1)
+                redraw_target.setPos(
+                    object_entity.coordinates.to_q_point() -
+                    QPoint(BASE_SIZE_OBJECT.width() // 2, BASE_SIZE_OBJECT.height() // 2)
+                )
+                self.addItem(redraw_target)
+
+                self.targets[object_entity.id] = redraw_target
+
+            elif object_type is ObjectEnum.SAR:
+                if object_entity.id not in self.sars:
+                    return
+
+                pixmap = QPixmap(SAR_ICON_PATH)
+
+                self.removeItem(self.sars[object_entity.id])
+
+                pixmap.scaled(BASE_SIZE_OBJECT)
+                redraw_sar = QGraphicsPixmapItem(pixmap)
+                redraw_sar.setScale(1)
+                redraw_sar.setPos(
+                    object_entity.coordinates.to_q_point() -
+                    QPoint(BASE_SIZE_OBJECT.width() // 2, BASE_SIZE_OBJECT.height() // 2)
+                )
+                self.addItem(redraw_sar)
+
+                self.sars[object_entity.id] = redraw_sar
+
+            self.current_object = None
+            self.current_obj_type = None
+        except BaseException as exp:
+            print(f'{exp}')

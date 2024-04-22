@@ -1,7 +1,10 @@
 from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
 
 from project import ObjectEnum
+from project.core.entities import SarEntity, CoordinatesEntity, TargetEntity
+
 from project.gui import ObjectEditDialog
+from project.settings import BASE_SIZE_OBJECT
 
 
 class Handler(QObject):
@@ -9,8 +12,8 @@ class Handler(QObject):
     update_targets = pyqtSignal(dict)
     target_deleted = pyqtSignal(int)
     sar_deleted = pyqtSignal(int)
-    target_updated = pyqtSignal(int)
-    sar_updated = pyqtSignal(int)
+    target_updated = pyqtSignal(object)
+    sar_updated = pyqtSignal(object)
 
     def __init__(self, parent=None):
         super(Handler, self).__init__(parent)
@@ -22,8 +25,17 @@ class Handler(QObject):
     @pyqtSlot(object)
     def create_sar(self, sar_object: object):
         try:
-            self.sars[self.sar_id] = sar_object
-            print(sar_object.x(), sar_object.y())
+            coordinates = CoordinatesEntity(
+                x=sar_object.x() + BASE_SIZE_OBJECT.width() // 2,
+                y=sar_object.y() + BASE_SIZE_OBJECT.height() // 2
+            )
+
+            sar_entity = SarEntity(
+                id=self.sar_id,
+                coordinates=coordinates
+            )
+
+            self.sars[self.sar_id] = sar_entity
             self.update_sars.emit(self.sars)
             self.sar_id += 1
             print('РЛС создано')
@@ -34,7 +46,17 @@ class Handler(QObject):
     @pyqtSlot(object)
     def create_target(self, target_object: object):
         try:
-            self.targets[self.target_id] = target_object
+            coordinates = CoordinatesEntity(
+                x=target_object.x() + BASE_SIZE_OBJECT.width() // 2,
+                y=target_object.y() + BASE_SIZE_OBJECT.height() // 2
+            )
+
+            target_entity = TargetEntity(
+                id=self.target_id,
+                coordinates=coordinates
+            )
+
+            self.targets[self.target_id] = target_entity
             self.update_targets.emit(self.targets)
             self.target_id += 1
             print('Цель создана')
@@ -72,13 +94,15 @@ class Handler(QObject):
             if sar_id not in self.sars:
                 return
 
-            dialog = ObjectEditDialog(object_instance=None, object_type=ObjectEnum.SAR)
+            sar_entity = self.sars[sar_id]
+
+            dialog = ObjectEditDialog(object_instance=sar_entity, object_type=ObjectEnum.SAR)
             if dialog.exec() == ObjectEditDialog.Accepted:
-                print('SAR dialog')
+                self.sars[sar_id] = dialog.object_instance
             else:
                 return
 
-            self.sar_updated.emit(sar_id)
+            self.sar_updated.emit(self.sars[sar_id])
         except BaseException as exp:
             print(f'Не удалось изменить РЛИ с id = {sar_id} не удалось изменить: {exp}')
 
@@ -88,12 +112,14 @@ class Handler(QObject):
             if target_id not in self.targets:
                 return
 
-            dialog = ObjectEditDialog(object_instance=None, object_type=ObjectEnum.TARGET)
+            target_entity = self.targets[target_id]
+
+            dialog = ObjectEditDialog(object_instance=target_entity, object_type=ObjectEnum.TARGET)
             if dialog.exec() == ObjectEditDialog.Accepted:
-                print('Target dialog')
+                self.targets[target_id] = dialog.object_instance
             else:
                 return
 
-            self.target_updated.emit(target_id)
+            self.target_updated.emit(self.targets[target_id])
         except BaseException as exp:
             print(f'Не удалось изменить цель с id = {target_id} не удалось изменить: {exp}')
