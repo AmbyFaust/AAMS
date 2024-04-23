@@ -6,14 +6,12 @@ from project.modeling.ObjectModels.Object import Object
 from project.modeling.CSTransformator import GRCStoUV
 from project.modeling.CSTransformator import UVtoGRCS
 
-# объявляем используемые типы данных
-radar_params = namedtuple('radar_params', 'EIRP Seff  BW_U BW_V')
-signal_params = namedtuple('signal_params', 'PRF SignalTime NPulsesProc OperatingFreq')
-mark = namedtuple('mark', 'U V R stdU stdV stdR target_id')
-trajectory = namedtuple('trajectory', 'stack_of_coords target_id is_confimed')
-target_params = namedtuple('target_params', 'RCS coordinates')
-RectCS = namedtuple('RectCS', 'X Y Z')
-UVCS = ('UVCS', 'U V R')
+
+# Класс Ветка
+class brunch(Object):
+    marks = np.array([])
+    next_gate = []
+    initiated = True
 
 
 # Класс Радар
@@ -32,6 +30,9 @@ class RadarObj(Object):
         self.wavelength = 3 * 10 ** 8 / signal_params.OperatingFreq
         self.RangeResolution = 3 * 10 ** 8 * signal_params.SignalTime / 2
         self.t_btw_transmiting = signal_params.NPulsesProc/signal_params.PRF
+        self.NoisePower = 1.38 * 10 ** (-23) * radar_params.Tn / signal_params.SignalTime
+        self.t_btw_transmiting = signal_params.NPulsesProc / signal_params.PRF
+
         # Функция изменения углов сканирования
 
     def ChangeAnglOfViev(self, UBeam, VBeam):
@@ -40,7 +41,8 @@ class RadarObj(Object):
         # Функция для расчёта ОСШ
 
     def CalculateSNR(self, TargetRange, TargetRCS):
-        SNR = self.RadarParams.EIRP * self.RadarParams.Seff * TargetRCS / ((4 * math.pi) ** 2 * TargetRange ** 4)
+        SNR = self.RadarParams.EIRP * self.RadarParams.Seff * TargetRCS / (
+                (4 * math.pi) ** 2 * TargetRange ** 4 * self.NoisePower)
         return SNR
 
     # Функция для расчёта координат целей с ошибками(имитируем измерение)
@@ -62,6 +64,21 @@ class RadarObj(Object):
                                            Y=targets_coordsGRCS[i].Y - self.StartCoords.Y,
                                            Z=targets_coordsGRCS[i].Z - self.StartCoords.Z)
         return targets_coordsLRCS
+
+    def scanning_procces(self,t):
+        # t кратен времени между зондированиями
+        # t характеризует номер зондирования конкретного радара, при t = 0 положение луча на
+        [Vmin,Vmax] = self.RadarParams.Scanning_V
+        N = t/self.t_btw_transmiting
+        N_V = (Vmax - Vmin)/self.RadarParams.BW_V
+        N_U = 360 / self.RadarParams.BW_U
+        N_of_one_per = N_V * N_U
+        N_in_scan = N - (N // N_of_one_per) * N_of_one_per
+        N_V_in_scan = N_in_scan % (N_V)
+        N_U_in_scan = N_in_scan // (N_V)
+        Current_V = Vmin + (self.RadarParams.BW_V/2)*(1 + N_V_in_scan)
+        Current_U = (self.RadarParams.BW_U/2)*(1 + N_U_in_scan)
+        return [Current_U, Current_V]
 
 
 
@@ -105,12 +122,14 @@ class RadarObj(Object):
 if __name__ == "__main__":
     start_coords = RectCS(0, 0, 0)
     start_time = 0
-    RadarParams1 = radar_params(1000, 2, BW_U=3, BW_V=3)
+    RadarParams1 = radar_params(1000, 2, BW_U=3, BW_V=3, Scanning_V=[10, 70], Tn=1000)
     Signal1 = signal_params(10 ** 3, 10 ** (-6), 1000, 15 * 10 ** 9)
-    radar_id = 100
-    Radar1 = RadarObj(start_coords, RadarParams1, Signal1, start_time, radar_id)
+    Radar1 = RadarObj(start_coords, RadarParams1, Signal1, start_time)
     # Radar1 = RadarObj()
     Radar1.ChangeAnglOfViev(1, 1)
     targetcoords1 = [RectCS(10, 10, 5)]
     targetcoords1New = Radar1.GRCStoLRCS(targetcoords1)
-    print(Radar1.UBeam, Radar1.UBeam)
+    SNR = Radar1.CalculateSNR(1000, 10)
+    CoordsWithMis
+    print(SNR)
+    # print(Radar1.UBeam, Radar1.UBeam)
