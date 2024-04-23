@@ -36,8 +36,7 @@ class AppWindow(QMainWindowBase):
         self.controller.update_targets_list.connect(self.target_reviewer.update_objects)
         self.controller.remove_gui_target.connect(self.map.remove_object)
         self.controller.remove_gui_sar.connect(self.map.remove_object)
-        self.controller.redraw_target.connect(self.map.redraw_object)
-        self.controller.redraw_sar.connect(self.map.redraw_object)
+        self.controller.redraw_sar.connect(self.map.redraw_sar)
 
     def __create_widgets(self):
         settings_action = QAction("Настройки", self)
