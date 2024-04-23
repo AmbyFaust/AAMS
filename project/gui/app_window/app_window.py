@@ -1,7 +1,9 @@
+import os
+
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QGraphicsView, QHBoxLayout, QWidget, QVBoxLayout, QLabel, QAction, QToolBar, QGroupBox, \
-    QLineEdit
+    QLineEdit, QPushButton, QFileDialog
 
 from project import ObjectEnum
 from project.gui.app_window.controller import Controller
@@ -66,24 +68,34 @@ class AppWindow(QMainWindowBase):
         self.y_line_edit.setFont(BASE_FONT)
         self.y_line_edit.setReadOnly(True)
 
+        self.calculate_btn = QPushButton('Рассчитать')
+        self.calculate_btn.setFont(BASE_FONT)
+        self.modeling_btn = QPushButton('Моделирование')
+        self.modeling_btn.setFont(BASE_FONT)
+
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
 
     def __create_layout(self):
-        coords_h_layout = QHBoxLayout()
-        coords_h_layout.addWidget(self.x_label)
-        coords_h_layout.addWidget(self.x_line_edit)
-        coords_h_layout.addWidget(self.y_label)
-        coords_h_layout.addWidget(self.y_line_edit)
+        coordinates_h_layout = QHBoxLayout()
+        coordinates_h_layout.addWidget(self.x_label)
+        coordinates_h_layout.addWidget(self.x_line_edit)
+        coordinates_h_layout.addWidget(self.y_label)
+        coordinates_h_layout.addWidget(self.y_line_edit)
 
         map_v_layout = QVBoxLayout()
         map_v_layout.addWidget(self.map_view)
-        map_v_layout.addLayout(coords_h_layout)
+        map_v_layout.addLayout(coordinates_h_layout)
+
+        btn_h_layout = QHBoxLayout()
+        btn_h_layout.addWidget(self.calculate_btn)
+        btn_h_layout.addWidget(self.modeling_btn)
 
         objects_v_layout = QVBoxLayout()
         objects_v_layout.addWidget(self.tool_bar)
         objects_v_layout.addWidget(self.sar_reviewer)
         objects_v_layout.addWidget(self.target_reviewer)
+        objects_v_layout.addLayout(btn_h_layout)
 
         common_h_layout = QHBoxLayout()
         common_h_layout.addLayout(map_v_layout)
@@ -106,11 +118,28 @@ class AppWindow(QMainWindowBase):
         self.sar_reviewer.update_action.triggered.connect(self.__update_sar_action_triggered)
         self.target_reviewer.update_action.triggered.connect(self.__update_target_action_triggered)
 
+        self.calculate_btn.clicked.connect(self.__calculate)
+        self.modeling_btn.clicked.connect(self.__modeling)
+
     def __create_toolbar(self):
         self.tool_bar = QToolBar()
         self.tool_bar.setMovable(False)
         self.tool_bar.addAction(self.create_target_path_action)
         self.tool_bar.addAction(self.create_sar_action)
+
+    def __calculate(self):
+        pass
+
+    def __modeling(self):
+        project_dir = os.path.join(os.getcwd(), 'results')
+
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        file_name, _ = QFileDialog.getSaveFileName(self, "Выбрать файл", project_dir,
+                                                   "JSON Files (*.json)", options=options)
+
+        if file_name:
+            print("Выбранный файл:", file_name)
 
     @pyqtSlot(int, int)
     def __update_coordinates_widgets(self, x_position: int, y_position: int):

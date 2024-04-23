@@ -1,6 +1,7 @@
 from PyQt5.QtCore import Qt, QPoint, QSize, pyqtSlot, QTimer, pyqtSignal, QLine, QLineF
 from PyQt5.QtGui import QPen, QPixmap, QCursor, QPainterPath, QColor, QIcon
-from PyQt5.QtWidgets import QGraphicsScene, QGraphicsPixmapItem, QGraphicsSceneMouseEvent, QGraphicsEllipseItem
+from PyQt5.QtWidgets import QGraphicsScene, QGraphicsPixmapItem, QGraphicsSceneMouseEvent, QGraphicsEllipseItem, \
+    QGraphicsLineItem
 
 from project import ObjectEnum
 from project.gui.app_window.controller import Controller
@@ -54,7 +55,7 @@ class GridScene(QGraphicsScene):
                 self.sar_counter += 1
             elif self.current_obj_type == ObjectEnum.TARGET:
                 last_point = self.current_object.points[-1]
-                self.current_object.pop_vertex(-1)
+                self.removeItem(self.current_object.pop_vertex(-1))
                 last_vertex = QGraphicsEllipseItem(int(last_point.x()) - TARGET_POINT_RADIUS,
                                                   int(last_point.y()) - TARGET_POINT_RADIUS,
                                                   TARGET_POINT_RADIUS * 2, TARGET_POINT_RADIUS * 2)
@@ -100,13 +101,10 @@ class GridScene(QGraphicsScene):
             self.current_object.add_vertex(new_vertex, event.scenePos())
             self.addItem(new_vertex)
         else:
-            self.removeItem(self.current_object.vertexes[-1])
-
             new_edge = QLineF(self.current_object.points[-1], event.scenePos())
             self.addLine(new_edge, QPen(Qt.black, 3))
-            self.current_object.add_edge(new_edge)
+            self.current_object.add_edge(self.items()[0])
 
-            self.addItem(self.current_object.vertexes[-1])
 
             new_vertex = QGraphicsEllipseItem(int(event.scenePos().x()) - TARGET_POINT_RADIUS,
                                               int(event.scenePos().y()) - TARGET_POINT_RADIUS,
@@ -132,26 +130,25 @@ class GridScene(QGraphicsScene):
     def remove_object(self, object_id: int, object_type: ObjectEnum):
         try:
             if object_type is ObjectEnum.TARGET:
-                if object_id not in self.targets:
-                    return
-
-                self.current_object = self.targets[object_id]
-                self.removeItem(self.current_object)
-                self.targets.pop(object_id)
+                target_path = self.targets[object_id]
+                self.__remove_target_path(target_path)
+                del self.targets[object_id]
 
             elif object_type is ObjectEnum.SAR:
-                if object_id not in self.sars:
-                    return
-
-                self.current_object = self.sars[object_id]
-                self.removeItem(self.current_object)
-                self.sars.pop(object_id)
-
-            self.current_object = None
-            self.current_obj_type = None
+                self.__remove_sar(object_id)
 
         except BaseException as exp:
             print(f'Ошибка при удалении объекта "{object_type.desc}" с id = {object_id}: {exp}')
+
+    def __remove_target_path(self, target_path: TargetPath):
+        for vertex in target_path.vertexes:
+            self.removeItem(vertex)
+        for edge in target_path.edges:
+            self.removeItem(edge)
+
+    def __remove_sar(self, sar_id: int):
+        self.removeItem(self.sars[sar_id])
+        self.sars.pop(sar_id)
 
     @pyqtSlot(object, object)
     def redraw_object(self, object_entity: object, object_type: ObjectEnum):
