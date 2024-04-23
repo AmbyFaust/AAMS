@@ -1,4 +1,4 @@
-from collections import namedtuple
+from project.modeling.ObjectModels.DataStructures import radar_params, UVCS, RectCS, mark
 import math
 import numpy as np
 from project.modeling.ObjectModels.Object import Object
@@ -16,22 +16,26 @@ class brunch(Object):
 
 # Класс Радар
 class RadarObj(Object):
+    Trajectories = []
+    ObjectName = 'Radar'
+    Id = 1
 
     # Конструктор Класса
-    def __init__(self, start_coords, radar_params, signal_params, start_time, radar_id):
+    def __init__(self, radar_params):
+        self.Id = RadarObj.Id
+        RadarObj.Id += 1
         self.Trajectories = []
-        self.RadarID = radar_id
-        self.StartCoords = start_coords
+        self.StartCoords = radar_params.start_coords
+        self.ObjCoords = radar_params.start_coords
+        self.StartTime = radar_params.start_time
         self.RadarParams = radar_params
-        self.SignalParams = signal_params
-        self.StartTime = start_time
         self.UBeam = 0
         self.VBeam = 0
-        self.wavelength = 3 * 10 ** 8 / signal_params.OperatingFreq
-        self.RangeResolution = 3 * 10 ** 8 * signal_params.SignalTime / 2
-        self.t_btw_transmiting = signal_params.NPulsesProc/signal_params.PRF
-        self.NoisePower = 1.38 * 10 ** (-23) * radar_params.Tn / signal_params.SignalTime
-        self.t_btw_transmiting = signal_params.NPulsesProc / signal_params.PRF
+        self.wavelength = 3 * 10 ** 8 / radar_params.OperatingFreq
+        self.RangeResolution = 3 * 10 ** 8 * radar_params.SignalTime / 2
+        self.NoisePower = 1.38 * 10 ** (-23) * radar_params.Tn / radar_params.SignalTime
+        self.t_btw_transmiting = radar_params.NPulsesProc / radar_params.PRF
+        self.Measurement = 0
 
         # Функция изменения углов сканирования
 
@@ -55,32 +59,37 @@ class RadarObj(Object):
         Rmeasured = np.random.normal(target_coordsUV.R, stdR, 1)
         return mark(U=Umeasured, V=Vmeasured, R=Rmeasured, stdU=stdU, stdV=stdV, stdR=stdR)
 
-    def GRCStoLRCS(self, targets_coordsGRCS):
-        targets_coordsLRCS = [None] * len(targets_coordsGRCS)
-
-        for i in range(len(targets_coordsGRCS)):
-            print(targets_coordsGRCS[i])
-            targets_coordsLRCS[i] = RectCS(X=(targets_coordsGRCS[i].X - self.StartCoords.X),
-                                           Y=targets_coordsGRCS[i].Y - self.StartCoords.Y,
-                                           Z=targets_coordsGRCS[i].Z - self.StartCoords.Z)
-        return targets_coordsLRCS
+    def MakeMeasurement(self, targets,time):
+        BeamCoords = self.scanning_procces(self.Measurement)
+        marks = []
+        for target in targets:
+            targetInfo = target.ReturnPlaneInformation(time)
+            targetCoordsUV = GRCStoUV(targetInfo.coordinates, self.ObjCoords)
+            print(targetCoordsUV)
+            if abs(BeamCoords[1]-targetCoordsUV.U) <self.RadarParams.BW_U and abs(BeamCoords[2]-targetCoordsUV.V) <self.RadarParams.BW_V:
+                TargetSNR = self.CalculateSNR(targetCoordsUV.R, targetInfo.RCS)
+                print(TargetSNR)
+                if TargetSNR > self.RadarParams.SNRDetection:
+                    print('TargetDetected')
+                    mark = self.CalcMistake(targetCoordsUV.R,TargetSNR)
+                    marks.append(mark)
+        self.Measurement += 1
+        return marks
 
     def scanning_procces(self,t):
         # t кратен времени между зондированиями
         # t характеризует номер зондирования конкретного радара, при t = 0 положение луча на
-        [Vmin,Vmax] = self.RadarParams.Scanning_V
-        N = t/self.t_btw_transmiting
-        N_V = (Vmax - Vmin)/self.RadarParams.BW_V
+        [Vmin, Vmax] = self.RadarParams.Scanning_V
+        N = t / self.t_btw_transmiting
+        N_V = (Vmax - Vmin) / self.RadarParams.BW_V
         N_U = 360 / self.RadarParams.BW_U
         N_of_one_per = N_V * N_U
         N_in_scan = N - (N // N_of_one_per) * N_of_one_per
         N_V_in_scan = N_in_scan % (N_V)
         N_U_in_scan = N_in_scan // (N_V)
-        Current_V = Vmin + (self.RadarParams.BW_V/2)*(1 + N_V_in_scan)
-        Current_U = (self.RadarParams.BW_U/2)*(1 + N_U_in_scan)
+        Current_V = Vmin + (self.RadarParams.BW_V / 2) * (1 + N_V_in_scan)
+        Current_U = (self.RadarParams.BW_U / 2) * (1 + N_U_in_scan)
         return [Current_U, Current_V]
-
-
 
     def secondary_processing(self, mark):
 
@@ -122,14 +131,21 @@ class RadarObj(Object):
 if __name__ == "__main__":
     start_coords = RectCS(0, 0, 0)
     start_time = 0
-    RadarParams1 = radar_params(1000, 2, BW_U=3, BW_V=3, Scanning_V=[10, 70], Tn=1000)
-    Signal1 = signal_params(10 ** 3, 10 ** (-6), 1000, 15 * 10 ** 9)
-    Radar1 = RadarObj(start_coords, RadarParams1, Signal1, start_time)
+    RadarParams1 = radar_params(1000, 2, BW_U=3, BW_V=3, Scanning_V=[10, 70],
+                                Tn=1000, PRF=10 ** 3, SignalTime=10 ** (-6), NPulsesProc=1000,
+                                OperatingFreq=15 * 10 ** 9,
+                                start_time=start_time, start_coords=start_coords, SNRDetection=12)
+    Radar1 = RadarObj(RadarParams1)
     # Radar1 = RadarObj()
     Radar1.ChangeAnglOfViev(1, 1)
     targetcoords1 = [RectCS(10, 10, 5)]
-    targetcoords1New = Radar1.GRCStoLRCS(targetcoords1)
+    # targetcoords1New = GRCStoLRCS(targetcoords1)
     SNR = Radar1.CalculateSNR(1000, 10)
-    CoordsWithMis
-    print(SNR)
+    points = list(range(1, 100))
+    x = []
+    y = []
+    for point in points:
+        vievpoint = Radar1.scanning_procces(point)
+        x.append(vievpoint[0])
+        y.append(vievpoint[1])
     # print(Radar1.UBeam, Radar1.UBeam)

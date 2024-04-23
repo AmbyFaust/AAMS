@@ -1,4 +1,4 @@
-from DataStructures import RectCS
+from project.modeling.ObjectModels.DataStructures import RectCS
 
 
 class Object:
@@ -28,6 +28,7 @@ class MovebleObject(Object):
         self.ObjCoords = NewCoords
         tmpString = self.ObjectName + str(self.Id)
         print(tmpString, 'move to', NewCoords)
+
 
 
 if __name__ == "__main__":
