@@ -118,11 +118,12 @@ class AppWindow(QMainWindowBase):
         self.y_line_edit.setText(f'{y_position}')
 
     def __create_sar(self):
-        self.map.current_obj_type = ObjectEnum.SAR
-        # self.controller.create_object(ObjectEnum.RLS)
+        if self.map.current_obj_type is None:
+            self.map.current_obj_type = ObjectEnum.SAR
 
     def __create_target(self):
-        self.map.current_obj_type = ObjectEnum.TARGET
+        if self.map.current_obj_type is None:
+            self.map.current_obj_type = ObjectEnum.TARGET
 
     def __sar_selected(self, sar_id: int):
         self.controller.is_sar_selected(sar_id)

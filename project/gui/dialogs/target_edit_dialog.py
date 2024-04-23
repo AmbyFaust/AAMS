@@ -31,6 +31,14 @@ class TargetEditDialog(ObjectEditDialog):
         except:
             self.scs_spin_box.setValue(0)
 
+        self.height_spin_box = QSpinBox()
+        self.height_spin_box.setFont(BASE_FONT)
+        self.height_spin_box.setRange(1, 2000)
+        try:
+            self.height_spin_box.setValue(self.target_instance.height)
+        except:
+            self.height_spin_box.setValue(0)
+
         self.type_combo_box = QComboBox()
         self.type_combo_box.setFont(BASE_FONT)
         for item in TypeTargetEnum:
@@ -45,6 +53,7 @@ class TargetEditDialog(ObjectEditDialog):
         common_form_layout.setLabelAlignment(Qt.AlignLeft)
         common_form_layout.addRow('Скорость, км/ч:', self.speed_spin_box)
         common_form_layout.addRow('ЭПР, м^2:', self.scs_spin_box)
+        common_form_layout.addRow('Высота, м:', self.height_spin_box)
         common_form_layout.addRow('Тип:', self.type_combo_box)
 
         common_v_layout.addLayout(common_form_layout)
@@ -56,6 +65,7 @@ class TargetEditDialog(ObjectEditDialog):
         try:
             self.target_instance.speed = self.speed_spin_box.value()
             self.target_instance.scs = self.scs_spin_box.value()
+            self.target_instance.height = self.height_spin_box.value()
             self.target_instance.type = self.type_combo_box.currentData()
         except BaseException as exp:
             print(exp)

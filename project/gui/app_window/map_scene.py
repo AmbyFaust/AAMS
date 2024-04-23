@@ -1,10 +1,11 @@
-from PyQt5.QtCore import Qt, QPoint, QSize, pyqtSlot, QTimer, pyqtSignal
-from PyQt5.QtGui import QPen, QPixmap, QCursor
-from PyQt5.QtWidgets import QGraphicsScene, QGraphicsPixmapItem, QGraphicsSceneMouseEvent
+from PyQt5.QtCore import Qt, QPoint, QSize, pyqtSlot, QTimer, pyqtSignal, QLine, QLineF
+from PyQt5.QtGui import QPen, QPixmap, QCursor, QPainterPath, QColor, QIcon
+from PyQt5.QtWidgets import QGraphicsScene, QGraphicsPixmapItem, QGraphicsSceneMouseEvent, QGraphicsEllipseItem
 
 from project import ObjectEnum
 from project.gui.app_window.controller import Controller
-from project.settings import BASE_SIZE_OBJECT, SAR_ICON_PATH, TARGET_ICON_PATH
+from project.gui.app_window.target_path import TargetPath
+from project.settings import BASE_SIZE_OBJECT, SAR_ICON_PATH, TARGET_ICON_PATH, TARGET_POINT_RADIUS
 
 
 class GridScene(QGraphicsScene):
@@ -20,6 +21,7 @@ class GridScene(QGraphicsScene):
         self.targets = {}
         self.target_counter = 0
         self.current_object = None
+        self.current_line = None
 
         self.mouse_position_timer = QTimer()
 
@@ -40,19 +42,25 @@ class GridScene(QGraphicsScene):
             if self.current_obj_type == ObjectEnum.SAR:
                 if self.current_object is not None:
                     self.removeItem(self.current_object)
-                self.__draw_object(event, ObjectEnum.SAR)
+                self.__draw_sar(event)
 
             elif self.current_obj_type == ObjectEnum.TARGET:
-                if self.current_object is not None:
-                    self.removeItem(self.current_object)
-                self.__draw_object(event, ObjectEnum.TARGET)
+                self.__draw_target_path(event)
 
-        if event.button() == Qt.RightButton:
+        elif event.button() == Qt.RightButton:
             self.controller.create_object(self.current_obj_type, self.current_object)
             if self.current_obj_type == ObjectEnum.SAR:
                 self.sars[self.sar_counter] = self.current_object
                 self.sar_counter += 1
             elif self.current_obj_type == ObjectEnum.TARGET:
+                last_point = self.current_object.points[-1]
+                self.current_object.pop_vertex(-1)
+                last_vertex = QGraphicsEllipseItem(int(last_point.x()) - TARGET_POINT_RADIUS,
+                                                  int(last_point.y()) - TARGET_POINT_RADIUS,
+                                                  TARGET_POINT_RADIUS * 2, TARGET_POINT_RADIUS * 2)
+                last_vertex.setBrush(QColor("red"))
+                self.addItem(last_vertex)
+                self.current_object.add_vertex(last_vertex, last_point)
                 self.targets[self.target_counter] = self.current_object
                 self.target_counter += 1
             self.current_obj_type = None
@@ -76,27 +84,49 @@ class GridScene(QGraphicsScene):
 
         if (0 < scene_position.x() < self.sceneRect().width()) and (
                 0 < scene_position.y() < self.sceneRect().height()):
-            self.get_current_coordinates.emit(scene_position.x() - 1, scene_position.y() - 1)
+            self.get_current_coordinates.emit(int(scene_position.x() - 1), int(scene_position.y() - 1))
 
-    def __draw_object(self, event: QGraphicsSceneMouseEvent, object_type: ObjectEnum):
-        pixmap = None
+    def __draw_target_path(self, event: QGraphicsSceneMouseEvent):
+        if self.current_object is None:
+            self.current_object = TargetPath()
 
-        if object_type is ObjectEnum.TARGET:
             pixmap = QPixmap(TARGET_ICON_PATH)
-
-        elif object_type is ObjectEnum.SAR:
-            pixmap = QPixmap(SAR_ICON_PATH)
-
-        if pixmap:
             pixmap.scaled(BASE_SIZE_OBJECT)
-            self.current_object = QGraphicsPixmapItem(pixmap)
-            self.current_object.setScale(1)
-            self.current_object.setPos(
-                event.scenePos() - QPoint(BASE_SIZE_OBJECT.width() // 2, BASE_SIZE_OBJECT.height() // 2))
-            self.addItem(self.current_object)
-
+            new_vertex = QGraphicsPixmapItem(pixmap)
+            new_vertex.setScale(1)
+            new_vertex.setPos(
+                event.scenePos() - QPoint(BASE_SIZE_OBJECT.width() // 2, BASE_SIZE_OBJECT.height() // 2)
+            )
+            self.current_object.add_vertex(new_vertex, event.scenePos())
+            self.addItem(new_vertex)
         else:
-            print(f'Не удалось отрисовать объект, неизвестный тип: {object_type.desc}')
+            self.removeItem(self.current_object.vertexes[-1])
+
+            new_edge = QLineF(self.current_object.points[-1], event.scenePos())
+            self.addLine(new_edge, QPen(Qt.black, 3))
+            self.current_object.add_edge(new_edge)
+
+            self.addItem(self.current_object.vertexes[-1])
+
+            new_vertex = QGraphicsEllipseItem(int(event.scenePos().x()) - TARGET_POINT_RADIUS,
+                                              int(event.scenePos().y()) - TARGET_POINT_RADIUS,
+                                              TARGET_POINT_RADIUS * 2, TARGET_POINT_RADIUS * 2)
+            new_vertex.setBrush(QColor("black"))
+            self.addItem(new_vertex)
+            self.current_object.add_vertex(new_vertex, event.scenePos())
+
+        self.update()
+
+    def __draw_sar(self, event: QGraphicsSceneMouseEvent):
+        pixmap = QPixmap(SAR_ICON_PATH)
+
+        pixmap.scaled(BASE_SIZE_OBJECT)
+        self.current_object = QGraphicsPixmapItem(pixmap)
+        self.current_object.setScale(1)
+        self.current_object.setPos(
+            event.scenePos() - QPoint(BASE_SIZE_OBJECT.width() // 2, BASE_SIZE_OBJECT.height() // 2))
+        self.addItem(self.current_object)
+
 
     @pyqtSlot(int, object)
     def remove_object(self, object_id: int, object_type: ObjectEnum):

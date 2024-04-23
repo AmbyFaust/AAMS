@@ -5,6 +5,8 @@ BASE_FONT = QFont('Ms Shell Dlg', 11)
 
 BASE_SIZE_OBJECT = QSize(50, 50)
 
+TARGET_POINT_RADIUS = 12
+
 SAR_ICON_PATH = './project/static/sar.svg'
 TARGET_ICON_PATH = './project/static/target.svg'
 EDIT_ICON_PATH = './project/static/edit.svg'

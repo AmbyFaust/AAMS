@@ -2,6 +2,7 @@ from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
 
 from project import ObjectEnum
 from project.core.entities import SarEntity, CoordinatesEntity, TargetEntity
+from project.gui.app_window import TargetPath
 from project.gui.dialogs import SarEditDialog
 
 from project.gui.dialogs.target_edit_dialog import TargetEditDialog
@@ -45,16 +46,18 @@ class Handler(QObject):
             print(f'Ошибка при создании РЛС: {exp}')
 
     @pyqtSlot(object)
-    def create_target(self, target_object: object):
+    def create_target(self, target_object: TargetPath):
         try:
-            coordinates = CoordinatesEntity(
-                x=target_object.x() + BASE_SIZE_OBJECT.width() // 2,
-                y=target_object.y() + BASE_SIZE_OBJECT.height() // 2
-            )
+            coordinates = []
+            for point in target_object.points:
+                coordinates.append(CoordinatesEntity(
+                    x=point.x(),
+                    y=point.y()
+                ))
 
             target_entity = TargetEntity(
                 id=self.target_id,
-                coordinates=[coordinates]
+                coordinates=coordinates
             )
 
             self.targets[self.target_id] = target_entity
