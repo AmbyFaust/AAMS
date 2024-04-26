@@ -2,10 +2,10 @@ from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
 
 from project import ObjectEnum
 from project.core.entities import SarEntity, CoordinatesEntity, TargetEntity
-from project.gui.app_window import TargetPath
 from project.gui.dialogs import SarEditDialog
 
 from project.gui.dialogs.target_edit_dialog import TargetEditDialog
+from project.gui.objects import TargetPath
 from project.settings import BASE_SIZE_OBJECT
 
 
@@ -28,8 +28,8 @@ class Handler(QObject):
     def create_sar(self, sar_object: object):
         try:
             coordinates = CoordinatesEntity(
-                x=sar_object.x() + BASE_SIZE_OBJECT.width() // 2,
-                y=sar_object.y() + BASE_SIZE_OBJECT.height() // 2
+                x=sar_object.sar_item.x() + BASE_SIZE_OBJECT.width() // 2,
+                y=sar_object.sar_item.y() + BASE_SIZE_OBJECT.height() // 2
             )
 
             sar_entity = SarEntity(

@@ -10,7 +10,7 @@ from project.gui.app_window.controller import Controller
 from project.gui.app_window.map_scene import GridScene
 from project.gui.app_window.objects_reviewer import ObjectsReviewer, ObjectsReviewerBox
 from project.gui.base_form_classes import QMainWindowBase
-from project.settings import BASE_FONT, SAR_ICON_PATH, TARGET_ICON_PATH
+from project.settings import BASE_FONT, SAR_ICON_PATH, TARGET_ICON_PATH, INPUT_FILE_PATH
 
 
 class AppWindow(QMainWindowBase):
@@ -130,15 +130,7 @@ class AppWindow(QMainWindowBase):
         pass
 
     def __modeling(self):
-        project_dir = os.path.join(os.getcwd(), 'results')
-
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        file_name, _ = QFileDialog.getSaveFileName(self, "Выбрать файл", project_dir,
-                                                   "JSON Files (*.json)", options=options)
-
-        if file_name:
-            print("Выбранный файл:", file_name)
+        print(INPUT_FILE_PATH)
 
     @pyqtSlot(int, int)
     def __update_coordinates_widgets(self, x_position: int, y_position: int):

@@ -1,3 +1,3 @@
-from .object_widget_base import ObjectWidgetBase
-from .sar_widget import SarWidget
+from .sar_object import SarObject
+from .target_path import TargetPath
 

@@ -1,6 +1,7 @@
+import os
+
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QFont
-from pathlib import Path
 
 BASE_FONT = QFont('Ms Shell Dlg', 11)
 
@@ -14,5 +15,5 @@ EDIT_ICON_PATH = './project/static/edit.svg'
 DELETE_ICON_PATH = './project/static/delete.svg'
 
 
-INPUT_FILE_PATH = Path.home()
+INPUT_FILE_PATH = os.path.join(os.getcwd(), 'results')
 SAR_RADIUS = 50
