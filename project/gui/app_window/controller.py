@@ -1,6 +1,7 @@
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 
 from project import ObjectEnum
+from project.core import SarEntity, TargetEntity
 
 
 class Controller(QObject):
@@ -14,8 +15,7 @@ class Controller(QObject):
     remove_gui_target = pyqtSignal(int, object)
     modify_sar = pyqtSignal(int)
     modify_target = pyqtSignal(int)
-    redraw_sar = pyqtSignal(object, object)
-    redraw_target = pyqtSignal(object, object)
+    redraw_sar = pyqtSignal(SarEntity)
 
     def __init__(self, parent=None):
         super(Controller, self).__init__(parent)
@@ -103,8 +103,8 @@ class Controller(QObject):
         except BaseException as exp:
             print(exp)
 
-    @pyqtSlot(object)
-    def target_updated(self, target_entity: object):
+    @pyqtSlot(TargetEntity)
+    def target_updated(self, target_entity: TargetEntity):
         try:
             self.targets[target_entity.id] = target_entity
 
@@ -113,13 +113,13 @@ class Controller(QObject):
         except BaseException as exp:
             print(f'Обновление ')
 
-    @pyqtSlot(object)
-    def sar_updated(self, sar_entity: object):
+    @pyqtSlot(SarEntity)
+    def sar_updated(self, sar_entity: SarEntity):
         try:
             self.sars[sar_entity.id] = sar_entity
 
             self.update_sar_reviewer(self.sars)
 
-            self.redraw_sar.emit(sar_entity, ObjectEnum.SAR)
+            self.redraw_sar.emit(sar_entity)
         except BaseException as exp:
             print(f'Обновление ')

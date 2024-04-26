@@ -1,8 +1,10 @@
 from PyQt5.QtCore import Qt, QPoint, QSize, pyqtSlot, QTimer, pyqtSignal, QLine, QLineF
 from PyQt5.QtGui import QPen, QPixmap, QCursor, QPainterPath, QColor, QIcon
-from PyQt5.QtWidgets import QGraphicsScene, QGraphicsPixmapItem, QGraphicsSceneMouseEvent, QGraphicsEllipseItem
+from PyQt5.QtWidgets import QGraphicsScene, QGraphicsPixmapItem, QGraphicsSceneMouseEvent, QGraphicsEllipseItem, \
+    QGraphicsLineItem
 
 from project import ObjectEnum
+from project.core import SarEntity
 from project.gui.app_window.controller import Controller
 from project.gui.app_window.target_path import TargetPath
 from project.settings import BASE_SIZE_OBJECT, SAR_ICON_PATH, TARGET_ICON_PATH, TARGET_POINT_RADIUS
@@ -21,7 +23,6 @@ class GridScene(QGraphicsScene):
         self.targets = {}
         self.target_counter = 0
         self.current_object = None
-        self.current_line = None
 
         self.mouse_position_timer = QTimer()
 
@@ -54,7 +55,7 @@ class GridScene(QGraphicsScene):
                 self.sar_counter += 1
             elif self.current_obj_type == ObjectEnum.TARGET:
                 last_point = self.current_object.points[-1]
-                self.current_object.pop_vertex(-1)
+                self.removeItem(self.current_object.pop_vertex(-1))
                 last_vertex = QGraphicsEllipseItem(int(last_point.x()) - TARGET_POINT_RADIUS,
                                                   int(last_point.y()) - TARGET_POINT_RADIUS,
                                                   TARGET_POINT_RADIUS * 2, TARGET_POINT_RADIUS * 2)
@@ -68,8 +69,10 @@ class GridScene(QGraphicsScene):
 
     def keyPressEvent(self, event: QGraphicsSceneMouseEvent):
         if event.key() == Qt.Key_Escape:
-            if self.current_object is not None:
+            if self.current_obj_type == ObjectEnum.SAR:
                 self.removeItem(self.current_object)
+            elif self.current_obj_type == ObjectEnum.TARGET:
+                self.__remove_target_path(self.current_object)
             self.current_obj_type = None
             self.current_object = None
 
@@ -100,13 +103,9 @@ class GridScene(QGraphicsScene):
             self.current_object.add_vertex(new_vertex, event.scenePos())
             self.addItem(new_vertex)
         else:
-            self.removeItem(self.current_object.vertexes[-1])
-
             new_edge = QLineF(self.current_object.points[-1], event.scenePos())
             self.addLine(new_edge, QPen(Qt.black, 3))
-            self.current_object.add_edge(new_edge)
-
-            self.addItem(self.current_object.vertexes[-1])
+            self.current_object.add_edge(self.items()[0])
 
             new_vertex = QGraphicsEllipseItem(int(event.scenePos().x()) - TARGET_POINT_RADIUS,
                                               int(event.scenePos().y()) - TARGET_POINT_RADIUS,
@@ -132,67 +131,50 @@ class GridScene(QGraphicsScene):
     def remove_object(self, object_id: int, object_type: ObjectEnum):
         try:
             if object_type is ObjectEnum.TARGET:
-                if object_id not in self.targets:
-                    return
-
-                self.current_object = self.targets[object_id]
-                self.removeItem(self.current_object)
-                self.targets.pop(object_id)
-
+                self.__remove_target(object_id)
             elif object_type is ObjectEnum.SAR:
-                if object_id not in self.sars:
-                    return
-
-                self.current_object = self.sars[object_id]
-                self.removeItem(self.current_object)
-                self.sars.pop(object_id)
-
-            self.current_object = None
-            self.current_obj_type = None
+                self.__remove_sar(object_id)
 
         except BaseException as exp:
             print(f'Ошибка при удалении объекта "{object_type.desc}" с id = {object_id}: {exp}')
 
-    @pyqtSlot(object, object)
-    def redraw_object(self, object_entity: object, object_type: ObjectEnum):
+    def __remove_target(self, target_id: int):
+        target_path = self.targets[target_id]
+        self.__remove_target_path(target_path)
+        del self.targets[target_id]
+        print(f'Цель с id={target_id} удалена')
+
+    def __remove_target_path(self, target_path: TargetPath):
+        for vertex in target_path.vertexes:
+            self.removeItem(vertex)
+        for edge in target_path.edges:
+            self.removeItem(edge)
+
+    def __remove_sar(self, sar_id: int):
+        self.removeItem(self.sars[sar_id])
+        self.sars.pop(sar_id)
+        print(f'РЛС с id={sar_id} удалена')
+
+    @pyqtSlot(SarEntity)
+    def redraw_sar(self, sar_entity: SarEntity):
         try:
-            if object_type is ObjectEnum.TARGET:
-                if object_entity.id not in self.targets:
-                    return
+            if sar_entity.id not in self.sars:
+                return
 
-                pixmap = QPixmap(TARGET_ICON_PATH)
+            pixmap = QPixmap(SAR_ICON_PATH)
 
-                self.removeItem(self.targets[object_entity.id])
+            self.removeItem(self.sars[sar_entity.id])
 
-                pixmap.scaled(BASE_SIZE_OBJECT)
-                redraw_target = QGraphicsPixmapItem(pixmap)
-                redraw_target.setScale(1)
-                redraw_target.setPos(
-                    object_entity.coordinates.to_q_point() -
-                    QPoint(BASE_SIZE_OBJECT.width() // 2, BASE_SIZE_OBJECT.height() // 2)
-                )
-                self.addItem(redraw_target)
+            pixmap.scaled(BASE_SIZE_OBJECT)
+            redraw_sar = QGraphicsPixmapItem(pixmap)
+            redraw_sar.setScale(1)
+            redraw_sar.setPos(
+                sar_entity.coordinates.to_q_point() -
+                QPoint(BASE_SIZE_OBJECT.width() // 2, BASE_SIZE_OBJECT.height() // 2)
+            )
+            self.addItem(redraw_sar)
 
-                self.targets[object_entity.id] = redraw_target
-
-            elif object_type is ObjectEnum.SAR:
-                if object_entity.id not in self.sars:
-                    return
-
-                pixmap = QPixmap(SAR_ICON_PATH)
-
-                self.removeItem(self.sars[object_entity.id])
-
-                pixmap.scaled(BASE_SIZE_OBJECT)
-                redraw_sar = QGraphicsPixmapItem(pixmap)
-                redraw_sar.setScale(1)
-                redraw_sar.setPos(
-                    object_entity.coordinates.to_q_point() -
-                    QPoint(BASE_SIZE_OBJECT.width() // 2, BASE_SIZE_OBJECT.height() // 2)
-                )
-                self.addItem(redraw_sar)
-
-                self.sars[object_entity.id] = redraw_sar
+            self.sars[sar_entity.id] = redraw_sar
 
             self.current_object = None
             self.current_obj_type = None

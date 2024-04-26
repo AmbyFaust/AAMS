@@ -14,8 +14,8 @@ class Handler(QObject):
     update_targets = pyqtSignal(dict)
     target_deleted = pyqtSignal(int)
     sar_deleted = pyqtSignal(int)
-    target_updated = pyqtSignal(object)
-    sar_updated = pyqtSignal(object)
+    target_updated = pyqtSignal(TargetEntity)
+    sar_updated = pyqtSignal(SarEntity)
 
     def __init__(self, parent=None):
         super(Handler, self).__init__(parent)
@@ -100,7 +100,7 @@ class Handler(QObject):
 
             sar_entity = self.sars[sar_id]
 
-            dialog = SarEditDialog(object_instance=sar_entity, object_type=ObjectEnum.SAR)
+            dialog = SarEditDialog(sar_instance=sar_entity, object_type=ObjectEnum.SAR)
             if dialog.exec() == SarEditDialog.Accepted:
                 self.sars[sar_id] = dialog.sar_instance
             else:

@@ -8,9 +8,9 @@ from project.settings import BASE_FONT
 
 
 class SarEditDialog(ObjectEditDialog):
-    def __init__(self, object_instance: SarEntity, object_type: ObjectEnum, parent=None):
-        self.sar_instance = object_instance
-        super(SarEditDialog, self).__init__(object_instance, object_type, parent)
+    def __init__(self, sar_instance: SarEntity, object_type: ObjectEnum, parent=None):
+        self.sar_instance = sar_instance
+        super(SarEditDialog, self).__init__(sar_instance, object_type, parent)
         self.__create_widgets()
         self.__create_layouts()
 
