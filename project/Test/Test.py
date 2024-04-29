@@ -14,7 +14,7 @@ PRF = 10 ** 6
 NPulsesProc = 1000
 t_btw_scanning = NPulsesProc * (1/PRF)
 Liqudator_Params_1 = radar_params(1000, 2, BW_U=3, BW_V=3, Scanning_V=[0, 60],
-                            Tn=1000, PRF=PRF, SignalTime=10 ** (-7), NPulsesProc=NPulsesProc,
+                            Tn=1000, PRF=PRF, SignalTime=10 ** (-6), NPulsesProc=NPulsesProc,
                             OperatingFreq=15 * 10 ** 9,
                             start_time=start_time, start_coords=start_coords_radar_1, SNRDetection=12)
 Liqudator_Radar_1 = RadarObj(Liqudator_Params_1)

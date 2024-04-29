@@ -53,7 +53,7 @@ class RadarObj(Object):
         Rmeasured = np.random.normal(target_coordsSpH.R, stdR, 1)
         return mark(U=Umeasured, V=Vmeasured, R=Rmeasured, stdU=stdU, stdV=stdV, stdR=stdR, TargetId=targid)
 
-    def MakeMeasurement(self, targets,time):
+    def MakeMeasurement(self, targets, time):
         BeamCoords = self.scanning_procces(time)
         # print('Направление луча:',BeamCoords)
         marks = []
@@ -61,16 +61,20 @@ class RadarObj(Object):
             targetInfo = target.ReturnPlaneInformation(time)
             targetCoordsUV = GRCStoUV(targetInfo.coordinates, self.ObjCoords)
             # print('Положение цели',targetInfo.TargetId,':', targetCoordsUV)
-
+            # print('Положение луча', BeamCoords)
             # print(targetCoordsUV)
-            if abs(BeamCoords[0]-targetCoordsUV.U) <self.RadarParams.BW_U and abs(BeamCoords[1]-targetCoordsUV.V) <self.RadarParams.BW_V:
+            if abs(BeamCoords[0]-targetCoordsUV.U) <self.RadarParams.BW_U/2 and abs(BeamCoords[1]-targetCoordsUV.V) <self.RadarParams.BW_V/2:
                 TargetSNR = self.CalculateSNR(targetCoordsUV.R, targetInfo.RCS)
                 # print('ОСШ от цели',targetInfo.TargetId,TargetSNR)
                 if TargetSNR > self.RadarParams.SNRDetection:
-                    # print('TargetDetected')
+                    print('TargetDetected')
                     mark = self.CalcMistake(targetCoordsUV,TargetSNR,targetInfo.TargetId)
+                    print('Истинные координаты цели ', targetInfo.coordinates)
+                    print('Истинные координаты цели переведены обратно ', UVtoGRCS(targetCoordsUV, self.StartCoords))
+                    print('Измеренные координаты цели ', UVtoGRCS(UVCS(mark.U, mark.V, mark.R), self.StartCoords))
                     marks.append(mark)
-        self.Measurement += 1
+
+        # self.Measurement += 1
         return marks
 
     def scanning_procces(self,t):
@@ -151,10 +155,12 @@ if __name__ == "__main__":
     targetcoords1 = [RectCS(10, 10, 5)]
     # targetcoords1New = GRCStoLRCS(targetcoords1)
     SNR = Radar1.CalculateSNR(1000, 10)
-    points = list(range(1, 100))
+    overall_time = 20
+    t_btw_scanning = 1000 * (1 / 10 ** 5)
+    time = np.linspace(0,overall_time,int(overall_time/t_btw_scanning)+1)
     x = []
     y = []
-    for point in points:
+    for point in time:
         vievpoint = Radar1.scanning_procces(point)
         x.append(vievpoint[0])
         y.append(vievpoint[1])
