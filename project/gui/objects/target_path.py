@@ -15,5 +15,14 @@ class TargetPath:
         self.edges.append(obj)
 
     def pop_vertex(self, index: int):
-        self.points.pop(index)
-        return self.vertexes.pop(-1)
+        try:
+            self.points.pop(index)
+            return self.vertexes.pop(index)
+        except Exception:
+            return None
+
+    def pop_edge(self, index: int):
+        try:
+            return self.edges.pop(index)
+        except Exception:
+            return None

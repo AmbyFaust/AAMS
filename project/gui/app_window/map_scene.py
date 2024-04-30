@@ -60,6 +60,7 @@ class GridScene(QGraphicsScene):
                 last_vertex.setBrush(QColor("red"))
                 self.addItem(last_vertex)
                 self.current_object.add_vertex(last_vertex, last_point)
+
                 self.targets[self.target_counter] = self.current_object
                 self.target_counter += 1
             self.current_obj_type = None
@@ -87,7 +88,8 @@ class GridScene(QGraphicsScene):
                     except:
                         pass
                 elif self.current_obj_type is ObjectEnum.TARGET:
-                    self.__remove_target_path(self.current_object)
+                    self.removeItem(self.current_object.pop_vertex(-1))
+                    self.removeItem(self.current_object.pop_edge(-1))
 
     def __update_mouse_position(self):
         mouse_position = QCursor.pos()
@@ -99,7 +101,7 @@ class GridScene(QGraphicsScene):
             self.get_current_coordinates.emit(int(scene_position.x() - 1), int(scene_position.y() - 1))
 
     def __draw_target_path(self, event: QGraphicsSceneMouseEvent):
-        if self.current_object is None:
+        if self.current_object is None or len(self.current_object.vertexes) == 0:
             self.current_object = TargetPath()
 
             pixmap = QPixmap(TARGET_ICON_PATH)
