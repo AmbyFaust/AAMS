@@ -31,8 +31,8 @@ def UVtoGRCS(UVTargCoords,AnchorPoint):
 
 def UVtoLRCS(UVTargCoords):#
     r = UVTargCoords.R
-    u = UVTargCoords.U
-    v = UVTargCoords.V
+    u = math.radians(UVTargCoords.U)
+    v = math.radians(UVTargCoords.V)
     x = r * math.cos(v) * math.cos(u)
     y = r * math.cos(v) * math.sin(u)
     z = r * math.sin(v)
@@ -44,13 +44,20 @@ def LRCStoUV(LRCSTargCoords):
     y = LRCSTargCoords.Y
     z = LRCSTargCoords.Z
     r = pow((pow(x, 2) + pow(y, 2) + pow(z, 2)), 0.5)
-
-    if x >= 0:
+    if x > 0:
         u = math.atan(y / x)
+
+    if (x == 0 and y >= 0):
+        u = np.pi/2
+
+    if (x == 0 and y < 0):
+        u = -np.pi/2
+
     if (x < 0 and y >= 0):
-        u = np.pi / 2 - math.atan(y / x)
+        u = np.pi - math.atan(y / x)
+
     if (x < 0 and y < 0):
-        u = -np.pi / 2 + math.atan(y / x)
+        u = math.atan(y / x) - np.pi
     v = math.asin(z / r)
 
-    return UVCS(R=r,U=math.degrees(u),V=math.degrees(v))
+    return UVCS(R=r,U = math.degrees(u),V = math.degrees(v))

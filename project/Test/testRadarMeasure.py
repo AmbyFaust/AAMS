@@ -17,4 +17,5 @@ t_btw_scanning = 1000 * (1 / 10 ** 5)
 time = np.linspace(0, overall_time, int(overall_time / t_btw_scanning) + 1)
 targets = [testPlane1]
 for timediskr in time:
+    # print(timediskr)
     Radar1.MakeMeasurement(targets, timediskr)

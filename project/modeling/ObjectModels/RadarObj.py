@@ -63,17 +63,17 @@ class RadarObj(Object):
             # print('Положение цели',targetInfo.TargetId,':', targetCoordsUV)
             # print('Положение луча', BeamCoords)
             # print(targetCoordsUV)
-            if abs(BeamCoords[0]-targetCoordsUV.U) <self.RadarParams.BW_U/2 and abs(BeamCoords[1]-targetCoordsUV.V) <self.RadarParams.BW_V/2:
+            if abs(BeamCoords[0]-targetCoordsUV.U) < self.RadarParams.BW_U/2 and abs(BeamCoords[1]-targetCoordsUV.V) <self.RadarParams.BW_V/2:
                 TargetSNR = self.CalculateSNR(targetCoordsUV.R, targetInfo.RCS)
                 # print('ОСШ от цели',targetInfo.TargetId,TargetSNR)
                 if TargetSNR > self.RadarParams.SNRDetection:
-                    print('TargetDetected')
+                    # print('TargetDetected')
                     mark = self.CalcMistake(targetCoordsUV,TargetSNR,targetInfo.TargetId)
-                    print('Истинные координаты цели ', targetInfo.coordinates)
-                    print('Истинные координаты цели переведены обратно ', UVtoGRCS(targetCoordsUV, self.StartCoords))
-                    print('Измеренные координаты цели ', UVtoGRCS(UVCS(mark.U, mark.V, mark.R), self.StartCoords))
+                    # print('Истинные координаты цели ', targetInfo.coordinates)
+                    # print('Координаты в УВР ', targetCoordsUV)
+                    # print('Истинные координаты цели переведены обратно ', UVtoGRCS(targetCoordsUV, self.StartCoords))
+                    # print('Измеренные координаты цели ', UVtoGRCS(UVCS(mark.U, mark.V, mark.R), self.StartCoords))
                     marks.append(mark)
-
         # self.Measurement += 1
         return marks
 
@@ -102,10 +102,11 @@ class RadarObj(Object):
 
     def secondary_processing(self, marks):
         for mark in marks:
-            u = mark[0]
-            v = mark[1]
-            r = mark[2]
-            xyz = UVtoGRCS(UVCS(r,u,v),self.StartCoords)
+            # u = mark.U
+            # v = mark.V
+            # r = mark.R
+            xyz = UVtoGRCS(UVCS(R=mark.R,U=mark.U,V=mark.V),self.StartCoords)
+            # print (xyz)
             x = xyz.X
             y = xyz.Y
             z = xyz.Z

@@ -10,7 +10,7 @@ class CommandPostObj(Object):
         else:
             self.detect_id_object.append(current_traj.target_id)
             convinient_radar = self.find_convinient_radar(all_radars,current_traj)
-            print('ПУ радара ',convinient_radar.Id,' запустило ракету на уничтожение ',current_traj.target_id)
+            print('The launcher of the radar with id ',convinient_radar.Id,' launched a rocket to liquidate ',current_traj.target_id)
 
 
 
