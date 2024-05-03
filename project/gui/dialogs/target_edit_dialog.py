@@ -8,9 +8,9 @@ from project.settings import BASE_FONT
 
 
 class TargetEditDialog(ObjectEditDialog):
-    def __init__(self, object_instance: TargetEntity, object_type: ObjectEnum, parent=None):
-        self.target_instance = object_instance
-        super(TargetEditDialog, self).__init__(object_instance, object_type, parent)
+    def __init__(self, target_instance: TargetEntity, object_type: ObjectEnum, parent=None):
+        self.target_instance = target_instance
+        super(TargetEditDialog, self).__init__(target_instance, object_type, parent)
         self.__create_widgets()
         self.__create_layouts()
 

@@ -26,6 +26,3 @@ class ObjectEditDialog(QDialog):
         self.button_box.button(QDialogButtonBox.Cancel).setText("Отмена")
         self.button_box.accepted.connect(self.accept)
         self.button_box.rejected.connect(self.reject)
-
-    def accept(self):
-        super().accept()

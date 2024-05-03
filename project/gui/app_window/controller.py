@@ -16,6 +16,7 @@ class Controller(QObject):
     modify_radar = pyqtSignal(int)
     modify_target = pyqtSignal(int)
     redraw_radar = pyqtSignal(object)
+    calculate_signal = pyqtSignal()
 
     def __init__(self, parent=None):
         super(Controller, self).__init__(parent)
@@ -54,7 +55,6 @@ class Controller(QObject):
             return
         if self.selected_radar not in self.radars:
             return
-        print(self.selected_target, 'deleeee')
         self.delete_radar.emit(self.selected_radar)
 
     def remove_selected_target(self):

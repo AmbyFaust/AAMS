@@ -60,6 +60,7 @@ class AppManager(QObject):
         self.app_window.controller.delete_radar.connect(self.handler.remove_radar)
         self.app_window.controller.modify_target.connect(self.handler.modify_target)
         self.app_window.controller.modify_radar.connect(self.handler.modify_radar)
+        self.app_window.controller.calculate_signal.connect(self.handler.calculate)
 
         # соединение обработчика с окном приложения
         self.handler.update_radars.connect(self.app_window.controller.update_radar_reviewer)

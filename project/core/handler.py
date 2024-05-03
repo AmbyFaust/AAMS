@@ -37,15 +37,15 @@ class Handler(QObject):
                 id=self.radar_id,
                 coordinates=coordinates
             )
-            radar_edit_dialog = RadarEditDialog(radar_entity, ObjectEnum.RADAR)
-            if radar_edit_dialog.exec() == RadarEditDialog.Accepted:
-                self.radars[self.radar_id] = radar_edit_dialog.radar_instance
-                self.update_radars.emit(self.radars)
-                self.radar_id += 1
-                print('РЛС создано')
-            else:
-                self.remove_from_map.emit(radar_object)
-                print('РЛС не создано')
+            # radar_edit_dialog = RadarEditDialog(radar_instance=radar_entity, object_type=ObjectEnum.RADAR)
+            # if radar_edit_dialog.exec() == RadarEditDialog.Accepted:
+            self.radars[self.radar_id] = radar_entity
+            self.update_radars.emit(self.radars)
+            self.radar_id += 1
+            print('РЛС создано')
+            # else:
+            #     self.remove_from_map.emit(radar_object)
+            #     print('РЛС не создано')
 
         except BaseException as exp:
             print(f'Ошибка при создании РЛС: {exp}')
@@ -64,15 +64,15 @@ class Handler(QObject):
                 id=self.target_id,
                 coordinates=coordinates
             )
-            target_edit_dialog = TargetEditDialog(target_entity, ObjectEnum.TARGET)
-            if target_edit_dialog.exec() == TargetEditDialog.Accepted:
-                self.targets[self.target_id] = target_edit_dialog.target_instance
-                self.update_targets.emit(self.targets)
-                self.target_id += 1
-                print('Цель создана')
-            else:
-                self.remove_from_map.emit(target_object)
-                print('Цель не создана')
+            # target_edit_dialog = TargetEditDialog(target_instance=target_entity, object_type=ObjectEnum.TARGET)
+            # if target_edit_dialog.exec() == TargetEditDialog.Accepted:
+            self.targets[self.target_id] = target_entity
+            self.update_targets.emit(self.targets)
+            self.target_id += 1
+            print('Цель создана')
+            # else:
+            #     self.remove_from_map.emit(target_object)
+            #     print('Цель не создана')
 
         except BaseException as exp:
             print(f'Ошибка при создании цели: {exp}')
@@ -127,7 +127,7 @@ class Handler(QObject):
 
             target_entity = self.targets[target_id]
 
-            dialog = TargetEditDialog(object_instance=target_entity, object_type=ObjectEnum.TARGET)
+            dialog = TargetEditDialog(target_instance=target_entity, object_type=ObjectEnum.TARGET)
             if dialog.exec() == TargetEditDialog.Accepted:
                 self.targets[target_id] = dialog.target_instance
             else:
@@ -136,3 +136,8 @@ class Handler(QObject):
             self.target_updated.emit(self.targets[target_id])
         except BaseException as exp:
             print(f'Не удалось изменить цель с id = {target_id} не удалось изменить: {exp}')
+
+    @pyqtSlot()
+    def calculate(self):
+        print(self.radars)  # смотри radar_entity
+        print(self.targets)  # смотри target_entity

@@ -127,19 +127,7 @@ class AppWindow(QMainWindowBase):
         self.tool_bar.addAction(self.create_radar_action)
 
     def __calculate(self):
-        print(self.map.radars)
-        print(self.map.targets)
-        try:
-            for _, value in self.map.radars.items():
-                print(value.radar_item)
-                print(value.radar_radius_item)
-
-            for _, value in self.map.targets.items():
-                print(value.vertexes)
-                print(value.points)
-                print(value.edges)
-        except BaseException as exp:
-            print(exp)
+        self.controller.calculate_signal.emit()
 
     def __modeling(self):
         print(INPUT_FILE_PATH)
@@ -158,14 +146,12 @@ class AppWindow(QMainWindowBase):
             self.map.current_obj_type = ObjectEnum.TARGET
 
     def __radar_selected(self, radar_id: int):
-        print(radar_id)
         self.controller.is_radar_selected(radar_id)
 
     def __target_selected(self, target_id: int):
         self.controller.is_target_selected(target_id)
 
     def __remove_radar_action_triggered(self):
-        print('dededefeffefe')
         self.controller.remove_selected_radar()
 
     def __remove_target_action_triggered(self):
