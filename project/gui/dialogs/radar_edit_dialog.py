@@ -4,8 +4,7 @@ from PyQt5.QtWidgets import QVBoxLayout, QFormLayout, QLabel, QSpinBox, QDoubleS
 from project import ObjectEnum
 from project.core import RadarEntity
 from . import ObjectEditDialog
-from project.settings import (BASE_FONT, EIRP, SEFF, BW_U, BW_V, T_N, PRF, N_PULSES_PROC,
-                              OPERATING_FREQ, START_TIME, SNR_DETECTION)
+from project import settings
 
 
 class RadarEditDialog(ObjectEditDialog):
@@ -17,7 +16,7 @@ class RadarEditDialog(ObjectEditDialog):
 
     def __create_widgets(self):
         self.x_spin_box = QSpinBox()
-        self.x_spin_box.setFont(BASE_FONT)
+        self.x_spin_box.setFont(settings.BASE_FONT)
         self.x_spin_box.setRange(0, 1299)
         try:
             self.x_spin_box.setValue(int(self.radar_instance.start_coordinates.x))
@@ -25,7 +24,7 @@ class RadarEditDialog(ObjectEditDialog):
             self.x_spin_box.setValue(0)
 
         self.y_spin_box = QSpinBox()
-        self.y_spin_box.setFont(BASE_FONT)
+        self.y_spin_box.setFont(settings.BASE_FONT)
         self.y_spin_box.setRange(0, 899)
         try:
             self.y_spin_box.setValue(int(self.radar_instance.start_coordinates.y))
@@ -33,56 +32,56 @@ class RadarEditDialog(ObjectEditDialog):
             self.y_spin_box.setValue(0)
 
         self.eirp_spinbox = QSpinBox()
-        self.eirp_spinbox.setFont(BASE_FONT)
+        self.eirp_spinbox.setFont(settings.BASE_FONT)
         self.eirp_spinbox.setRange(0, 10000)
-        self.eirp_spinbox.setValue(EIRP)
+        self.eirp_spinbox.setValue(settings.EIRP)
 
         self.seff_spinbox = QSpinBox()
-        self.seff_spinbox.setFont(BASE_FONT)
+        self.seff_spinbox.setFont(settings.BASE_FONT)
         self.seff_spinbox.setRange(0, 10000)
-        self.seff_spinbox.setValue(SEFF)
+        self.seff_spinbox.setValue(settings.SEFF)
 
         self.bw_u_spinbox = QSpinBox()
-        self.bw_u_spinbox.setFont(BASE_FONT)
+        self.bw_u_spinbox.setFont(settings.BASE_FONT)
         self.bw_u_spinbox.setRange(1, 44)
-        self.bw_u_spinbox.setValue(BW_U)
+        self.bw_u_spinbox.setValue(settings.BW_U)
 
         self.bw_v_spinbox = QSpinBox()
-        self.bw_v_spinbox.setFont(BASE_FONT)
+        self.bw_v_spinbox.setFont(settings.BASE_FONT)
         self.bw_v_spinbox.setRange(1, 44)
-        self.bw_v_spinbox.setValue(BW_V)
+        self.bw_v_spinbox.setValue(settings.BW_V)
 
         self.scanning_v = QLabel()
 
         self.t_n_spinbox = QSpinBox()
-        self.t_n_spinbox.setFont(BASE_FONT)
+        self.t_n_spinbox.setFont(settings.BASE_FONT)
         self.t_n_spinbox.setRange(273, 400)
-        self.t_n_spinbox.setValue(T_N)
+        self.t_n_spinbox.setValue(settings.T_N)
 
         self.prf_spinbox = QDoubleSpinBox()
-        self.prf_spinbox.setFont(BASE_FONT)
+        self.prf_spinbox.setFont(settings.BASE_FONT)
         self.prf_spinbox.setRange(0.0001, 10000)
-        self.prf_spinbox.setValue(PRF)
+        self.prf_spinbox.setValue(settings.PRF)
 
         self.n_pulses_proc_spinbox = QSpinBox()
-        self.n_pulses_proc_spinbox.setFont(BASE_FONT)
+        self.n_pulses_proc_spinbox.setFont(settings.BASE_FONT)
         self.n_pulses_proc_spinbox.setRange(0, 1000)
-        self.n_pulses_proc_spinbox.setValue(N_PULSES_PROC)
+        self.n_pulses_proc_spinbox.setValue(settings.N_PULSES_PROC)
 
         self.operating_freq_spinbox = QSpinBox()
-        self.operating_freq_spinbox.setFont(BASE_FONT)
+        self.operating_freq_spinbox.setFont(settings.BASE_FONT)
         self.operating_freq_spinbox.setRange(0, 1000)
-        self.operating_freq_spinbox.setValue(OPERATING_FREQ)
+        self.operating_freq_spinbox.setValue(settings.OPERATING_FREQ)
 
         self.start_time_spinbox = QSpinBox()
-        self.start_time_spinbox.setFont(BASE_FONT)
+        self.start_time_spinbox.setFont(settings.BASE_FONT)
         self.start_time_spinbox.setRange(0, 10)
-        self.start_time_spinbox.setValue(START_TIME)
+        self.start_time_spinbox.setValue(settings.START_TIME)
 
         self.snr_detection_spinbox = QSpinBox()
-        self.snr_detection_spinbox.setFont(BASE_FONT)
+        self.snr_detection_spinbox.setFont(settings.BASE_FONT)
         self.snr_detection_spinbox.setRange(1, 100)
-        self.snr_detection_spinbox.setValue(SNR_DETECTION)
+        self.snr_detection_spinbox.setValue(settings.SNR_DETECTION)
 
     def __create_layouts(self):
         common_v_layout = QVBoxLayout()

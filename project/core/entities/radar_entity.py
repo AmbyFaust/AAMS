@@ -1,22 +1,21 @@
 from .base_entity import BaseEntity
 from .coordinates_entity import CoordinatesEntity
-from ...settings import (EIRP, SEFF, BW_U, BW_V, SCANNING_V, T_N, PRF, N_PULSES_PROC,
-                         OPERATING_FREQ, START_TIME, SNR_DETECTION)
+from ... import settings
 
 
 class RadarEntity(BaseEntity):
     def __init__(self, id: int = None, coordinates: CoordinatesEntity = None,
-                 eirp: int = EIRP,
-                 seff: int = SEFF,
-                 bw_u: int = BW_U,
-                 bw_v: int = BW_V,
-                 scanning_v: int = SCANNING_V,
-                 t_n: int = T_N,
-                 prf: int = PRF,
-                 n_pulses_proc: int = N_PULSES_PROC,
-                 operating_freq: int = OPERATING_FREQ,
-                 start_time: int = START_TIME,
-                 snr_detection: int = SNR_DETECTION
+                 eirp: int = settings.EIRP,
+                 seff: int = settings.SEFF,
+                 bw_u: int = settings.BW_U,
+                 bw_v: int = settings.BW_V,
+                 scanning_v: int = settings.SCANNING_V,
+                 t_n: int = settings.T_N,
+                 prf: int = settings.PRF,
+                 n_pulses_proc: int = settings.N_PULSES_PROC,
+                 operating_freq: int = settings.OPERATING_FREQ,
+                 start_time: int = settings.START_TIME,
+                 snr_detection: int = settings.SNR_DETECTION
                  ):
         super(RadarEntity, self).__init__(id=id)
         self.start_coordinates = coordinates  # RectCS

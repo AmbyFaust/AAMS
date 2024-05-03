@@ -141,3 +141,4 @@ class Handler(QObject):
     def calculate(self):
         print(self.radars)  # смотри radar_entity
         print(self.targets)  # смотри target_entity
+

@@ -217,7 +217,7 @@ class SettingsDialog(QDialog):
         settings.SEFF = self.radar_settings.seff_spinbox.value()
         settings.BW_U = self.radar_settings.bw_u_spinbox.value()
         settings.BW_V = self.radar_settings.bw_v_spinbox.value()
-        # scanning_v
+        # scanning_v TODO
         settings.T_N = self.radar_settings.t_n_spinbox.value()
         settings.N_PULSES_PROC = self.radar_settings.n_pulses_proc_spinbox.value()
         settings.OPERATING_FREQ = self.radar_settings.operating_freq_spinbox.value()
