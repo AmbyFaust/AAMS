@@ -10,7 +10,7 @@ from project.gui.app_window.controller import Controller
 from project.gui.app_window.map_scene import GridScene
 from project.gui.app_window.objects_reviewer import ObjectsReviewer, ObjectsReviewerBox
 from project.gui.base_form_classes import QMainWindowBase
-from project.settings import BASE_FONT, SAR_ICON_PATH, TARGET_ICON_PATH, INPUT_FILE_PATH
+from project.settings import BASE_FONT, RADAR_ICON_PATH, TARGET_ICON_PATH, INPUT_FILE_PATH
 
 
 class AppWindow(QMainWindowBase):
@@ -27,16 +27,16 @@ class AppWindow(QMainWindowBase):
         self.controller = Controller()
 
         self.__create_widgets()
-        self.__create_action()
+        self.__create_actions()
         self.__create_toolbar()
         self.__create_layout()
 
         # соединение контроллера с другими объектами
-        self.controller.update_sar_list.connect(self.sar_reviewer.update_objects)
+        self.controller.update_radar_list.connect(self.radar_reviewer.update_objects)
         self.controller.update_targets_list.connect(self.target_reviewer.update_objects)
         self.controller.remove_gui_target.connect(self.map.remove_object)
-        self.controller.remove_gui_sar.connect(self.map.remove_object)
-        self.controller.redraw_sar.connect(self.map.redraw_sar)
+        self.controller.remove_gui_radar.connect(self.map.remove_object)
+        self.controller.redraw_radar.connect(self.map.redraw_radar)
 
     def __create_widgets(self):
         settings_action = QAction("Настройки", self)
@@ -48,8 +48,8 @@ class AppWindow(QMainWindowBase):
         self.map.draw_grid(self.map_view.size())
         self.map.get_current_coordinates.connect(self.__update_coordinates_widgets)
 
-        self.sar_reviewer = ObjectsReviewerBox(ObjectEnum.SAR, self.controller)
-        self.sar_reviewer.object_reviewer.object_selected.connect(self.__sar_selected)
+        self.radar_reviewer = ObjectsReviewerBox(ObjectEnum.RADAR, self.controller)
+        self.radar_reviewer.object_reviewer.object_selected.connect(self.__radar_selected)
 
         self.target_reviewer = ObjectsReviewerBox(ObjectEnum.TARGET, self.controller)
         self.target_reviewer.object_reviewer.object_selected.connect(self.__target_selected)
@@ -92,7 +92,7 @@ class AppWindow(QMainWindowBase):
 
         objects_v_layout = QVBoxLayout()
         objects_v_layout.addWidget(self.tool_bar)
-        objects_v_layout.addWidget(self.sar_reviewer)
+        objects_v_layout.addWidget(self.radar_reviewer)
         objects_v_layout.addWidget(self.target_reviewer)
         objects_v_layout.addLayout(btn_h_layout)
 
@@ -102,19 +102,19 @@ class AppWindow(QMainWindowBase):
 
         self.central_widget.setLayout(common_h_layout)
 
-    def __create_action(self):
+    def __create_actions(self):
         self.create_target_path_action = QAction('Установить путь цели')
         self.create_target_path_action.setIcon(QIcon(TARGET_ICON_PATH))
         self.create_target_path_action.triggered.connect(self.__create_target)
 
-        self.create_sar_action = QAction('Установить РЛС')
-        self.create_sar_action.setIcon(QIcon(SAR_ICON_PATH))
-        self.create_sar_action.triggered.connect(self.__create_sar)
+        self.create_radar_action = QAction('Установить РЛС')
+        self.create_radar_action.setIcon(QIcon(RADAR_ICON_PATH))
+        self.create_radar_action.triggered.connect(self.__create_radar)
 
-        self.sar_reviewer.delete_action.triggered.connect(self.__remove_sar_action_triggered)
+        self.radar_reviewer.delete_action.triggered.connect(self.__remove_radar_action_triggered)
         self.target_reviewer.delete_action.triggered.connect(self.__remove_target_action_triggered)
 
-        self.sar_reviewer.update_action.triggered.connect(self.__update_sar_action_triggered)
+        self.radar_reviewer.update_action.triggered.connect(self.__update_radar_action_triggered)
         self.target_reviewer.update_action.triggered.connect(self.__update_target_action_triggered)
 
         self.calculate_btn.clicked.connect(self.__calculate)
@@ -124,10 +124,22 @@ class AppWindow(QMainWindowBase):
         self.tool_bar = QToolBar()
         self.tool_bar.setMovable(False)
         self.tool_bar.addAction(self.create_target_path_action)
-        self.tool_bar.addAction(self.create_sar_action)
+        self.tool_bar.addAction(self.create_radar_action)
 
     def __calculate(self):
-        pass
+        print(self.map.radars)
+        print(self.map.targets)
+        try:
+            for _, value in self.map.radars.items():
+                print(value.radar_item)
+                print(value.radar_radius_item)
+
+            for _, value in self.map.targets.items():
+                print(value.vertexes)
+                print(value.points)
+                print(value.edges)
+        except BaseException as exp:
+            print(exp)
 
     def __modeling(self):
         print(INPUT_FILE_PATH)
@@ -137,28 +149,30 @@ class AppWindow(QMainWindowBase):
         self.x_line_edit.setText(f'{x_position}')
         self.y_line_edit.setText(f'{y_position}')
 
-    def __create_sar(self):
+    def __create_radar(self):
         if self.map.current_obj_type is None:
-            self.map.current_obj_type = ObjectEnum.SAR
+            self.map.current_obj_type = ObjectEnum.RADAR
 
     def __create_target(self):
         if self.map.current_obj_type is None:
             self.map.current_obj_type = ObjectEnum.TARGET
 
-    def __sar_selected(self, sar_id: int):
-        self.controller.is_sar_selected(sar_id)
+    def __radar_selected(self, radar_id: int):
+        print(radar_id)
+        self.controller.is_radar_selected(radar_id)
 
     def __target_selected(self, target_id: int):
         self.controller.is_target_selected(target_id)
 
-    def __remove_sar_action_triggered(self):
-        self.controller.remove_selected_sar()
+    def __remove_radar_action_triggered(self):
+        print('dededefeffefe')
+        self.controller.remove_selected_radar()
 
     def __remove_target_action_triggered(self):
         self.controller.remove_selected_target()
 
-    def __update_sar_action_triggered(self):
-        self.controller.update_selected_sar()
+    def __update_radar_action_triggered(self):
+        self.controller.update_selected_radar()
 
     def __update_target_action_triggered(self):
         self.controller.update_selected_target()

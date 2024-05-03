@@ -58,26 +58,19 @@ class ObjectsReviewer(QListWidget):
         self.model().rowsInserted.connect(lambda *_: self.scrollToBottom())
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.__create_actions()
 
         self.currentRowChanged.connect(self.__current_row_changed)
         self.itemClicked.connect(self.__item_clicked)
         self.itemDoubleClicked.connect(self.__item_double_clicked)
-
-    def __create_actions(self):
-        self.update_action = QAction('Изменить')
-        self.update_action.setIcon(QIcon(EDIT_ICON_PATH))
-        self.delete_action = QAction('Удалить')
-        self.delete_action.setIcon(QIcon(DELETE_ICON_PATH))
 
     def update_objects(self, objects):
         try:
             self.clear()
 
             for key, item in objects.items():
-                if self.type_objects == ObjectEnum.SAR:
-                    x = item.coordinates.x
-                    y = item.coordinates.y
+                if self.type_objects == ObjectEnum.RADAR:
+                    x = item.start_coordinates.x
+                    y = item.start_coordinates.y
                 elif self.type_objects == ObjectEnum.TARGET:
                     x = item.coordinates[0].x
                     y = item.coordinates[0].y

@@ -19,24 +19,7 @@ class ObjectEditDialog(QDialog):
 
         self.__create_widgets()
 
-
     def __create_widgets(self):
-        # self.x_spin_box = QSpinBox()
-        # self.x_spin_box.setFont(BASE_FONT)
-        # self.x_spin_box.setRange(0, 1299)
-        # try:
-        #     self.x_spin_box.setValue(self.target_instance.coordinates.x)
-        # except:
-        #     self.x_spin_box.setValue(0)
-        #
-        # self.y_spin_box = QSpinBox()
-        # self.y_spin_box.setFont(BASE_FONT)
-        # self.y_spin_box.setRange(0, 899)
-        # try:
-        #     self.y_spin_box.setValue(self.target_instance.coordinates.y)
-        # except:
-        #     self.y_spin_box.setValue(0)
-
         self.button_box = QDialogButtonBox()
         self.button_box.setStandardButtons(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         self.button_box.button(QDialogButtonBox.Ok).setText("Принять")

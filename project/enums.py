@@ -2,7 +2,7 @@ from enum import Enum
 
 
 class ObjectEnum(Enum):
-    SAR = (0, 'РЛС')
+    RADAR = (0, 'РЛС')
     TARGET = (1, 'Цель')
 
     def __init__(self, num: int, desc: int):
@@ -17,5 +17,13 @@ class TypeTargetEnum(Enum):
     def __init__(self, num: int, desc: int):
         self.num = num
         self.desc = desc
+
+    @classmethod
+    def get_target_type_from_desc(cls, desc: str):
+        for target_type in cls:
+            if target_type.desc == desc:
+                return target_type
+
+        return cls.first
 
 

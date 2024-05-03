@@ -1,46 +1,51 @@
 from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
 
 from project import ObjectEnum
-from project.core.entities import SarEntity, CoordinatesEntity, TargetEntity
-from project.gui.dialogs import SarEditDialog
+from project.core.entities import RadarEntity, CoordinatesEntity, TargetEntity
+from project.gui.dialogs import RadarEditDialog
 
 from project.gui.dialogs.target_edit_dialog import TargetEditDialog
-from project.gui.objects import TargetPath
+from project.gui.objects import TargetPath, RadarObject
 from project.settings import BASE_SIZE_OBJECT
 
 
 class Handler(QObject):
-    update_sars = pyqtSignal(dict)
+    update_radars = pyqtSignal(dict)
     update_targets = pyqtSignal(dict)
     target_deleted = pyqtSignal(int)
-    sar_deleted = pyqtSignal(int)
+    radar_deleted = pyqtSignal(int)
     target_updated = pyqtSignal(TargetEntity)
-    sar_updated = pyqtSignal(SarEntity)
+    radar_updated = pyqtSignal(RadarEntity)
+    remove_from_map = pyqtSignal(object)
 
     def __init__(self, parent=None):
         super(Handler, self).__init__(parent)
-        self.sars = {}
+        self.radars = {}
         self.targets = {}
         self.target_id = 0
-        self.sar_id = 0
+        self.radar_id = 0
 
     @pyqtSlot(object)
-    def create_sar(self, sar_object: object):
+    def create_radar(self, radar_object: RadarObject):
         try:
             coordinates = CoordinatesEntity(
-                x=sar_object.sar_item.x() + BASE_SIZE_OBJECT.width() // 2,
-                y=sar_object.sar_item.y() + BASE_SIZE_OBJECT.height() // 2
+                x=radar_object.radar_item.x() + BASE_SIZE_OBJECT.width() // 2,
+                y=radar_object.radar_item.y() + BASE_SIZE_OBJECT.height() // 2
             )
 
-            sar_entity = SarEntity(
-                id=self.sar_id,
+            radar_entity = RadarEntity(
+                id=self.radar_id,
                 coordinates=coordinates
             )
-
-            self.sars[self.sar_id] = sar_entity
-            self.update_sars.emit(self.sars)
-            self.sar_id += 1
-            print('РЛС создано')
+            radar_edit_dialog = RadarEditDialog(radar_entity, ObjectEnum.RADAR)
+            if radar_edit_dialog.exec() == RadarEditDialog.Accepted:
+                self.radars[self.radar_id] = radar_edit_dialog.radar_instance
+                self.update_radars.emit(self.radars)
+                self.radar_id += 1
+                print('РЛС создано')
+            else:
+                self.remove_from_map.emit(radar_object)
+                print('РЛС не создано')
 
         except BaseException as exp:
             print(f'Ошибка при создании РЛС: {exp}')
@@ -59,26 +64,30 @@ class Handler(QObject):
                 id=self.target_id,
                 coordinates=coordinates
             )
-
-            self.targets[self.target_id] = target_entity
-            self.update_targets.emit(self.targets)
-            self.target_id += 1
-            print('Цель создана')
+            target_edit_dialog = TargetEditDialog(target_entity, ObjectEnum.TARGET)
+            if target_edit_dialog.exec() == TargetEditDialog.Accepted:
+                self.targets[self.target_id] = target_edit_dialog.target_instance
+                self.update_targets.emit(self.targets)
+                self.target_id += 1
+                print('Цель создана')
+            else:
+                self.remove_from_map.emit(target_object)
+                print('Цель не создана')
 
         except BaseException as exp:
             print(f'Ошибка при создании цели: {exp}')
 
     @pyqtSlot(int)
-    def remove_sar(self, sar_id: int):
+    def remove_radar(self, radar_id: int):
         try:
-            if sar_id not in self.sars:
+            if radar_id not in self.radars:
                 return
 
-            self.sars.pop(sar_id)
+            self.radars.pop(radar_id)
 
-            self.sar_deleted.emit(sar_id)
+            self.radar_deleted.emit(radar_id)
         except BaseException as exp:
-            print(f'РЛИ с id = {sar_id} не была удалена: {exp}')
+            print(f'РЛИ с id = {radar_id} не была удалена: {exp}')
 
     @pyqtSlot(int)
     def remove_target(self, target_id: int):
@@ -93,22 +102,22 @@ class Handler(QObject):
             print(f'Цель с id = {target_id} не была удалена: {exp}')
 
     @pyqtSlot(int)
-    def modify_sar(self, sar_id: int):
+    def modify_radar(self, radar_id: int):
         try:
-            if sar_id not in self.sars:
+            if radar_id not in self.radars:
                 return
 
-            sar_entity = self.sars[sar_id]
+            radar_entity = self.radars[radar_id]
 
-            dialog = SarEditDialog(sar_instance=sar_entity, object_type=ObjectEnum.SAR)
-            if dialog.exec() == SarEditDialog.Accepted:
-                self.sars[sar_id] = dialog.sar_instance
+            dialog = RadarEditDialog(radar_instance=radar_entity, object_type=ObjectEnum.RADAR)
+            if dialog.exec() == RadarEditDialog.Accepted:
+                self.radars[radar_id] = dialog.radar_instance
             else:
                 return
 
-            self.sar_updated.emit(self.sars[sar_id])
+            self.radar_updated.emit(self.radars[radar_id])
         except BaseException as exp:
-            print(f'Не удалось изменить РЛИ с id = {sar_id} не удалось изменить: {exp}')
+            print(f'Не удалось изменить РЛИ с id = {radar_id} не удалось изменить: {exp}')
 
     @pyqtSlot(int)
     def modify_target(self, target_id: int):

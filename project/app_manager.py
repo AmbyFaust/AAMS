@@ -54,19 +54,20 @@ class AppManager(QObject):
 
     def __connect_gui_services(self):
         # соединение окна приложения с обработчиком
-        self.app_window.controller.create_sar.connect(self.handler.create_sar)
+        self.app_window.controller.create_radar.connect(self.handler.create_radar)
         self.app_window.controller.create_target.connect(self.handler.create_target)
         self.app_window.controller.delete_target.connect(self.handler.remove_target)
-        self.app_window.controller.delete_sar.connect(self.handler.remove_sar)
+        self.app_window.controller.delete_radar.connect(self.handler.remove_radar)
         self.app_window.controller.modify_target.connect(self.handler.modify_target)
-        self.app_window.controller.modify_sar.connect(self.handler.modify_sar)
+        self.app_window.controller.modify_radar.connect(self.handler.modify_radar)
 
         # соединение обработчика с окном приложения
-        self.handler.update_sars.connect(self.app_window.controller.update_sar_reviewer)
+        self.handler.update_radars.connect(self.app_window.controller.update_radar_reviewer)
         self.handler.update_targets.connect(self.app_window.controller.update_targets_reviewer)
-        self.handler.sar_deleted.connect(self.app_window.controller.sar_deleted)
+        self.handler.radar_deleted.connect(self.app_window.controller.radar_deleted)
         self.handler.target_deleted.connect(self.app_window.controller.target_deleted)
-        self.handler.sar_updated.connect(self.app_window.controller.sar_updated)
+        self.handler.radar_updated.connect(self.app_window.controller.radar_updated)
         self.handler.target_updated.connect(self.app_window.controller.target_updated)
+        self.handler.remove_from_map.connect(self.app_window.map.remove_from_map)
 
 

@@ -4,11 +4,11 @@ from PyQt5.QtWidgets import QGraphicsScene, QGraphicsPixmapItem, QGraphicsSceneM
     QGraphicsLineItem
 
 from project import ObjectEnum
-from project.core import SarEntity
+from project.core import RadarEntity
 from project.gui.app_window.controller import Controller
-from project.gui.objects import TargetPath, SarObject
+from project.gui.objects import TargetPath, RadarObject
 
-from project.settings import BASE_SIZE_OBJECT, SAR_ICON_PATH, TARGET_ICON_PATH, TARGET_POINT_RADIUS
+from project.settings import BASE_SIZE_OBJECT, RADAR_ICON_PATH, TARGET_ICON_PATH, TARGET_POINT_RADIUS
 
 
 class GridScene(QGraphicsScene):
@@ -18,8 +18,8 @@ class GridScene(QGraphicsScene):
         super().__init__(parent)
         self.controller = controller
         self.grid_size = 50
-        self.sars = {}
-        self.sar_counter = 0
+        self.radars = {}
+        self.radar_counter = 0
         self.targets = {}
         self.target_counter = 0
         self.current_object = None
@@ -40,17 +40,17 @@ class GridScene(QGraphicsScene):
 
     def mousePressEvent(self, event: QGraphicsSceneMouseEvent):
         if event.button() == Qt.LeftButton:
-            if self.current_obj_type is ObjectEnum.SAR:
-                self.__draw_sar(event)
+            if self.current_obj_type is ObjectEnum.RADAR:
+                self.__draw_radar(event)
 
             elif self.current_obj_type is ObjectEnum.TARGET:
                 self.__draw_target_path(event)
 
         elif event.button() == Qt.RightButton:
             self.controller.create_object(self.current_obj_type, self.current_object)
-            if self.current_obj_type is ObjectEnum.SAR:
-                self.sars[self.sar_counter] = self.current_object
-                self.sar_counter += 1
+            if self.current_obj_type is ObjectEnum.RADAR:
+                self.radars[self.radar_counter] = self.current_object
+                self.radar_counter += 1
             elif self.current_obj_type is ObjectEnum.TARGET:
                 last_point = self.current_object.points[-1]
                 self.removeItem(self.current_object.pop_vertex(-1))
@@ -68,10 +68,10 @@ class GridScene(QGraphicsScene):
 
     def keyPressEvent(self, event: QGraphicsSceneMouseEvent):
         if event.key() == Qt.Key_Escape:
-            if self.current_obj_type is ObjectEnum.SAR:
+            if self.current_obj_type is ObjectEnum.RADAR:
                 try:
-                    self.removeItem(self.current_object.sar_item)
                     self.removeItem(self.current_object.radar_item)
+                    self.removeItem(self.current_object.radar_radius_item)
                 except:
                     pass
             elif self.current_obj_type is ObjectEnum.TARGET:
@@ -81,15 +81,27 @@ class GridScene(QGraphicsScene):
 
         if event.key() == Qt.Key_Backspace:
             if self.current_object is not None:
-                if self.current_obj_type is ObjectEnum.SAR:
+                if self.current_obj_type is ObjectEnum.RADAR:
                     try:
-                        self.removeItem(self.current_object.sar_item)
                         self.removeItem(self.current_object.radar_item)
+                        self.removeItem(self.current_object.radar_radius_item)
                     except:
                         pass
                 elif self.current_obj_type is ObjectEnum.TARGET:
                     self.removeItem(self.current_object.pop_vertex(-1))
                     self.removeItem(self.current_object.pop_edge(-1))
+
+    def remove_from_map(self, current_object: object):
+        try:
+            if isinstance(current_object, TargetPath):
+                self.__remove_target_path(current_object)
+            elif isinstance(current_object, RadarObject):
+                self.removeItem(current_object.radar_item)
+                self.removeItem(current_object.radar_radius_item)
+            self.current_obj_type = None
+            self.current_object = None
+        except BaseException as exp:
+            print(exp)
 
     def __update_mouse_position(self):
         mouse_position = QCursor.pos()
@@ -127,20 +139,20 @@ class GridScene(QGraphicsScene):
 
         self.update()
 
-    def __draw_sar(self, event: QGraphicsSceneMouseEvent):
+    def __draw_radar(self, event: QGraphicsSceneMouseEvent):
         try:
             if self.current_object is not None:
-                self.removeItem(self.current_object.sar_item)
                 self.removeItem(self.current_object.radar_item)
+                self.removeItem(self.current_object.radar_radius_item)
 
-            self.current_object = SarObject()
+            self.current_object = RadarObject()
 
-            self.current_object.sar_item.setPos(
+            self.current_object.radar_item.setPos(
                 event.scenePos() - QPoint(BASE_SIZE_OBJECT.width() // 2, BASE_SIZE_OBJECT.height() // 2))
-            self.addItem(self.current_object.sar_item)
-            self.current_object.radar_item = self.addPath(self.current_object.radar_path, QPen(Qt.blue))
+            self.addItem(self.current_object.radar_item)
+            self.current_object.radar_radius_item = self.addPath(self.current_object.radius_path, QPen(Qt.blue))
 
-            self.current_object.radar_item.setPos(event.scenePos())
+            self.current_object.radar_radius_item.setPos(event.scenePos())
         except BaseException as exp:
             print(f'Ошибка нанесения рлс на карту: {exp}')
 
@@ -149,8 +161,8 @@ class GridScene(QGraphicsScene):
         try:
             if object_type is ObjectEnum.TARGET:
                 self.__remove_target(object_id)
-            elif object_type is ObjectEnum.SAR:
-                self.__remove_sar(object_id)
+            elif object_type is ObjectEnum.RADAR:
+                self.__remove_radar(object_id)
 
         except BaseException as exp:
             print(f'Ошибка при удалении объекта "{object_type.desc}" с id = {object_id}: {exp}')
@@ -167,30 +179,30 @@ class GridScene(QGraphicsScene):
         for edge in target_path.edges:
             self.removeItem(edge)
 
-    def __remove_sar(self, sar_id: int):
-        self.removeItem(self.sars[sar_id].sar_item)
-        self.removeItem(self.sars[sar_id].radar_item)
-        self.sars.pop(sar_id)
-        print(f'РЛС с id={sar_id} удалена')
+    def __remove_radar(self, radar_id: int):
+        self.removeItem(self.radars[radar_id].radar_item)
+        self.removeItem(self.radars[radar_id].radar_radius_item)
+        self.radars.pop(radar_id)
+        print(f'РЛС с id={radar_id} удалена')
 
-    @pyqtSlot(SarEntity)
-    def redraw_sar(self, sar_entity: SarEntity):
+    @pyqtSlot(RadarEntity)
+    def redraw_radar(self, radar_entity: RadarEntity):
         try:
-            if sar_entity.id not in self.sars:
+            if radar_entity.id not in self.radars:
                 return
 
-            self.removeItem(self.sars[sar_entity.id].sar_item)
-            self.removeItem(self.sars[sar_entity.id].radar_item)
+            self.removeItem(self.radars[radar_entity.id].radar_item)
+            self.removeItem(self.radars[radar_entity.id].radar_radius_item)
 
-            redraw_sar = SarObject()
-            redraw_sar.sar_item.setPos(
-                sar_entity.coordinates.to_q_point() -
+            redraw_radar = RadarObject()
+            redraw_radar.radar_item.setPos(
+                radar_entity.coordinates.to_q_point() -
                 QPoint(BASE_SIZE_OBJECT.width() // 2, BASE_SIZE_OBJECT.height() // 2))
-            self.addItem(redraw_sar.sar_item)
-            redraw_sar.radar_item = self.addPath(redraw_sar.radar_path, QPen(Qt.blue))
+            self.addItem(redraw_radar.radar_item)
+            redraw_radar.radar_radius_item = self.addPath(redraw_radar.radius_path, QPen(Qt.blue))
 
-            redraw_sar.radar_item.setPos(sar_entity.coordinates.to_q_point())
-            self.sars[sar_entity.id] = redraw_sar
+            redraw_radar.radar_radius_item.setPos(radar_entity.coordinates.to_q_point())
+            self.radars[radar_entity.id] = redraw_radar
 
             self.current_object = None
             self.current_obj_type = None

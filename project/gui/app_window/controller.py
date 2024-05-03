@@ -1,60 +1,61 @@
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 
 from project import ObjectEnum
-from project.core import SarEntity, TargetEntity
+from project.core import RadarEntity, TargetEntity
 
 
 class Controller(QObject):
-    create_sar = pyqtSignal(object)
+    create_radar = pyqtSignal(object)
     create_target = pyqtSignal(object)
-    update_sar_list = pyqtSignal(dict)
+    update_radar_list = pyqtSignal(dict)
     update_targets_list = pyqtSignal(dict)
-    delete_sar = pyqtSignal(int)
-    remove_gui_sar = pyqtSignal(int, object)
+    delete_radar = pyqtSignal(int)
+    remove_gui_radar = pyqtSignal(int, object)
     delete_target = pyqtSignal(int)
     remove_gui_target = pyqtSignal(int, object)
-    modify_sar = pyqtSignal(int)
+    modify_radar = pyqtSignal(int)
     modify_target = pyqtSignal(int)
-    redraw_sar = pyqtSignal(SarEntity)
+    redraw_radar = pyqtSignal(object)
 
     def __init__(self, parent=None):
         super(Controller, self).__init__(parent)
-        self.sars = {}
+        self.radars = {}
         self.targets = {}
 
-        self.selected_sar = None
+        self.selected_radar = None
         self.selected_target = None
 
     def create_object(self, object_type: ObjectEnum, object_instance: object):
-        if object_type is ObjectEnum.SAR:
-            self.create_sar.emit(object_instance)
+        if object_type is ObjectEnum.RADAR:
+            self.create_radar.emit(object_instance)
         elif object_type is ObjectEnum.TARGET:
             self.create_target.emit(object_instance)
 
     @pyqtSlot(dict)
-    def update_sar_reviewer(self, sars: dict):
-        self.sars = sars.copy()
-        self.update_sar_list.emit(self.sars)
+    def update_radar_reviewer(self, radars: dict):
+        self.radars = radars.copy()
+        self.update_radar_list.emit(self.radars)
 
     @pyqtSlot(dict)
     def update_targets_reviewer(self, targets: dict):
         self.targets = targets.copy()
         self.update_targets_list.emit(self.targets)
 
-    def is_sar_selected(self, sar_id: int):
-        if sar_id in self.sars:
-            self.selected_sar = sar_id
+    def is_radar_selected(self, radar_id: int):
+        if radar_id in self.radars:
+            self.selected_radar = radar_id
 
     def is_target_selected(self, target_id: int):
         if target_id in self.targets:
             self.selected_target = target_id
 
-    def remove_selected_sar(self):
-        if self.selected_sar is None:
+    def remove_selected_radar(self):
+        if self.selected_radar is None:
             return
-        if self.selected_sar not in self.sars:
+        if self.selected_radar not in self.radars:
             return
-        self.delete_sar.emit(self.selected_sar)
+        print(self.selected_target, 'deleeee')
+        self.delete_radar.emit(self.selected_radar)
 
     def remove_selected_target(self):
         if self.selected_target is None:
@@ -70,12 +71,12 @@ class Controller(QObject):
             return
         self.modify_target.emit(self.selected_target)
 
-    def update_selected_sar(self):
-        if self.selected_sar is None:
+    def update_selected_radar(self):
+        if self.selected_radar is None:
             return
-        if self.selected_sar not in self.sars:
+        if self.selected_radar not in self.radars:
             return
-        self.modify_sar.emit(self.selected_sar)
+        self.modify_radar.emit(self.selected_radar)
 
     @pyqtSlot(int)
     def target_deleted(self, target_id: int):
@@ -91,15 +92,15 @@ class Controller(QObject):
             print(exp)
 
     @pyqtSlot(int)
-    def sar_deleted(self, sar_id: int):
+    def radar_deleted(self, radar_id: int):
         try:
-            self.sars.pop(sar_id)
+            self.radars.pop(radar_id)
 
-            self.update_sar_reviewer(self.sars)
+            self.update_radar_reviewer(self.radars)
 
-            self.remove_gui_sar.emit(sar_id, ObjectEnum.SAR)
+            self.remove_gui_radar.emit(radar_id, ObjectEnum.RADAR)
 
-            self.selected_sar = None
+            self.selected_radar = None
         except BaseException as exp:
             print(exp)
 
@@ -113,13 +114,13 @@ class Controller(QObject):
         except BaseException as exp:
             print(f'Обновление ')
 
-    @pyqtSlot(SarEntity)
-    def sar_updated(self, sar_entity: SarEntity):
+    @pyqtSlot(RadarEntity)
+    def radar_updated(self, radar_entity: RadarEntity):
         try:
-            self.sars[sar_entity.id] = sar_entity
+            self.radars[radar_entity.id] = radar_entity
 
-            self.update_sar_reviewer(self.sars)
+            self.update_radar_reviewer(self.radars)
 
-            self.redraw_sar.emit(sar_entity)
+            self.redraw_radar.emit(radar_entity)
         except BaseException as exp:
             print(f'Обновление ')
