@@ -1,41 +1,81 @@
-from ObjectModels.CommandPostObj import CommandPostObj
-from project.modeling.ObjectModels.RadarObj import RadarObj
-from project.modeling.ObjectModels.RocketLauncherObj import RocketLauncherObj
-from project.modeling.ObjectModels.SimpleTestPlane import SimpleTestPlane
 import json
 
-# Диспетчер моделирования
+from .ObjectModels.DataStructures import radar_params
+
+from .ObjectModels.RadarObj import RadarObj
+from .ObjectModels.TargetObj import Target
+
+from .ObjectModels.CommandPostObj import CommandPostObj
+from .ObjectModels.RocketLauncherObj import RocketLauncherObj
+from .ObjectModels.SimpleTestPlane import SimpleTestPlane
+
+
 class SimulationManager:
-    def __init__(self, StandartScenario = True, ConfigPath = 'ModelingConfigFile'):
-        self.StandartScenario = StandartScenario
-        self.ConfigPath = ConfigPath
+    def __init__(self):
+        self.radars = []
+        self.targets = []
 
-# Функция считывает необходимую информацию для моделирования из файла
-    def get_config_data(self):
-        with open(self.ConfigPath) as json_file:
-            ConfigInformation = json.load(json_file)
+    def load_from_file(self, path):
+        with open(path, 'r') as file:
+            d = json.load(file)
+            self.radars = d['objects']['radars']
+            self.targets = d['objects']['targets']
 
-            #Функц
-    def StandartScenarioConfig(self):
-        pass
+    def __load_radar_object(self, radar_data):
+        self.radars.append(
+            RadarObj(radar_params(
+                EIRP=radar_data['eirp'],
+                Seff=radar_data['seff'],
+                BW_U=radar_data['bw_u'],
+                BW_V=radar_data['bw_v'],
+                Scanning_V=radar_data['scanning_v'],
+                Tn=radar_data['t_n'],
+                PRF=radar_data['prf'],
+                SignalTime=radar_data['signal_time'],
+                NPulsesProc=radar_data['n_pulses_proc'],
+                OperatingFreq=radar_data['operating_freq'],
+                start_time=radar_data['start_time'],
+                start_coords=radar_data['start_coordinates'],
+                SNRDetection=radar_data['snr_detection']
+            ), radar_id=radar_data['id'])
+        )
 
-# Создание начальных объектов для моделирования
-    def MakeScenarioObjects(self):
-        if self.StandartScenario:
-            ConfigInformation = self.StandartScenarioConfig()
-        else:
-            ConfigInformation = self.get_config_data()
-        for ObjectInformation in ConfigInformation:
-            MakeNewObject(ObjectInformation)
+    def __load_target_object(self, target_data):
+        self.targets.append(
+
+        )
 
 
-
-
-    def modeling(self):
-        pass
-
-    def modeling_step(self):
-        pass
+# Диспетчер моделирования
+# class SimulationManager:
+#     def __init__(self, StandartScenario = True, ConfigPath = 'ModelingConfigFile'):
+#         self.StandartScenario = StandartScenario
+#         self.ConfigPath = ConfigPath
+#
+#     # Функция считывает необходимую информацию для моделирования из файла
+#     def get_config_data(self):
+#         with open(self.ConfigPath) as json_file:
+#             ConfigInformation = json.load(json_file)
+#
+#             #Функц
+#     def StandartScenarioConfig(self):
+#         pass
+#
+#     # Создание начальных объектов для моделирования
+#     def MakeScenarioObjects(self):
+#         if self.StandartScenario:
+#             ConfigInformation = self.StandartScenarioConfig()
+#         else:
+#             ConfigInformation = self.get_config_data()
+#         for ObjectInformation in ConfigInformation:
+#             MakeNewObject(ObjectInformation)
+#
+#
+#     def modeling(self):
+#         pass
+#
+#     def modeling_step(self):
+#         pass
 
 
 if __name__ == "__main__":

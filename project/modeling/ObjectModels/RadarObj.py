@@ -7,7 +7,6 @@ from project.modeling.CSTransformator import GRCStoUV, UVtoLRCS
 from project.modeling.CSTransformator import UVtoGRCS
 
 
-
 # Класс Радар
 class RadarObj(Object):
     Trajectories = []
@@ -15,9 +14,12 @@ class RadarObj(Object):
     Id = 1
 
     # Конструктор Класса
-    def __init__(self, radar_params):
-        self.Id = RadarObj.Id
-        RadarObj.Id += 1
+    def __init__(self, radar_params, radar_id=None):
+        if radar_id is None:
+            self.Id = RadarObj.Id
+            RadarObj.Id += 1
+        else:
+            self.Id = radar_id
         self.Trajectories = []
         self.StartCoords = radar_params.start_coords
         self.ObjCoords = radar_params.start_coords

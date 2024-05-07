@@ -32,5 +32,35 @@ class RadarEntity(BaseEntity):
         self.start_time = start_time
         self.snr_detection = snr_detection  # ОСШ для обнаружения > 0
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'start_coordinates': self.start_coordinates.to_dict(),
+            'eirp': self.eirp,
+            'seff': self.seff,
+            'bw_u': self.bw_u,
+            'bw_v': self.bw_v,
+            'scanning_v': self.scanning_v,
+            't_n': self.t_n,
+            'prf': self.prf,
+            'n_pulses_proc': self.n_pulses_proc,
+            'operating_freq': self.operating_freq,
+            'start_time': self.start_time,
+            'snr_detection': self.snr_detection
+        }
 
-
+    def from_dict(self, data):
+        self.id = data['id']
+        self.start_coordinates = CoordinatesEntity().from_dict(data['coordinates'])
+        self.eirp = data['eirp']
+        self.seff = data['seff']
+        self.bw_u = data['bw_u']
+        self.bw_v = data['bw_v']
+        self.scanning_v = data['scanning_v']
+        self.t_n = data['t_n']
+        self.prf = data['prf']
+        self.n_pulses_proc = data['n_pulses_proc']
+        self.operating_freq = data['operating_freq']
+        self.start_time = data['start_time']
+        self.snr_detection = data['snr_detection']
+        return self

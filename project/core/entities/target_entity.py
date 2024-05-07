@@ -15,3 +15,21 @@ class TargetEntity(BaseEntity):
         self.speed = speed
         self.target_type = target_type
         self.scs = scs
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'coordinates': [c.to_dict() for c in self.coordinates],
+            'speed': self.speed,
+            'type': self.target_type.desc,
+            'scs': self.scs
+        }
+
+    def from_dict(self, data):
+        self.id = data['id']
+        self.coordinates = [CoordinatesEntity().from_dict(data['coordinates'][i])
+                            for i in range(len(data['coordinates']))]
+        self.speed = data['speed']
+        self.target_type = TypeTargetEnum.get_target_type_from_desc(data['type'])
+        self.scs = data['scs']
+        return self

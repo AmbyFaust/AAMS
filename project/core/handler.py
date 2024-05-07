@@ -1,3 +1,6 @@
+import datetime
+import json
+
 from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
 
 from project import ObjectEnum
@@ -6,7 +9,9 @@ from project.gui.dialogs import RadarEditDialog
 
 from project.gui.dialogs.target_edit_dialog import TargetEditDialog
 from project.gui.objects import TargetPath, RadarObject
-from project.settings import BASE_SIZE_OBJECT
+from project.settings import BASE_SIZE_OBJECT, INPUT_FILE_PATH
+
+from ..modeling.SimulationManager import SimulationManager
 
 
 class Handler(QObject):
@@ -139,5 +144,16 @@ class Handler(QObject):
 
     @pyqtSlot()
     def calculate(self):
-        print(self.radars)  # смотри radar_entity
-        print(self.targets)  # смотри target_entity
+        json_object = {
+            'objects': {
+                'radars': [radar.to_dict() for radar in self.radars.values()],
+                'targets': [target.to_dict() for target in self.targets.values()]
+            },
+            'data': []
+        }
+        filename = f'{INPUT_FILE_PATH}/{datetime.datetime.now()}.json'
+        with open(filename, 'w+', encoding='utf-8') as file:
+            json.dump(json_object, file)
+
+        sm = SimulationManager()
+        sm.load_from_file(filename)
