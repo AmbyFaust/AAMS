@@ -28,9 +28,13 @@ class Object:
 class Target(Object):
     ObjectName = 'Target'
     Id = 1
-    def __init__(self, type, ObjectName, epr, velocity, control_points):
-        self.Id = Target.Id
-        Target.Id += 1
+
+    def __init__(self, type, ObjectName, epr, velocity, control_points, target_id=None):
+        if target_id is None:
+            self.Id = Target.Id
+            Target.Id += 1
+        else:
+            self.Id = target_id
         self.type = type
         self.ObjectName = ObjectName
         self.epr = epr

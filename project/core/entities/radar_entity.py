@@ -43,6 +43,7 @@ class RadarEntity(BaseEntity):
             'scanning_v': self.scanning_v,
             't_n': self.t_n,
             'prf': self.prf,
+            'signal_time': 1,
             'n_pulses_proc': self.n_pulses_proc,
             'operating_freq': self.operating_freq,
             'start_time': self.start_time,

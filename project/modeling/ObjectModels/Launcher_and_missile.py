@@ -11,9 +11,13 @@ class Object:
 class LaunchSystem(Object):
     ObjectName = 'LaunchSystem'
     Id = 1
-    def __init__(self, x, y, z):
-        self.id = LaunchSystem.Id
-        LaunchSystem.Id += 1
+
+    def __init__(self, x, y, z, launcher_id=None):
+        if launcher_id is None:
+            self.Id = LaunchSystem.Id
+            LaunchSystem.Id += 1
+        else:
+            self.Id = launcher_id
         self.coordinates = (x, y, z)
         self.max_range = 35000
         self.max_missiles = 6

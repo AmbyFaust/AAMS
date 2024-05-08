@@ -149,20 +149,14 @@ class Handler(QObject):
                 'radars': [radar.to_dict() for radar in self.radars.values()],
                 'targets': [target.to_dict() for target in self.targets.values()]
             },
-            'data': {
-                'radar_id': dict(),
-                'target_id': dict(),
-                'time': dict(),
-                'x': dict(),
-                'y': dict(),
-                'z': dict()
-            }
+            'data': {}
         }
 
         filename = f'{INPUT_FILE_PATH}/{datetime.datetime.now()}.json'
 
-        with open(filename, 'w+', encoding='utf-8') as file:
+        with open(filename, 'w+') as file:
             json.dump(json_object, file)
 
-        sm = SimulationManager()
-        sm.load_from_file(filename)
+        sm = SimulationManager(filename)
+        sm.load_objects()
+        sm.modeling()
