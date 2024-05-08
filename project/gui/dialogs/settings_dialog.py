@@ -105,10 +105,10 @@ class TargetSettings(QWidget):
         self.target_type_combobox.addItem(TypeTargetEnum.second.desc)
         self.target_type_combobox.setCurrentText(settings.TARGET_TYPE.desc)
 
-        self.scs_spinbox = QSpinBox()
-        self.scs_spinbox.setFont(BASE_FONT)
-        self.scs_spinbox.setRange(1, 1000)
-        self.scs_spinbox.setValue(settings.SCS)
+        self.epr_spinbox = QSpinBox()
+        self.epr_spinbox.setFont(BASE_FONT)
+        self.epr_spinbox.setRange(1, 1000)
+        self.epr_spinbox.setValue(settings.EPR)
 
         self.height_spinbox = QSpinBox()
         self.height_spinbox.setFont(BASE_FONT)
@@ -119,7 +119,7 @@ class TargetSettings(QWidget):
         common_form_layout = QFormLayout()
         common_form_layout.addRow('Скорость цели:', self.speed_spinbox)
         common_form_layout.addRow('Тип цели:', self.target_type_combobox)
-        common_form_layout.addRow('ЭПР:', self.scs_spinbox)
+        common_form_layout.addRow('ЭПР:', self.epr_spinbox)
         common_form_layout.addRow('Высота цели:', self.height_spinbox)
 
         self.setLayout(common_form_layout)
@@ -227,6 +227,6 @@ class SettingsDialog(QDialog):
         settings.SPEED = self.target_settings.speed_spinbox.value()
         settings.TARGET_TYPE = TypeTargetEnum.get_target_type_from_desc(
             self.target_settings.target_type_combobox.currentText())
-        settings.SCS = self.target_settings.scs_spinbox.value()
+        settings.EPR = self.target_settings.epr_spinbox.value()
         settings.HEIGHT = self.target_settings.height_spinbox.value()
         super(SettingsDialog, self).accept()

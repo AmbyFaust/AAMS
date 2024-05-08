@@ -35,7 +35,5 @@ SNR_DETECTION = 10
 # Цель
 SPEED = 100
 TARGET_TYPE = TypeTargetEnum.first
-SCS = 100
+EPR = 100
 HEIGHT = 100
-
-
