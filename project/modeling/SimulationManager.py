@@ -6,10 +6,6 @@ from .ObjectModels.RadarObj import RadarObj
 from .ObjectModels.TargetObj import Target
 from .ObjectModels.Launcher_and_missile import LaunchSystem
 
-from .ObjectModels.CommandPostObj import CommandPostObj
-from .ObjectModels.RocketLauncherObj import RocketLauncherObj
-from .ObjectModels.SimpleTestPlane import SimpleTestPlane
-
 
 class SimulationManager:
     def __init__(self, path):

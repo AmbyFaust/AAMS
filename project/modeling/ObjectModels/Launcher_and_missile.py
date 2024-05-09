@@ -26,7 +26,7 @@ class LaunchSystem(Object):
 
     def launch_missile(self):
         if self.current_missiles_launched < self.max_missiles and self.remaining_missiles > 0:
-            missile_id = str(self.id) + "_missile_" + str(self.current_missiles_launched + 1)
+            missile_id = str(self.Id) + "_missile_" + str(self.current_missiles_launched + 1)
             self.current_missiles_launched += 1
             self.remaining_missiles -= 1
             missile = Missile(self.coordinates)
@@ -118,15 +118,7 @@ class Missile(Object):
         plt.show()
 
 
-launch_system = LaunchSystem(0, 0, 0)
-missile = launch_system.launch_missile()
-missile.plot_trajectory()
-
-
-
-
-
-
-
-
-
+if __name__ == '__main__':
+    launch_system = LaunchSystem(0, 0, 0)
+    missile = launch_system.launch_missile()
+    missile.plot_trajectory()

@@ -1,6 +1,6 @@
 from .base_entity import BaseEntity
 from .coordinates_entity import CoordinatesEntity
-from ...settings import (EIRP, SEFF, BW_U, BW_V, SCANNING_V, T_N, PRF, N_PULSES_PROC,
+from ...settings import (EIRP, SEFF, BW_U, BW_V, SCANNING_V, T_N, PRF, SIGNAL_TIME, N_PULSES_PROC,
                          OPERATING_FREQ, START_TIME, SNR_DETECTION)
 
 
@@ -13,6 +13,7 @@ class RadarEntity(BaseEntity):
                  scanning_v: int = SCANNING_V,
                  t_n: int = T_N,
                  prf: int = PRF,
+                 signal_time: int = SIGNAL_TIME,
                  n_pulses_proc: int = N_PULSES_PROC,
                  operating_freq: int = OPERATING_FREQ,
                  start_time: int = START_TIME,
@@ -27,6 +28,7 @@ class RadarEntity(BaseEntity):
         self.scanning_v = scanning_v    # пределы сканирования по углу места (list[от ;до])
         self.t_n = t_n  # Шумовая температура в Кельвинаx > комнатной температуры
         self.prf = prf  # Частота повторения импульсов PRF > 2/SignalTime
+        self.signal_time = signal_time
         self.n_pulses_proc = n_pulses_proc  # количество импульсов в пачке (в одном положении луча)
         self.operating_freq = operating_freq # Рабочая частота(обычно МГц или ГГц)
         self.start_time = start_time
@@ -43,7 +45,7 @@ class RadarEntity(BaseEntity):
             'scanning_v': self.scanning_v,
             't_n': self.t_n,
             'prf': self.prf,
-            'signal_time': 1,
+            'signal_time': self.signal_time,
             'n_pulses_proc': self.n_pulses_proc,
             'operating_freq': self.operating_freq,
             'start_time': self.start_time,
@@ -60,6 +62,7 @@ class RadarEntity(BaseEntity):
         self.scanning_v = data['scanning_v']
         self.t_n = data['t_n']
         self.prf = data['prf']
+        self.signal_time = data['signal_time']
         self.n_pulses_proc = data['n_pulses_proc']
         self.operating_freq = data['operating_freq']
         self.start_time = data['start_time']
