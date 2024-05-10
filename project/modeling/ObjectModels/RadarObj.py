@@ -55,6 +55,14 @@ class RadarObj(Object):
         Rmeasured = np.random.normal(target_coordsSpH.R, stdR, 1)
         return mark(U=Umeasured, V=Vmeasured, R=Rmeasured, stdU=stdU, stdV=stdV, stdR=stdR, TargetId=targid)
 
+    def TrackingMeasure(self,target,time):
+        targetInfo = target.ReturnPlaneInformation(time)
+        targetCoordsUV = GRCStoUV(targetInfo.coordinates, self.ObjCoords)
+        TargetSNR = self.CalculateSNR(targetCoordsUV.R, targetInfo.RCS)
+        mark = self.CalcMistake(targetCoordsUV, TargetSNR, targetInfo.TargetId)
+        MarkCoordsGRCS = UVtoGRCS(UVCS(R=mark.R, U=mark.U, V=mark.V), self.StartCoords)
+        return(MarkCoordsGRCS)
+
     def MakeMeasurement(self, targets, time):
         BeamCoords = self.scanning_procces(time)
         # print('Направление луча:',BeamCoords)

@@ -143,7 +143,7 @@ class Handler(QObject):
             print(f'Не удалось изменить цель с id = {target_id} не удалось изменить: {exp}')
 
     @pyqtSlot()
-    def calculate(self):
+    def calculate(self) -> object:
         json_object = {
             'objects': {
                 'radars': [radar.to_dict() for radar in self.radars.values()],

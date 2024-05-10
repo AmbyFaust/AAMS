@@ -3,27 +3,7 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 from collections import namedtuple
 from project.modeling.ObjectModels.DataStructures import  RectCS, target_params
-
-
-class Object:
-    Id = 1
-    ObjectName = 'SimpleObject'
-    Islive = True
-
-    def __init__(self, startcoods=RectCS(X=0, Y=0, Z=0)):
-        self.Id = Object.Id
-        Object.Id += 1
-        self.StartCoords = startcoods
-        self.ObjCoords = startcoods
-
-    def __str__(self):
-        return self.ObjectName + str(self.Id) + ' with coords ' + str(self.ObjCoords)
-
-    def destroyed(self):
-        self.Islive = False
-        tmpString = self.ObjectName + str(self.Id)
-        print(tmpString, 'has been destroyed')
-
+from project.modeling.ObjectModels.Object import Object
 
 class Target(Object):
     ObjectName = 'Target'
