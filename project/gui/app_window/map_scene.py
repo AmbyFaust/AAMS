@@ -201,7 +201,7 @@ class GridScene(QGraphicsScene):
             self.addItem(redraw_radar.radar_item)
             redraw_radar.radar_radius_item = self.addPath(redraw_radar.radius_path, QPen(Qt.blue))
 
-            redraw_radar.radar_radius_item.setPos(radar_entity.coordinates.to_q_point())
+            redraw_radar.radar_radius_item.setPos(radar_entity.start_coordinates.to_q_point())
             self.radars[radar_entity.id] = redraw_radar
 
             self.current_object = None

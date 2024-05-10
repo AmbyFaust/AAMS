@@ -8,7 +8,7 @@ from PyQt5 import QtCore
 from project import TypeTargetEnum
 from project import settings
 from project.gui.dialogs.open_dialog import QOpenFilesDialog
-from project.settings import BASE_FONT
+from project.settings import BASE_FONT, SIGNAL_TIME, SCANNING_V
 
 
 class RadarSettings(QWidget):
@@ -38,7 +38,19 @@ class RadarSettings(QWidget):
         self.bw_v_spinbox.setRange(1, 44)
         self.bw_v_spinbox.setValue(settings.BW_V)
 
-        self.scanning_v = QLabel()
+        self.scanning_v_min_label = QLabel('От:')
+
+        self.scanning_v_min = QSpinBox()
+        self.scanning_v_min.setFont(BASE_FONT)
+        self.scanning_v_min.setRange(1, 43)
+        self.scanning_v_min.setValue(SCANNING_V[0])
+
+        self.scanning_v_max_label = QLabel('До:')
+
+        self.scanning_v_max = QSpinBox()
+        self.scanning_v_max.setFont(BASE_FONT)
+        self.scanning_v_max.setRange(2, 44)
+        self.scanning_v_max.setValue(SCANNING_V[1])
 
         self.t_n_spinbox = QSpinBox()
         self.t_n_spinbox.setFont(BASE_FONT)
@@ -49,6 +61,11 @@ class RadarSettings(QWidget):
         self.prf_spinbox.setFont(BASE_FONT)
         self.prf_spinbox.setRange(0.0001, 10000)
         self.prf_spinbox.setValue(settings.PRF)
+
+        self.signal_time_spinbox = QDoubleSpinBox()
+        self.signal_time_spinbox.setFont(BASE_FONT)
+        self.signal_time_spinbox.setRange(1, 100)
+        self.signal_time_spinbox.setValue(SIGNAL_TIME)
 
         self.n_pulses_proc_spinbox = QSpinBox()
         self.n_pulses_proc_spinbox.setFont(BASE_FONT)
@@ -70,21 +87,37 @@ class RadarSettings(QWidget):
         self.snr_detection_spinbox.setRange(1, 100)
         self.snr_detection_spinbox.setValue(settings.SNR_DETECTION)
 
+        self.scanning_v_min.valueChanged.connect(self.__validate_values)
+        self.scanning_v_max.valueChanged.connect(self.__validate_values)
+
     def __create_layout(self):
+        scanning_v_h_layout = QHBoxLayout()
+        scanning_v_h_layout.addWidget(self.scanning_v_min_label)
+        scanning_v_h_layout.addWidget(self.scanning_v_min)
+        scanning_v_h_layout.addWidget(self.scanning_v_max_label)
+        scanning_v_h_layout.addWidget(self.scanning_v_max)
+
         common_form_layout = QFormLayout()
         common_form_layout.addRow('Эффективная изотропная излучаемая мощность:', self.eirp_spinbox)
         common_form_layout.addRow('Эффективная площадь антенны:', self.seff_spinbox)
         common_form_layout.addRow('Ширина луча по азимуту, град:', self.bw_u_spinbox)
         common_form_layout.addRow('Ширина луча по углу места, град:', self.bw_v_spinbox)
-        common_form_layout.addRow('Пределы сканирования по углу места:', self.scanning_v)
         common_form_layout.addRow('Шумовая температура, К:', self.t_n_spinbox)
         common_form_layout.addRow('Частота повторения импульсов:', self.prf_spinbox)
+        common_form_layout.addRow('Пределы сканирования по углу места:', scanning_v_h_layout)
+        common_form_layout.addRow('Время сигнала:', self.signal_time_spinbox)
         common_form_layout.addRow('Количество импульсов в пачке:', self.n_pulses_proc_spinbox)
         common_form_layout.addRow('Рабочая частота:', self.operating_freq_spinbox)
         common_form_layout.addRow('Начальное время:', self.start_time_spinbox)
         common_form_layout.addRow('ОСШ для обнаружения:', self.snr_detection_spinbox)
 
         self.setLayout(common_form_layout)
+
+    def __validate_values(self):
+        min_value = self.scanning_v_min.value()
+        max_value = self.scanning_v_max.value()
+        if min_value >= max_value:
+            self.scanning_v_max.setValue(min_value + 1)
 
 
 class TargetSettings(QWidget):
@@ -217,8 +250,10 @@ class SettingsDialog(QDialog):
         settings.SEFF = self.radar_settings.seff_spinbox.value()
         settings.BW_U = self.radar_settings.bw_u_spinbox.value()
         settings.BW_V = self.radar_settings.bw_v_spinbox.value()
-        # scanning_v
         settings.T_N = self.radar_settings.t_n_spinbox.value()
+        settings.PRF = self.radar_settings.prf_spinbox.value()
+        settings.SCANNING_V = [self.radar_settings.scanning_v_min.value(), self.radar_settings.scanning_v_max.value()]
+        settings.SIGNAL_TIME = self.radar_settings.start_time_spinbox.value()
         settings.N_PULSES_PROC = self.radar_settings.n_pulses_proc_spinbox.value()
         settings.OPERATING_FREQ = self.radar_settings.operating_freq_spinbox.value()
         settings.START_TIME = self.radar_settings.start_time_spinbox.value()

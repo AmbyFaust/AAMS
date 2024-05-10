@@ -15,7 +15,7 @@ class SimulationManager:
         self.launchers = []
 
     def load_objects(self):
-        with open(self.path, 'r') as file:
+        with open(self.path, 'r', encoding='utf-8') as file:
             d = json.load(file)
 
             for radar_data in d['objects']['radars']:

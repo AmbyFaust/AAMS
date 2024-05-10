@@ -154,7 +154,7 @@ class Handler(QObject):
 
         filename = f'{INPUT_FILE_PATH}/{datetime.datetime.now()}.json'
 
-        with open(filename, 'w+') as file:
+        with open(filename, 'w+', encoding='utf-8') as file:
             json.dump(json_object, file)
 
         sm = SimulationManager(filename)
