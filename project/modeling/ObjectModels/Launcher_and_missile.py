@@ -37,6 +37,8 @@ class Missile(Object):
     Id = 1
     def __init__(self, launch_coordinates):
         self.id = Missile.Id
+        self.radarId = []
+        self.targetId = []
         Missile.Id += 1
         self.speed = 1000
         self.coordinates = launch_coordinates
