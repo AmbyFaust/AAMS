@@ -1,4 +1,7 @@
 import json
+import os.path
+
+import pandas as pd
 
 from .ObjectModels.DataStructures import radar_params
 
@@ -10,19 +13,23 @@ from .ObjectModels.Launcher_and_missile import LaunchSystem
 class SimulationManager:
     def __init__(self, path):
         self.path = path
+
         self.radars = []
         self.targets = []
         self.launchers = []
+        self.__load_objects()
 
-    def load_objects(self):
+        self.data = pd.DataFrame(columns=['radar_id', 'target_id', 'time', 'x', 'y', 'z'])
+
+    def __load_objects(self):
         with open(self.path, 'r') as file:
             d = json.load(file)
 
-            for radar_data in d['objects']['radars']:
+            for radar_data in d['radars']:
                 self.__load_radar_object(radar_data)
                 self.__load_launcher_object(radar_data)
 
-            for target_data in d['objects']['targets']:
+            for target_data in d['targets']:
                 self.__load_target_object(target_data)
 
     def modeling(self):
@@ -72,26 +79,12 @@ class SimulationManager:
             )
         )
 
-    def __append_data(self, data):
-        new_row_id = 0
-        with open(self.path, 'r+') as file:
-            d = json.load(file)
+    def __append_data(self, row):
+        self.data.loc[len(self.data)] = row
 
-            if len(d['data']) > 0:
-                new_row_id = max(d['data'].keys()) + 1
-
-            for row in data:
-                d['data'][new_row_id] = {
-                    'radar_id': row['radar_id'],
-                    'target_id': row['target_id'],
-                    'time': row['time'],
-                    'x': row['x'],
-                    'y': row['y'],
-                    'z': row['z']
-                }
-                new_row_id += 1
-
-            json.dump(d, file)
+    def __save_data(self):
+        filename = os.path.dirname(self.path) + '/data.csv'
+        self.data.to_csv(filename)
 
 
 # Диспетчер моделирования
