@@ -22,11 +22,11 @@ class SimulationManager:
         with open(self.path, 'r') as file:
             d = json.load(file)
 
-            for radar_data in d['objects']['radars']:
+            for radar_data in d['radars']:
                 self.__load_radar_object(radar_data)
                 self.__load_launcher_object(radar_data)
 
-            for target_data in d['objects']['targets']:
+            for target_data in d['targets']:
                 self.__load_target_object(target_data)
 
     def modeling(self):
