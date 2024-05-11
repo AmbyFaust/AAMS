@@ -1,3 +1,4 @@
+
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
@@ -35,16 +36,19 @@ class LaunchSystem(Object):
 class Missile(Object):
     ObjectName = 'Rocket'
     Id = 1
-    def __init__(self, launch_coordinates):
+    def __init__(self, launch_coordinates):  # id target and radar
         self.id = Missile.Id
         self.radarId = []
         self.targetId = []
         Missile.Id += 1
         self.speed = 1000
+        self.time = 0
         self.coordinates = launch_coordinates
         self.target_coordinates = None
-        self.trajectory = []  # Поле для хранения траектории полета
+        self.trajectory = []  # Поле для хранения траектории полета до цели
+        self.rocket_trajectory = [launch_coordinates]
         self.DetonationRange = 100
+        self.DamageRange = 200
 
     def give_coords(self):
         return self.coordinates
@@ -53,24 +57,38 @@ class Missile(Object):
         self.target_coordinates = target_coords
         self.calculate_trajectory()  # Вычисляем траекторию при установке целевых координат
 
-    def calculate_trajectory(self, step_size=1000):
-        if self.target_coordinates is None:
-            print("Cannot calculate trajectory. Target coordinates are not set.")
-            return
+    def move(self, time):
+        CalculatedCoords = self.get_coordinates_at_time(time)
+        self.time = time
+        self.coordinates = CalculatedCoords
+        if self.distance_to_target() <= self.DetonationRange:
+            self.detonate()
+        self.rocket_trajectory.append(self.coordinates)
+        pass
 
-        # Начальные координаты ракеты
+    def distance_to_target(self):
         x1, y1, z1 = self.coordinates
         # Координаты цели
         x2, y2, z2 = self.target_coordinates
 
         # Вычисление длины линии между начальными и конечными точками
         distance = ((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2) ** 0.5
+        return distance
+
+    def calculate_trajectory(self, step_size=1000):
+        if self.target_coordinates is None:
+            print("Cannot calculate trajectory. Target coordinates are not set.")
+            return
+        x1, y1, z1 = self.coordinates
+        # Координаты цели
+        x2, y2, z2 = self.target_coordinates
+        # Вычисление длины линии между начальными и конечными точками
+        distance = self.distance_to_target()
 
         # Вычисление количества отрезков (точек), которые нужно разместить на траектории
         num_points = int(distance / step_size)
 
         # Массив для хранения координат точек траектории полета
-        trajectory = []
 
         # Находим координаты точек на прямой для различных значений t
         for i in range(num_points + 1):
@@ -78,9 +96,40 @@ class Missile(Object):
             x = x1 + (x2 - x1) * t
             y = y1 + (y2 - y1) * t
             z = z1 + (z2 - z1) * t
-            trajectory.append((x, y, z))
+            self.trajectory.append((x, y, z))
 
-        self.trajectory = trajectory  # Сохраняем траекторию в поле объекта
+      # Сохраняем траекторию в поле объекта
+
+    def get_coordinates_at_time(self, time):
+        if self.target_coordinates is None:
+            print("Cannot get coordinates. Target coordinates are not set.")
+            return None
+
+        if not self.coordinates:
+            print("Cannot get coordinates. Initial coordinates are not set.")
+            return None
+
+        # Вычисляем вектор направления к цели
+        direction_vector = np.array(self.target_coordinates) - np.array(self.coordinates)
+
+        # Вычисляем длину вектора направления
+        direction_length = np.linalg.norm(direction_vector)
+
+        # Нормализуем вектор направления
+        direction_unit_vector = direction_vector / direction_length
+
+        # Вычисляем дистанцию, которую прошла ракета за заданное время
+        distance_traveled = self.speed * (time - self.time)
+
+        # Если дистанция превышает расстояние до цели, то ракета достигла цели
+        if distance_traveled > direction_length:
+            print('Error')
+            return None
+
+        # Вычисляем новые координаты ракеты
+        new_coordinates = tuple(np.array(self.coordinates) + distance_traveled * direction_unit_vector)
+
+        return new_coordinates
 
     def detonate(self):
         if self.target_coordinates is not None:
@@ -102,7 +151,7 @@ class Missile(Object):
             return
 
         # Разделение списка координат на отдельные списки x, y и z
-        x_coords, y_coords, z_coords = zip(*self.trajectory)
+        x_coords, y_coords, z_coords = zip(*self.rocket_trajectory)
 
         # Создание 3D-графика траектории
         fig = plt.figure()
@@ -127,4 +176,14 @@ class Missile(Object):
 if __name__ == '__main__':
     launch_system = LaunchSystem(0, 0, 0)
     missile = launch_system.launch_missile()
+    missile.move(25)
+    missile.set_target_coords((30000,30000,0))
+    missile.move(32)
+    missile.set_target_coords((45000, 45000, 45000))
+    missile.move(60)
+    missile.set_target_coords((5000, 5000, 45000))
+    missile.move(102.6)
+    print(missile.distance_to_target())
     missile.plot_trajectory()
+
+

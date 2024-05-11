@@ -20,6 +20,7 @@ class Target(Object):
         self.epr = epr
         self.velocity = velocity
         self.control_points = control_points
+        self.CurrCoords = RectCS(X=self.control_points[0][0], Y=self.control_points[0][1], Z=self.control_points[0][2])
         self.coordinates_dict = self._generate_coordinates_dict()
 
     def _generate_coordinates_dict(self):
@@ -74,6 +75,11 @@ class Target(Object):
 
         return RectCS(X=interp_coords[0], Y=interp_coords[1], Z=0)
 
+
+    def move(self, time):
+        CalculatedCoords = self.calculate_position_at_time(time)
+        self.CurrCoords = CalculatedCoords
+        pass
 
     def ReturnPlaneInformation(self,time):
         CalculatedCoords =self.calculate_position_at_time(time)
