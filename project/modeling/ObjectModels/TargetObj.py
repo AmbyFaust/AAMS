@@ -81,6 +81,11 @@ class Target(Object):
         return RectCS(X=interp_coords[0], Y=interp_coords[1], Z=0)
 
 
+    def move(self, time):
+        CalculatedCoords = self.calculate_position_at_time(time)
+        self.CurrCoords = CalculatedCoords
+        pass
+
     def ReturnPlaneInformation(self,time):
         CalculatedCoords =self.calculate_position_at_time(time)
         return target_params(RCS=self.epr, coordinates=CalculatedCoords, TargetId=self.Id)
