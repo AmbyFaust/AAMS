@@ -7,7 +7,6 @@ from project.modeling.CSTransformator import GRCStoUV, UVtoLRCS
 from project.modeling.CSTransformator import UVtoGRCS
 
 
-
 # Класс Радар
 class RadarObj(Object):
     Trajectories = []
@@ -15,9 +14,12 @@ class RadarObj(Object):
     Id = 1
 
     # Конструктор Класса
-    def __init__(self, radar_params):
-        self.Id = RadarObj.Id
-        RadarObj.Id += 1
+    def __init__(self, radar_params, radar_id=None):
+        if radar_id is None:
+            self.Id = RadarObj.Id
+            RadarObj.Id += 1
+        else:
+            self.Id = radar_id
         self.Trajectories = []
         self.StartCoords = radar_params.start_coords
         self.ObjCoords = radar_params.start_coords
@@ -52,6 +54,14 @@ class RadarObj(Object):
         Vmeasured = np.random.normal(target_coordsSpH.V, stdV, 1)
         Rmeasured = np.random.normal(target_coordsSpH.R, stdR, 1)
         return mark(U=Umeasured, V=Vmeasured, R=Rmeasured, stdU=stdU, stdV=stdV, stdR=stdR, TargetId=targid)
+
+    def TrackingMeasure(self,target,time):
+        targetInfo = target.ReturnPlaneInformation(time)
+        targetCoordsUV = GRCStoUV(targetInfo.coordinates, self.ObjCoords)
+        TargetSNR = self.CalculateSNR(targetCoordsUV.R, targetInfo.RCS)
+        mark = self.CalcMistake(targetCoordsUV, TargetSNR, targetInfo.TargetId)
+        MarkCoordsGRCS = UVtoGRCS(UVCS(R=mark.R, U=mark.U, V=mark.V), self.StartCoords)
+        return(MarkCoordsGRCS)
 
     def MakeMeasurement(self, targets, time):
         BeamCoords = self.scanning_procces(time)

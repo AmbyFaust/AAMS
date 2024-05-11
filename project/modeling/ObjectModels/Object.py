@@ -30,7 +30,6 @@ class MovebleObject(Object):
         print(tmpString, 'move to', NewCoords)
 
 
-
 if __name__ == "__main__":
     print('Классы компилируются')
     simpleObj = Object()
