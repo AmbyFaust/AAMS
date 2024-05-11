@@ -2,11 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.interpolate import interp1d
-
-
-class Object:
-    Id = 1
-
+from project.modeling.ObjectModels.Object import Object
 
 class LaunchSystem(Object):
     ObjectName = 'LaunchSystem'
@@ -37,13 +33,16 @@ class LaunchSystem(Object):
 
 
 class Missile(Object):
+    ObjectName = 'Rocket'
+    Id = 1
     def __init__(self, launch_coordinates):
-        self.id = Object.Id
-        Object.Id += 1
+        self.id = Missile.Id
+        Missile.Id += 1
         self.speed = 1000
         self.coordinates = launch_coordinates
         self.target_coordinates = None
         self.trajectory = []  # Поле для хранения траектории полета
+        self.DetonationRange = 100
 
     def give_coords(self):
         return self.coordinates
@@ -89,6 +88,11 @@ class Missile(Object):
 
     def self_destruct(self):
         print(f"Missile {self.id} self-destructed.")
+
+    def CheckRangeToTargets(self,Targets):
+        for Target in Targets:
+            DistanceToTarget = Targets.co
+
 
     def plot_trajectory(self):
         if not self.trajectory:
