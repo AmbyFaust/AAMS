@@ -20,6 +20,7 @@ class Target(Object):
         self.epr = epr
         self.velocity = velocity
         self.control_points = control_points
+        self.CurrCoords = RectCS(X=self.control_points[0][0], Y=self.control_points[0][1], Z=self.control_points[0][2])
         self.coordinates_dict = self._generate_coordinates_dict()
 
     def _generate_coordinates_dict(self):
@@ -48,6 +49,11 @@ class Target(Object):
             t += distance / self.velocity
             coordinates_dict[i] = [x_interp[i], y_interp[i], t]
         return coordinates_dict
+
+    def move(self, time):
+        CalculatedCoords = self.calculate_position_at_time(time)
+        self.CurrCoords = CalculatedCoords
+        pass
 
     def calculate_position_at_time(self, time):
         # Находим координаты цели в заданный момент времени

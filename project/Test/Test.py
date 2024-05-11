@@ -64,7 +64,7 @@ for t in time:
         for one_traj in range(0, len(all_radar_traj)):
             current_traj = all_radar_traj[one_traj]
             if(current_traj.is_confimed == True):
-                Comman_Post_SKB_7.tritial_processing(all_radars,current_traj)
+                Comman_Post_SKB_7.tritial_processing(all_radars,current_traj, time)
 fig = plt.figure()
 ax = plt.axes(projection ='3d')
 for radar in all_radars:

@@ -4,7 +4,7 @@ import math
 
 class CommandPostObj(Object):
     detect_id_object = []
-    def tritial_processing(self, all_radars,current_traj,all_launchers):
+    def tritial_processing(self, all_radars,current_traj,all_launchers, time):
         if current_traj.target_id in self.detect_id_object:
             pass
         else:
@@ -13,7 +13,7 @@ class CommandPostObj(Object):
 
             for one_launcher in all_launchers:
                 if (one_launcher.radarId == convinient_radar):
-                    launched_rocket = one_launcher.launch_missile(convinient_radar.Id,current_traj.target_id)
+                    launched_rocket = one_launcher.launch_missile(convinient_radar.Id,current_traj.target_id, time)
             # print('The launcher of the radar with id ', convinient_radar.Id, ' launched a rocket to liquidate ',
             #       current_traj.target_id)
         return launched_rocket

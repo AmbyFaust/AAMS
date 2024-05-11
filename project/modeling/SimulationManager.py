@@ -36,7 +36,7 @@ class SimulationManager:
     def modeling_step(self):
         # Изменяем текущее время модели
         self.CurrModelingTime+=self.TimeStep
-        print("Время моделирования:", self.CurrModelingTime)
+        #print("Время моделирования:", self.CurrModelingTime)
 
         # Моделируем ПОИ и ВОИ(первичка и вторичка)
         for radar in self.radars:
