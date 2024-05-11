@@ -48,7 +48,7 @@ class SimulationManager:
             all_radar_traj = radar.Trajectories
             for current_traj in all_radar_traj:
                 if (current_traj.is_confimed == True):
-                    self.rockets.append(self.CommPost.tritial_processing(self.radars, current_traj))
+                    self.rockets.append(self.CommPost.tritial_processing(self.radars, current_traj,self.launchers))
 
         # Сдвигаем все объекты(цели и ракеты) в соответствии с текущим временем (Если они в состоянии IsLive)
         if len(self.rockets) > 0:

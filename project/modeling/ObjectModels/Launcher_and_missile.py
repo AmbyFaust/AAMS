@@ -14,18 +14,21 @@ class LaunchSystem(Object):
             LaunchSystem.Id += 1
         else:
             self.Id = launcher_id
+        self.radarId = []
         self.coordinates = (x, y, z)
         self.max_range = 35000
         self.max_missiles = 6
         self.current_missiles_launched = 0
         self.remaining_missiles = self.max_missiles
 
-    def launch_missile(self):
+    def launch_missile(self, radarId, targetId):
         if self.current_missiles_launched < self.max_missiles and self.remaining_missiles > 0:
             missile_id = str(self.Id) + "_missile_" + str(self.current_missiles_launched + 1)
             self.current_missiles_launched += 1
             self.remaining_missiles -= 1
             missile = Missile(self.coordinates)
+            missile.radarId = radarId
+            missile.targetId = targetId
             missile.set_target_coords((15000, 15000, 15000))  # Установка координат цели по умолчанию
             return missile
         else:
