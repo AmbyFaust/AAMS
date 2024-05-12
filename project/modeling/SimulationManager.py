@@ -53,7 +53,11 @@ class SimulationManager:
             all_radar_traj = radar.Trajectories
             for current_traj in all_radar_traj:
                 if (current_traj.is_confimed == True):
-                    self.rockets.append(self.CommPost.tritial_processing(self.radars, current_traj,self.launchers,self.CurrModelingTime))
+                    tmp = self.CommPost.tritial_processing(self.radars, current_traj,self.launchers,self.CurrModelingTime)
+                    if tmp == None:
+                        pass
+                    else:
+                        self.rockets.append(tmp)
 
         # Сдвигаем все объекты(цели и ракеты) в соответствии с текущим временем (Если они в состоянии IsLive)
         if len(self.rockets) > 0:
@@ -69,7 +73,7 @@ class SimulationManager:
                 # Проверяем условия подрыва и в случае подрыва задаём всем объектам флаг (IsLive = false)
                 rocket.checkDetonationConditions(self.targets)
                 #Ракета должна знать к кому радару она относится и какой цели летит
-                targetCoord = self.radar[rocket.radarId].TrackingMeasure(self.targets[rocket.targetId],self.CurrModelingTime)
+                targetCoord = self.radars[rocket.radarId - 1].TrackingMeasure(self.targets[rocket.targetId- 1],self.CurrModelingTime)
                 rocket.changeDirectionofFlight(targetCoord)
 
 
