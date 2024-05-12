@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.interpolate import interp1d
 from project.modeling.ObjectModels.Object import Object
+from collections import namedtuple
+RectCS = namedtuple('RectCS', 'X Y Z')
+
 
 class LaunchSystem(Object):
     ObjectName = 'LaunchSystem'
@@ -15,7 +18,7 @@ class LaunchSystem(Object):
         else:
             self.Id = launcher_id
         self.radarId = []
-        self.coordinates = (x, y, z)
+        self.coordinates = RectCS(X=x, Y=y, Z=z)
         self.max_range = 35000
         self.max_missiles = 6
         self.current_missiles_launched = 0
@@ -63,26 +66,21 @@ class Missile(Object):
     def checkDetonationConditions(self, targets):
         bum = False
         for target in targets:
-            x1, y1, z1 = self.coordinates
-            # Координаты цели
-            x2, y2, z2 = target.CurrCoords
+            direction_vector = np.array(target.CurrCoords) - np.array(self.coordinates)
 
-            # Вычисление длины линии между начальными и конечными точками
-            distance = ((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2) ** 0.5
-            print(distance)
-            if self.DetonationRange >= distance:
+            # Вычисляем длину вектора направления
+            dist = np.linalg.norm(direction_vector)
+            if self.DetonationRange >= dist:
                 bum = True
                 self.detonate(target)
         if bum == True:
             for target in targets:
-                x1, y1, z1 = self.coordinates
-                # Координаты цели
-                x2, y2, z2 = target.CurrCoords
+                direction_vector = np.array(target.CurrCoords) - np.array(self.coordinates)
 
-                # Вычисление длины линии между начальными и конечными точками
-                distance = ((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2) ** 0.5
+                # Вычисляем длину вектора направления
+                dist = np.linalg.norm(direction_vector)
 
-                if self.DamageRange >= distance:
+                if self.DamageRange >= dist:
                     self.detonate(target)
 
 
@@ -94,12 +92,9 @@ class Missile(Object):
         pass
 
     def distance_to_target(self):
-        x1, y1, z1 = self.coordinates
-        # Координаты цели
-        x2, y2, z2 = self.target_coordinates
-
-        # Вычисление длины линии между начальными и конечными точками
-        distance = ((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2) ** 0.5
+        direction_vector = np.array(self.target_coordinates) - np.array(self.coordinates)
+        # Вычисляем длину вектора направления
+        distance = np.linalg.norm(direction_vector)
         return distance
 
     def calculate_trajectory(self, step_size=10):
@@ -113,7 +108,7 @@ class Missile(Object):
         distance = self.distance_to_target()
 
         # Вычисление количества отрезков (точек), которые нужно разместить на траектории
-        num_points = int(distance / step_size)
+        num_points = int(distance / step_size) + 1
 
         # Массив для хранения координат точек траектории полета
 
@@ -155,6 +150,7 @@ class Missile(Object):
 
         # Вычисляем новые координаты ракеты
         new_coordinates = tuple(np.array(self.coordinates) + distance_traveled * direction_unit_vector)
+        new_coordinates = RectCS(X=new_coordinates[0], Y=new_coordinates[1], Z=new_coordinates[2])
 
         return new_coordinates
 
