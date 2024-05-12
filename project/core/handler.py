@@ -143,20 +143,16 @@ class Handler(QObject):
             print(f'Не удалось изменить цель с id = {target_id} не удалось изменить: {exp}')
 
     @pyqtSlot()
-    def calculate(self) -> object:
-        json_object = {
-            'objects': {
-                'radars': [radar.to_dict() for radar in self.radars.values()],
-                'targets': [target.to_dict() for target in self.targets.values()]
-            },
-            'data': {}
+    def calculate(self):
+        objects_json = {
+            'radars': [radar.to_dict() for radar in self.radars.values()],
+            'targets': [target.to_dict() for target in self.targets.values()]
         }
 
-        filename = f'{INPUT_FILE_PATH}/{datetime.datetime.now()}.json'
+        filename = f'{INPUT_FILE_PATH}/objects.json'
 
         with open(filename, 'w+') as file:
-            json.dump(json_object, file)
+            json.dump(objects_json, file)
 
         sm = SimulationManager(filename)
-        sm.load_objects()
         sm.modeling()
