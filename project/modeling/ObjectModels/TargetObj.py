@@ -78,7 +78,7 @@ class Target(Object):
         interp_coords = prev_coords[:2] + ((time - prev_coords[2]) / (next_coords[2] - prev_coords[2])) * (
                     next_coords[:2] - prev_coords[:2])
 
-        return RectCS(X=interp_coords[0], Y=interp_coords[1], Z=0)
+        return RectCS(X=interp_coords[0], Y=interp_coords[1], Z=3000)
 
 
     def move(self, time):
