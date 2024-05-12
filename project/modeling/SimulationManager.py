@@ -2,10 +2,10 @@ import os
 import json
 import pandas as pd
 
-from ObjectModels.DataStructures import radar_params
-from ObjectModels.RadarObj import RadarObj
-from ObjectModels.TargetObj import Target
-from ObjectModels.Launcher_and_missile import LaunchSystem
+from .ObjectModels.DataStructures import radar_params
+from .ObjectModels.RadarObj import RadarObj
+from .ObjectModels.TargetObj import Target
+from .ObjectModels.Launcher_and_missile import LaunchSystem
 from project.modeling.ObjectModels.CommandPostObj import CommandPostObj
 
 
@@ -46,42 +46,47 @@ class SimulationManager:
     def modeling_step(self):
         # Изменяем текущее время модели
         self.CurrModelingTime += self.TimeStep
-        if self.CurrModelingTime>3:
+        if self.CurrModelingTime > 3:
             print("Время моделирования:", self.CurrModelingTime)
 
-        for target in self.targets:
+        for target_id, target in self.targets.items():
             print(target.CurrCoords)
 
-
         # Моделируем ПОИ и ВОИ(первичка и вторичка)
-        for radar in self.radars:
-            measurements_from_radar = radar.MakeMeasurement(self.targets, self.CurrModelingTime)
+        for radar_id, radar in self.radars.items():
+            measurements_from_radar = radar.MakeMeasurement(self.targets.values(), self.CurrModelingTime)
             radar.secondary_processing(measurements_from_radar)
 
         # Моделируем ТОИ(третичка)
-        for radar in self.radars:
+        for radar_id, radar in self.radars.items():
             all_radar_traj = radar.Trajectories
             for current_traj in all_radar_traj:
                 if current_traj.is_confimed:
-                    self.rockets.append(self.CommPost.tritial_processing(self.radars, current_traj,self.launchers,self.CurrModelingTime))
-
+                    self.rockets.append(
+                        self.CommPost.tritial_processing(
+                            self.radars.values(),
+                            current_traj,
+                            self.launchers.values(),
+                            self.CurrModelingTime)
+                    )
 
         # Сдвигаем все объекты(цели и ракеты) в соответствии с текущим временем (Если они в состоянии IsLive)
-        if len(self.rockets) > 0:
-            for rocket in self.rockets:
-                rocket.move(self.CurrModelingTime)
-        for target in self.targets:
+        for rocket in self.rockets:
+            rocket.move(self.CurrModelingTime)
+        for target_id, target in self.targets.items():
             if target.Islive:
                 target.move(self.CurrModelingTime)
 
         # Проверяем условия подрыва и выдаём координаты цели для полёта ракеты  (если есть ракеты)
-        if len(self.rockets) > 0:
-            for rocket in self.rockets:
-                # Проверяем условия подрыва и в случае подрыва задаём всем объектам флаг (IsLive = false)
-                rocket.checkDetonationConditions(self.targets)
-                #Ракета должна знать к кому радару она относится и какой цели летит
-                targetCoord = self.radars[rocket.radarId].TrackingMeasure(self.targets[rocket.targetId],self.CurrModelingTime)
-                rocket.changeDirectionofFlight(targetCoord)
+        for rocket in self.rockets:
+            # Проверяем условия подрыва и в случае подрыва задаём всем объектам флаг (IsLive = false)
+            rocket.checkDetonationConditions(self.targets.values())
+            #Ракета должна знать к кому радару она относится и какой цели летит
+            targetCoord = self.radars[rocket.radarId].TrackingMeasure(
+                self.targets[rocket.targetId],
+                self.CurrModelingTime
+            )
+            rocket.changeDirectionofFlight(targetCoord)
 
     def __load_radar_object(self, radar_data):
         self.radars[radar_data['id']] = RadarObj(radar_params(
