@@ -1,10 +1,12 @@
 import json
+import pandas as pd
 
-from .ObjectModels.DataStructures import radar_params
+from .ObjectModels.DataStructures import radar_params, RectCS
 from .ObjectModels.RadarObj import RadarObj
 from .ObjectModels.TargetObj import Target
 from .ObjectModels.Launcher_and_missile import LaunchSystem
 from project.modeling.ObjectModels.CommandPostObj import CommandPostObj
+
 
 class SimulationManager:
     def __init__(self, path):
@@ -17,6 +19,8 @@ class SimulationManager:
         self.TimeStep = 10**-3
         self.endTime = 1000
         self.CommPost = CommandPostObj()
+
+        # self.data = pd.DataFrame(columns=)
 
     def load_objects(self):
         with open(self.path, 'r') as file:
@@ -73,7 +77,6 @@ class SimulationManager:
                 rocket.changeDirectionofFlight(targetCoord)
 
 
-
     def __load_radar_object(self, radar_data):
         self.radars.append(
             RadarObj(radar_params(
@@ -88,7 +91,11 @@ class SimulationManager:
                 NPulsesProc=radar_data['n_pulses_proc'],
                 OperatingFreq=radar_data['operating_freq'],
                 start_time=radar_data['start_time'],
-                start_coords=tuple(radar_data['start_coordinates'].values()),
+                start_coords=RectCS(
+                    X=radar_data['start_coordinates']['x'],
+                    Y=radar_data['start_coordinates']['y'],
+                    Z=radar_data['start_coordinates']['z']
+                ),
                 SNRDetection=radar_data['snr_detection']
             ), radar_id=radar_data['id'])
         )
@@ -100,7 +107,7 @@ class SimulationManager:
                 ObjectName='{}_{}'.format(target_data['type'], target_data['id']),
                 epr=target_data['epr'],
                 velocity=target_data['speed'],
-                control_points=[(p['x'], p['y'], p['z']) for p in target_data['coordinates']],
+                control_points=[RectCS(X=p['x'], Y=p['y'], Z=p['z']) for p in target_data['coordinates']],
                 target_id=target_data['id']
             )
         )

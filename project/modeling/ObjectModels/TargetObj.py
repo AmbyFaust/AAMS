@@ -5,6 +5,7 @@ from collections import namedtuple
 from project.modeling.ObjectModels.DataStructures import  RectCS, target_params
 from project.modeling.ObjectModels.Object import Object
 
+
 class Target(Object):
     ObjectName = 'Target'
     Id = 1
@@ -19,8 +20,8 @@ class Target(Object):
         self.ObjectName = ObjectName
         self.epr = epr
         self.velocity = velocity
-        self.control_points = control_points
-        self.CurrCoords = RectCS(X=self.control_points[0][0], Y=self.control_points[0][1], Z=self.control_points[0][2])
+        self.control_points = [RectCS(X=p['x'], Y=p['y'], Z=p['z']) for p in control_points]
+        self.CurrCoords = self.control_points[0]
         self.coordinates_dict = self._generate_coordinates_dict()
 
     def _generate_coordinates_dict(self):
@@ -79,12 +80,6 @@ class Target(Object):
                     next_coords[:2] - prev_coords[:2])
 
         return RectCS(X=interp_coords[0], Y=interp_coords[1], Z=3000)
-
-
-    def move(self, time):
-        CalculatedCoords = self.calculate_position_at_time(time)
-        self.CurrCoords = CalculatedCoords
-        pass
 
     def ReturnPlaneInformation(self,time):
         CalculatedCoords =self.calculate_position_at_time(time)
