@@ -29,7 +29,7 @@ class LaunchSystem(Object):
             missile = Missile(radarId,targetId, self.coordinates,time)
             missile.radarId = radarId
             missile.targetId = targetId
-            missile.set_target_coords((15000, 15000, 15000))  # Установка координат цели по умолчанию
+            missile.changeDirectionofFlight((15000, 15000, 15000))  # Установка координат цели по умолчанию
             return missile
         else:
             print("Unable to launch missile. No available missiles left.")
@@ -55,16 +55,41 @@ class Missile(Object):
     def give_coords(self):
         return self.coordinates
 
-    def set_target_coords(self, target_coords):
+    def changeDirectionofFlight(self, target_coords):
         self.target_coordinates = target_coords
         self.calculate_trajectory()  # Вычисляем траекторию при установке целевых координат
+
+
+    def checkDetonationConditions(self, targets):
+        bum = False
+        for target in targets:
+            x1, y1, z1 = self.coordinates
+            # Координаты цели
+            x2, y2, z2 = target.CurrCoords
+
+            # Вычисление длины линии между начальными и конечными точками
+            distance = ((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2) ** 0.5
+
+            if self.DetonationRange >= distance:
+                bum = True
+                self.detonate(target)
+        if bum == True:
+            for target in targets:
+                x1, y1, z1 = self.coordinates
+                # Координаты цели
+                x2, y2, z2 = target.CurrCoords
+
+                # Вычисление длины линии между начальными и конечными точками
+                distance = ((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2) ** 0.5
+
+                if self.DamageRange >= distance:
+                    self.detonate(target)
+
 
     def move(self, time):
         CalculatedCoords = self.get_coordinates_at_time(time)
         self.time = time
         self.coordinates = CalculatedCoords
-        if self.distance_to_target() <= self.DetonationRange:
-            self.detonate()
         self.rocket_trajectory.append(self.coordinates)
         pass
 
@@ -77,7 +102,7 @@ class Missile(Object):
         distance = ((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2) ** 0.5
         return distance
 
-    def calculate_trajectory(self, step_size=1000):
+    def calculate_trajectory(self, step_size=10):
         if self.target_coordinates is None:
             print("Cannot calculate trajectory. Target coordinates are not set.")
             return
@@ -133,18 +158,18 @@ class Missile(Object):
 
         return new_coordinates
 
-    def detonate(self):
+    def detonate(self, target):
         if self.target_coordinates is not None:
             print(f"Missile {self.id} detonated at target coordinates {self.target_coordinates}.")
+            self.Islive = False
+            target.Islive = False
         else:
             print(f"Missile {self.id} cannot detonate without target coordinates.")
 
     def self_destruct(self):
+        self.Islive = False
         print(f"Missile {self.id} self-destructed.")
 
-    def CheckRangeToTargets(self,Targets):
-        for Target in Targets:
-            DistanceToTarget = Targets.co
 
 
     def plot_trajectory(self):
@@ -179,11 +204,11 @@ if __name__ == '__main__':
     launch_system = LaunchSystem(0, 0, 0)
     missile = launch_system.launch_missile(0, 1, 0)
     missile.move(25)
-    missile.set_target_coords((30000,30000,0))
+    missile.changeDirectionofFlight((30000,30000,0))
     missile.move(32)
-    missile.set_target_coords((45000, 45000, 45000))
+    missile.changeDirectionofFlight((45000, 45000, 45000))
     missile.move(60)
-    missile.set_target_coords((5000, 5000, 45000))
+    missile.changeDirectionofFlight((5000, 5000, 45000))
     missile.move(102.6)
     print(missile.distance_to_target())
     missile.plot_trajectory()
