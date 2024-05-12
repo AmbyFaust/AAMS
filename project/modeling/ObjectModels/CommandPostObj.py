@@ -16,8 +16,8 @@ class CommandPostObj(Object):
                     launched_rocket = one_launcher.launch_missile(convinient_radar.Id,current_traj.target_id, time)
             # print('The launcher of the radar with id ', convinient_radar.Id, ' launched a rocket to liquidate ',
             #       current_traj.target_id)
-        return launched_rocket
-
+                return launched_rocket
+            return None
 
 
 
