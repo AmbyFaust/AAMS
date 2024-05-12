@@ -12,7 +12,7 @@ class CommandPostObj(Object):
             convinient_radar = self.find_convinient_radar(all_radars,current_traj)
 
             for one_launcher in all_launchers:
-                if (one_launcher.radarId == convinient_radar):
+                if (one_launcher.radarId == convinient_radar.Id):
                     launched_rocket = one_launcher.launch_missile(convinient_radar.Id,current_traj.target_id, time)
             # print('The launcher of the radar with id ', convinient_radar.Id, ' launched a rocket to liquidate ',
             #       current_traj.target_id)
