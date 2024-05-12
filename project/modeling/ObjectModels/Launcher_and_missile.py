@@ -69,7 +69,7 @@ class Missile(Object):
 
             # Вычисление длины линии между начальными и конечными точками
             distance = ((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2) ** 0.5
-
+            print(distance)
             if self.DetonationRange >= distance:
                 bum = True
                 self.detonate(target)
