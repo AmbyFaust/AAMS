@@ -47,10 +47,10 @@ all_radars = [Liqudator_Radar_1, Liqudator_Radar_2,Liqudator_Radar_3]
 Comman_Post_SKB_7 = CommandPostObj()
 
 control_points = [
-    (30000, 0, 0),
-    (25000, 5000, 0),
-    (100000, 5000, 0),
-    (5000, 10000, 0)
+    (30000, 0, 100),
+    (25000, 5000, 100),
+    (100000, 5000, 100),
+    (5000, 10000, 100)
 ]
 target = Target("jet", "F-15", 1, 400, control_points)
 

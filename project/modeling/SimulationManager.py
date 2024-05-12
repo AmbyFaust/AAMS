@@ -14,8 +14,8 @@ class SimulationManager:
         self.launchers = []
         self.rockets = []
         self.CurrModelingTime = 0
-        self.TimeStep = 10**-7
-        self.endTime = 10
+        self.TimeStep = 10**-3
+        self.endTime = 1000
         self.CommPost = CommandPostObj()
 
     def load_objects(self):
@@ -35,8 +35,13 @@ class SimulationManager:
 
     def modeling_step(self):
         # Изменяем текущее время модели
-        self.CurrModelingTime+=self.TimeStep
-        #print("Время моделирования:", self.CurrModelingTime)
+        self.CurrModelingTime += self.TimeStep
+        if self.CurrModelingTime>3:
+            print("Время моделирования:", self.CurrModelingTime)
+
+
+        for target in self.targets:
+            print(target.CurrCoords)
 
         # Моделируем ПОИ и ВОИ(первичка и вторичка)
         for radar in self.radars:
@@ -48,7 +53,7 @@ class SimulationManager:
             all_radar_traj = radar.Trajectories
             for current_traj in all_radar_traj:
                 if (current_traj.is_confimed == True):
-                    self.rockets.append(self.CommPost.tritial_processing(self.radars, current_traj,self.launchers))
+                    self.rockets.append(self.CommPost.tritial_processing(self.radars, current_traj,self.launchers,self.CurrModelingTime))
 
         # Сдвигаем все объекты(цели и ракеты) в соответствии с текущим временем (Если они в состоянии IsLive)
         if len(self.rockets) > 0:
@@ -66,6 +71,7 @@ class SimulationManager:
                 #Ракета должна знать к кому радару она относится и какой цели летит
                 targetCoord = self.radar[rocket.radarId].TrackingMeasure(self.targets[rocket.targetId],self.CurrModelingTime)
                 rocket.changeDirectionofFlight(targetCoord)
+
 
 
     def __load_radar_object(self, radar_data):
