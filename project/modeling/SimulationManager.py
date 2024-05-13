@@ -46,11 +46,7 @@ class SimulationManager:
     def modeling_step(self):
         # Изменяем текущее время модели
         self.CurrModelingTime += self.TimeStep
-        if self.CurrModelingTime > 3:
-            print("Время моделирования:", self.CurrModelingTime)
-
-        for target_id, target in self.targets.items():
-            print(target.CurrCoords)
+        print("Время моделирования:", self.CurrModelingTime)
 
         # Моделируем ПОИ и ВОИ(первичка и вторичка)
         for radar_id, radar in self.radars.items():
@@ -88,6 +84,29 @@ class SimulationManager:
             )
             rocket.changeDirectionofFlight(targetCoord)
 
+        print('Targets')
+        for target_id, target in self.targets.items():
+            print(target.CurrCoords)
+            self.data.loc[len(self.data)] = {
+                'object_type': 'target',
+                'object_id': target_id,
+                'time': self.CurrModelingTime,
+                'x': target.CurrCoords.X,
+                'y': target.CurrCoords.Y,
+                'z': target.CurrCoords.Z,
+            }
+        print('Rockets')
+        for rocket in self.rockets:
+            print(rocket.coordinates)
+            self.data.loc[len(self.data)] = {
+                'object_type': 'rocket',
+                'object_id': rocket.Id,
+                'time': self.CurrModelingTime,
+                'x': rocket.coordinates[0],
+                'y': rocket.coordinates[1],
+                'z': rocket.coordinates[2],
+            }
+
     def __load_radar_object(self, radar_data):
         self.radars[radar_data['id']] = RadarObj(radar_params(
             EIRP=radar_data['eirp'],
@@ -119,7 +138,7 @@ class SimulationManager:
         self.launchers[launcher_data['id']] = LaunchSystem(
             x=launcher_data['start_coordinates']['x'],
             y=launcher_data['start_coordinates']['y'],
-            z=launcher_data['start_coordinates']['x'],
+            z=launcher_data['start_coordinates']['z'],
             launcher_id=launcher_data['id']
         )
 
