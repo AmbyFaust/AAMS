@@ -16,7 +16,7 @@ start_coords_radar_1 = RectCS(0, -500, 0)
 start_coords_radar_2 = RectCS(200, 200, 0)
 start_coords_radar_3 = RectCS(-200, 500, 0)
 start_time = 0
-PRF = 10 ** 6
+PRF = 10 ** 5
 NPulsesProc = 1000
 t_btw_scanning = NPulsesProc * (1/PRF)
 Liqudator_Params_1 = radar_params(100000, 2, BW_U=3, BW_V=3, Scanning_V=[0, 60],
@@ -47,19 +47,17 @@ all_radars = [Liqudator_Radar_1, Liqudator_Radar_2,Liqudator_Radar_3]
 Comman_Post_SKB_7 = CommandPostObj()
 
 control_points = [
-    (30000, 0, 100),
-    (25000, 5000, 100),
-    (100000, 5000, 100),
-    (5000, 10000, 100)
+    (30000, 0, 1000),
+    (25000, 5000, 1000),
+    (100000, 5000, 1000),
+    (5000, 10000, 1000)
 ]
 target = Target("jet", "F-15", 1, 400, control_points)
 
 SM.radars.append(Liqudator_Radar_1)
 SM.radars.append(Liqudator_Radar_2)
 SM.radars.append(Liqudator_Radar_3)
-
 SM.targets.append(target)
-
 SM.launchers.append(Launcher_1)
 SM.launchers.append(Launcher_2)
 SM.launchers.append(Launcher_1)
