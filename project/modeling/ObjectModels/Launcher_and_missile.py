@@ -70,6 +70,7 @@ class Missile(Object):
 
             # Вычисляем длину вектора направления
             dist = np.linalg.norm(direction_vector)
+
             if self.DetonationRange >= dist:
                 bum = True
                 self.detonate(target)
@@ -88,6 +89,7 @@ class Missile(Object):
         CalculatedCoords = self.get_coordinates_at_time(time)
         self.time = time
         self.coordinates = CalculatedCoords
+        #print('self.coordinates after move = ', self.coordinates)
         self.rocket_trajectory.append(self.coordinates)
         pass
 
@@ -99,8 +101,12 @@ class Missile(Object):
 
     def calculate_trajectory(self, step_size=10):
         if self.target_coordinates is None:
-            print("Cannot calculate trajectory. Target coordinates are not set.")
+            #print("Cannot calculate trajectory. Target coordinates are not set.")
             return
+
+        #print('self.coordinates = ', self.coordinates)
+        #print('self.target_coordinates = ', self.target_coordinates)
+
         x1, y1, z1 = self.coordinates
         # Координаты цели
         x2, y2, z2 = self.target_coordinates
@@ -118,11 +124,13 @@ class Missile(Object):
             x = x1 + (x2 - x1) * t
             y = y1 + (y2 - y1) * t
             z = z1 + (z2 - z1) * t
-            self.trajectory.append((x, y, z))
+            self.trajectory.append(RectCS(X=x, Y=y, Z=z))
 
       # Сохраняем траекторию в поле объекта
 
     def get_coordinates_at_time(self, time):
+
+
         if self.target_coordinates is None:
             print("Cannot get coordinates. Target coordinates are not set.")
             return None
@@ -132,7 +140,9 @@ class Missile(Object):
             return None
 
         # Вычисляем вектор направления к цели
-        direction_vector = np.array(self.target_coordinates) - np.array(self.coordinates)
+        direction_vector = np.array([self.target_coordinates[0] - self.coordinates[0],
+                                     self.target_coordinates[1] - self.coordinates[1],
+                                     self.target_coordinates[2] - self.coordinates[2]])
 
         # Вычисляем длину вектора направления
         direction_length = np.linalg.norm(direction_vector)
@@ -147,10 +157,20 @@ class Missile(Object):
         if distance_traveled > direction_length:
             print('Error')
             return None
+        '''
+        print('self.coordinates.X = ', self.coordinates.X)
+        print('direction_unit_vector[0] = ', direction_unit_vector[0])
+        print('distance_traveled = ', distance_traveled)
+        '''
 
         # Вычисляем новые координаты ракеты
-        new_coordinates = tuple(np.array(self.coordinates) + distance_traveled * direction_unit_vector)
-        new_coordinates = RectCS(X=new_coordinates[0], Y=new_coordinates[1], Z=new_coordinates[2])
+        new_x = self.coordinates.X + direction_unit_vector[0] * distance_traveled
+        new_y = self.coordinates.Y + direction_unit_vector[1] * distance_traveled
+        new_z = self.coordinates.Z + direction_unit_vector[2] * distance_traveled
+
+        #print('new_x = ', new_x)
+
+        new_coordinates = RectCS(X=new_x, Y=new_y, Z=new_z)
 
         return new_coordinates
 

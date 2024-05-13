@@ -36,12 +36,12 @@ class SimulationManager:
     def modeling_step(self):
         # Изменяем текущее время модели
         self.CurrModelingTime += self.TimeStep
-        if self.CurrModelingTime>3:
-            print("Время моделирования:", self.CurrModelingTime)
+        #if self.CurrModelingTime>3:
+            #print("Время моделирования:", self.CurrModelingTime)
 
 
-        for target in self.targets:
-            print(target.CurrCoords)
+        #for target in self.targets:
+            #print(target.CurrCoords)
 
         # Моделируем ПОИ и ВОИ(первичка и вторичка)
         for radar in self.radars:
@@ -66,6 +66,9 @@ class SimulationManager:
         for target in self.targets:
             if target.Islive == True:
                 target.move(self.CurrModelingTime)
+            else:
+                print('уничтожено нахуй')
+
 
         # Проверяем условия подрыва и выдаём координаты цели для полёта ракеты  (если есть ракеты)
         if len(self.rockets) > 0:
