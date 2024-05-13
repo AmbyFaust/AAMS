@@ -16,11 +16,11 @@ class SimulationManager:
         self.radars = dict()
         self.targets = dict()
         self.launchers = dict()
-        self.__load_objects()
+        #self.__load_objects()
 
         self.rockets = []
         self.CurrModelingTime = 0
-        self.TimeStep = 10**-1
+        self.TimeStep = 10**-2
         self.endTime = 1000
         self.CommPost = CommandPostObj()
 
@@ -38,6 +38,7 @@ class SimulationManager:
                 self.__load_target_object(target_data)
 
     def modeling(self):
+        self.TimeStep = self.radars[1].RadarParams.NPulsesProc * (1 / self.radars[1].RadarParams.PRF)
         while self.CurrModelingTime < self.endTime:
             self.modeling_step()
 
