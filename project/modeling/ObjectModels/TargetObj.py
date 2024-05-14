@@ -58,7 +58,7 @@ class Target(Object):
 
 
     def get_last_time_target(self):
-        return coordinates_dict[99][3]
+        return self.coordinates_dict[99][3]
 
 
     def move(self, time):

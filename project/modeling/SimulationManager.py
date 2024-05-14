@@ -16,7 +16,7 @@ class SimulationManager:
         self.radars = dict()
         self.targets = dict()
         self.launchers = dict()
-        #self.__load_objects()
+#        self.__load_objects()
 
         self.rockets = []
         self.CurrModelingTime = 0
@@ -39,8 +39,16 @@ class SimulationManager:
 
     def modeling(self):
         self.TimeStep = self.radars[1].RadarParams.NPulsesProc * (1 / self.radars[1].RadarParams.PRF)
+        targetWayTime  = []
+        for target in self.targets.values():
+            endTargetTime = target.get_last_time_target()
+            targetWayTime.append(endTargetTime)
+        self.endTime = min(targetWayTime)
         while self.CurrModelingTime < self.endTime:
-            self.modeling_step()
+            if self.__checkTargetsLifeStatus() == True:
+                self.modeling_step()
+            else:
+                break
 
         self.data.to_csv(os.path.dirname(self.path) + '/data.csv')
 
@@ -59,13 +67,14 @@ class SimulationManager:
             all_radar_traj = radar.Trajectories
             for current_traj in all_radar_traj:
                 if current_traj.is_confimed:
-                    self.rockets.append(
-                        self.CommPost.tritial_processing(
-                            self.radars.values(),
+                        rocket = self.CommPost.tritial_processing(
+                            self.radars,
                             current_traj,
                             self.launchers.values(),
                             self.CurrModelingTime)
-                    )
+                        if rocket != None:
+                            self.rockets.append(rocket)
+
 
         # Сдвигаем все объекты(цели и ракеты) в соответствии с текущим временем (Если они в состоянии IsLive)
         for rocket in self.rockets:
@@ -142,6 +151,12 @@ class SimulationManager:
             z=launcher_data['start_coordinates']['z'],
             launcher_id=launcher_data['id']
         )
+    def __checkTargetsLifeStatus(self):
+        IsTargetsLive = True
+        for target in self.targets.values():
+            if target.Islive==False:
+                IsTargetsLive = False
+        return IsTargetsLive
 
 
 if __name__ == "__main__":
