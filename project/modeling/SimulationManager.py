@@ -38,9 +38,14 @@ class SimulationManager:
                 self.__load_target_object(target_data)
 
     def modeling(self):
-        self.TimeStep = self.radars[1].RadarParams.NPulsesProc * (1 / self.radars[1].RadarParams.PRF)
+        if len(self.radars) > 0:
+            self.TimeStep = min([r.RadarParams.NPulsesProc / r.RadarParams.PRF for r in self.radars.values()])
+
         while self.CurrModelingTime < self.endTime:
-            self.modeling_step()
+            try:
+                self.modeling_step()
+            except Exception as e:
+                break
 
         self.data.to_csv(os.path.dirname(self.path) + '/data.csv')
 

@@ -152,7 +152,7 @@ class RadarObj(Object):
         current_traj = self.Trajectories[one_traj-1]
         # print(current_traj.stack_of_coords.shape)
         [_, l,_] = current_traj.stack_of_coords.shape
-        if (l == 5):
+        if (l == 1):
             self.Trajectories[one_traj - 1] = current_traj._replace(is_confimed = True)
             print ('Supostat with id',current_traj.target_id,' is detected by locator with id',self.Id)
 

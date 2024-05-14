@@ -43,7 +43,7 @@ def LRCStoUV(LRCSTargCoords):
     x = LRCSTargCoords.X
     y = LRCSTargCoords.Y
     z = LRCSTargCoords.Z
-    print(x, y, z)
+
     r = pow((pow(x, 2) + pow(y, 2) + pow(z, 2)), 0.5)
     # u = 0.0
     if x > 0:
@@ -60,5 +60,5 @@ def LRCStoUV(LRCSTargCoords):
         u = math.atan(y / x) - np.pi
 
     v = math.asin(z / r)
-    print(u, v, r)
+
     return UVCS(R=r, U=math.degrees(u), V=math.degrees(v))
