@@ -43,7 +43,7 @@ class SimulationManager:
         for target in self.targets.values():
             endTargetTime = target.get_last_time_target()
             targetWayTime.append(endTargetTime)
-        self.endTime = min(targetWayTime)
+        self.endTime = min(targetWayTime) - self.TimeStep
         while self.CurrModelingTime < self.endTime:
             if self.__checkTargetsLifeStatus() == True:
                 self.modeling_step()
