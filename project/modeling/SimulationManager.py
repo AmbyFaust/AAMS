@@ -38,7 +38,8 @@ class SimulationManager:
                 self.__load_target_object(target_data)
 
     def modeling(self):
-        self.TimeStep = self.radars[1].RadarParams.NPulsesProc * (1 / self.radars[1].RadarParams.PRF)
+        if len(self.radars) > 0:
+            self.TimeStep = min([r.RadarParams.NPulsesProc / r.RadarParams.PRF for r in self.radars.values()])
         targetWayTime  = []
         for target in self.targets.values():
             endTargetTime = target.get_last_time_target()
