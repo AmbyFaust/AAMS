@@ -20,21 +20,21 @@ DELETE_ICON_PATH = './project/static/delete.svg'
 INPUT_FILE_PATH = os.path.join(os.getcwd(), 'results')
 
 # Радар
-EIRP = 10
-SEFF = 10
-BW_U = 10
-BW_V = 10
-SCANNING_V = [1, 44]
-T_N = 280
-PRF = 1
-SIGNAL_TIME = 1.0
-N_PULSES_PROC = 20
-OPERATING_FREQ = 200
+EIRP = 10**5
+SEFF = 3
+BW_U = 3
+BW_V = 3
+SCANNING_V = [0, 60]
+T_N = 1000
+PRF = 10**6
+SIGNAL_TIME = 10**(-6)
+N_PULSES_PROC = 1000
+OPERATING_FREQ = 15*10**9
 START_TIME = 0
 SNR_DETECTION = 10
 
 # Цель
-SPEED = 100
+SPEED = 200
 TARGET_TYPE = TypeTargetEnum.first
-EPR = 100
-HEIGHT = 100
+EPR = 10
+HEIGHT = 5000
