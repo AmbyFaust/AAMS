@@ -16,7 +16,7 @@ class SimulationManager:
         self.radars = dict()
         self.targets = dict()
         self.launchers = dict()
-        #self.__load_objects()
+        self.__load_objects()
 
         self.rockets = []
         self.CurrModelingTime = 0
