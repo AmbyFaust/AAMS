@@ -21,8 +21,12 @@ class RadarObj(Object):
         else:
             self.Id = radar_id
         self.Trajectories = []
-        self.StartCoords = radar_params.start_coords
-        self.ObjCoords = radar_params.start_coords
+        self.StartCoords = RectCS(
+            X=radar_params.start_coords['x'],
+            Y=radar_params.start_coords['y'],
+            Z=radar_params.start_coords['z']
+        )
+        self.ObjCoords = self.StartCoords
         self.StartTime = radar_params.start_time
         self.RadarParams = radar_params
         self.UBeam = 0
