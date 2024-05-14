@@ -56,6 +56,11 @@ class Target(Object):
             coordinates_dict[i] = [x_interp[i], y_interp[i], z_interp[i], t]
         return coordinates_dict
 
+
+    def get_last_time_target(self):
+        return self.coordinates_dict[99][3]
+
+
     def move(self, time):
         CalculatedCoords = self.calculate_position_at_time(time)
         self.CurrCoords = CalculatedCoords
