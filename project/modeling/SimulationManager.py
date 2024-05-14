@@ -44,17 +44,11 @@ class SimulationManager:
             endTargetTime = target.get_last_time_target()
             targetWayTime.append(endTargetTime)
         self.endTime = min(targetWayTime)
-        if len(self.radars) > 0:
-            self.TimeStep = min([r.RadarParams.NPulsesProc / r.RadarParams.PRF for r in self.radars.values()])
 
         while self.CurrModelingTime < self.endTime:
-            if self.__checkTargetsLifeStatus() == True:
+            if self.__checkTargetsLifeStatus():
                 self.modeling_step()
             else:
-                break
-            try:
-                self.modeling_step()
-            except Exception as e:
                 break
 
         self.data.to_csv(os.path.dirname(self.path) + '/data.csv')
@@ -74,13 +68,13 @@ class SimulationManager:
             all_radar_traj = radar.Trajectories
             for current_traj in all_radar_traj:
                 if current_traj.is_confimed:
-                        rocket = self.CommPost.tritial_processing(
-                            self.radars,
-                            current_traj,
-                            self.launchers.values(),
-                            self.CurrModelingTime)
-                        if rocket != None:
-                            self.rockets.append(rocket)
+                    rocket = self.CommPost.tritial_processing(
+                        self.radars,
+                        current_traj,
+                        self.launchers.values(),
+                        self.CurrModelingTime)
+                    if rocket is not None:
+                        self.rockets.append(rocket)
 
 
         # Сдвигаем все объекты(цели и ракеты) в соответствии с текущим временем (Если они в состоянии IsLive)
