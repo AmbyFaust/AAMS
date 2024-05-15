@@ -17,6 +17,7 @@ class Controller(QObject):
     modify_target = pyqtSignal(int)
     redraw_radar = pyqtSignal(object)
     calculate_signal = pyqtSignal()
+    modeling_signal = pyqtSignal()
 
     def __init__(self, parent=None):
         super(Controller, self).__init__(parent)

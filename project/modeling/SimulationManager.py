@@ -1,6 +1,8 @@
 import os
 import json
 import pandas as pd
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QProgressDialog, QMessageBox
 
 from .ObjectModels.DataStructures import radar_params
 from .ObjectModels.RadarObj import RadarObj
@@ -20,38 +22,56 @@ class SimulationManager:
 
         self.rockets = []
         self.CurrModelingTime = 0
-        self.TimeStep = 10**-2
+        self.TimeStep = 10 ** -2
         self.endTime = 1000
         self.CommPost = CommandPostObj()
 
         self.data = pd.DataFrame(columns=['object_type', 'object_id', 'time', 'x', 'y', 'z'])
 
     def __load_objects(self):
-        with open(self.path, 'r') as file:
+        with open(self.path, 'r', encoding='utf-8') as file:
             d = json.load(file)
 
-            for radar_data in d['radars']:
+            for radar_data in d['objects']['radars']:
                 self.__load_radar_object(radar_data)
                 self.__load_launcher_object(radar_data)
 
-            for target_data in d['targets']:
+            for target_data in d['objects']['targets']:
                 self.__load_target_object(target_data)
 
     def modeling(self):
         if len(self.radars) > 0:
             self.TimeStep = min([r.RadarParams.NPulsesProc / r.RadarParams.PRF for r in self.radars.values()])
-        targetWayTime  = []
+        targetWayTime = []
         for target in self.targets.values():
             endTargetTime = target.get_last_time_target()
             targetWayTime.append(endTargetTime)
         self.endTime = min(targetWayTime) - self.TimeStep
+
+        progress_dialog = QProgressDialog("Моделирование в процессе...", None, 0, 100)
+        progress_dialog.setWindowModality(Qt.WindowModal)
+        progress_dialog.setMinimumDuration(0)
+        progress_dialog.setCancelButton(None)
+        progress_dialog.show()
+
         while self.CurrModelingTime < self.endTime:
-            if self.__checkTargetsLifeStatus() == True:
+            if self.__checkTargetsLifeStatus():
                 self.modeling_step()
             else:
                 break
 
+            progress_value = int((self.CurrModelingTime / self.endTime) * 100)
+            progress_dialog.setValue(progress_value)
+
+        progress_dialog.close()
+
         self.data.to_csv(os.path.dirname(self.path) + '/data.csv')
+
+        msg_modeling = QMessageBox()
+        msg_modeling.setIcon(QMessageBox.Information)
+        msg_modeling.setText("Расчет выполнен. Нажмите ОК.")
+        msg_modeling.setWindowTitle("Информация")
+        msg_modeling.exec()
 
     def modeling_step(self):
         # Изменяем текущее время модели
@@ -73,9 +93,8 @@ class SimulationManager:
                         current_traj,
                         self.launchers.values(),
                         self.CurrModelingTime)
-                    if rocket != None:
+                    if rocket is not None:
                         self.rockets.append(rocket)
-
 
         # Сдвигаем все объекты(цели и ракеты) в соответствии с текущим временем (Если они в состоянии IsLive)
         for rocket in self.rockets:
@@ -88,7 +107,7 @@ class SimulationManager:
         for rocket in self.rockets:
             # Проверяем условия подрыва и в случае подрыва задаём всем объектам флаг (IsLive = false)
             rocket.checkDetonationConditions(self.targets.values())
-            #Ракета должна знать к кому радару она относится и какой цели летит
+            # Ракета должна знать к кому радару она относится и какой цели летит
             targetCoord = self.radars[rocket.radarId].TrackingMeasure(
                 self.targets[rocket.targetId],
                 self.CurrModelingTime
@@ -152,14 +171,11 @@ class SimulationManager:
             z=launcher_data['start_coordinates']['z'],
             launcher_id=launcher_data['id']
         )
+
     def __checkTargetsLifeStatus(self):
         IsTargetsLive = True
         for target in self.targets.values():
-            if target.Islive==False:
+            if not target.Islive:
                 IsTargetsLive = False
         return IsTargetsLive
 
-
-if __name__ == "__main__":
-    sm = SimulationManager('../../results/objects.json')
-    sm.modeling()

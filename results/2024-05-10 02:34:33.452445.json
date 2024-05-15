@@ -1,1 +1,0 @@
-{"objects": {"radars": [{"id": 0, "start_coordinates": {"x": 660, "y": 341, "z": 100}, "eirp": 10, "seff": 10, "bw_u": 10, "bw_v": 10, "scanning_v": [1, 4], "t_n": 280, "prf": 1, "signal_time": 1, "n_pulses_proc": 20, "operating_freq": 200, "start_time": 0, "snr_detection": 10}], "targets": []}, "data": {}}

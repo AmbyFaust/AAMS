@@ -18,6 +18,7 @@ DELETE_ICON_PATH = './project/static/delete.svg'
 
 
 INPUT_FILE_PATH = os.path.join(os.getcwd(), 'results')
+OUTPUT_FILE_PATH = os.path.join(os.getcwd(), 'results')
 
 # Радар
 EIRP = 10**5

@@ -22,8 +22,6 @@ class AppManager(QObject):
         # настройка связи между gui и сервисами
         self.__connect_gui_services()
 
-
-
     def start(self):
         self.main_menu_widget.show()
 
@@ -61,6 +59,7 @@ class AppManager(QObject):
         self.app_window.controller.modify_target.connect(self.handler.modify_target)
         self.app_window.controller.modify_radar.connect(self.handler.modify_radar)
         self.app_window.controller.calculate_signal.connect(self.handler.calculate)
+        self.app_window.controller.modeling_signal.connect(self.handler.modeling)
 
         # соединение обработчика с окном приложения
         self.handler.update_radars.connect(self.app_window.controller.update_radar_reviewer)
@@ -70,5 +69,6 @@ class AppManager(QObject):
         self.handler.radar_updated.connect(self.app_window.controller.radar_updated)
         self.handler.target_updated.connect(self.app_window.controller.target_updated)
         self.handler.remove_from_map.connect(self.app_window.map.remove_from_map)
+        self.handler.load_modelling_dataframe.connect(self.app_window.load_modelling_dataframe)
 
 

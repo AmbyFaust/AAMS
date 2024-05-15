@@ -208,3 +208,10 @@ class GridScene(QGraphicsScene):
             self.current_obj_type = None
         except BaseException as exp:
             print(f'{exp}')
+
+    def remove_all_items(self):
+        # for radar_id in self.radars:
+        #     self.__remove_radar(radar_id)
+
+        for target_id in self.targets:
+            self.__remove_target(target_id)
