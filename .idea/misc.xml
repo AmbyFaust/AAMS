@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Black">
+<<<<<<< HEAD
     <option name="sdkName" value="recognition" />
   </component>
   <component name="ProjectRootManager" version="2" project-jdk-name="recognition" project-jdk-type="Python SDK" />
+=======
+    <option name="sdkName" value="$USER_HOME$/opt/anaconda3/envs/laba_2_project_env" />
+  </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="$USER_HOME$/opt/anaconda3/envs/laba_2_project_env" project-jdk-type="Python SDK" />
+>>>>>>> 69de9f75e38252dd6d236be8385bd7ffdc639921
 </project>

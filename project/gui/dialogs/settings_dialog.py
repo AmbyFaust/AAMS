@@ -8,7 +8,7 @@ from PyQt5 import QtCore
 from project import TypeTargetEnum
 from project import settings
 from project.gui.dialogs.open_dialog import QOpenFilesDialog
-from project.settings import BASE_FONT
+from project.settings import BASE_FONT, SIGNAL_TIME, SCANNING_V
 
 
 class RadarSettings(QWidget):
@@ -19,13 +19,13 @@ class RadarSettings(QWidget):
 
     def __create_widgets(self):
         self.eirp_spinbox = QSpinBox()
-        self.eirp_spinbox.setFont(BASE_FONT)
-        self.eirp_spinbox.setRange(0, 10000)
+        self.eirp_spinbox.setFont(settings.BASE_FONT)
+        self.eirp_spinbox.setRange(0, 10**7)
         self.eirp_spinbox.setValue(settings.EIRP)
 
         self.seff_spinbox = QSpinBox()
         self.seff_spinbox.setFont(BASE_FONT)
-        self.seff_spinbox.setRange(0, 10000)
+        self.seff_spinbox.setRange(0, 100)
         self.seff_spinbox.setValue(settings.SEFF)
 
         self.bw_u_spinbox = QSpinBox()
@@ -38,26 +38,43 @@ class RadarSettings(QWidget):
         self.bw_v_spinbox.setRange(1, 44)
         self.bw_v_spinbox.setValue(settings.BW_V)
 
-        self.scanning_v = QLabel()
+        self.scanning_v_min_label = QLabel('От:')
+
+        self.scanning_v_min = QSpinBox()
+        self.scanning_v_min.setFont(BASE_FONT)
+        self.scanning_v_min.setRange(1, 359)
+        self.scanning_v_min.setValue(settings.SCANNING_V[0])
+
+        self.scanning_v_max_label = QLabel('До:')
+
+        self.scanning_v_max = QSpinBox()
+        self.scanning_v_max.setFont(BASE_FONT)
+        self.scanning_v_max.setRange(2, 360)
+        self.scanning_v_max.setValue(settings.SCANNING_V[1])
 
         self.t_n_spinbox = QSpinBox()
         self.t_n_spinbox.setFont(BASE_FONT)
-        self.t_n_spinbox.setRange(273, 400)
+        self.t_n_spinbox.setRange(273, 10000)
         self.t_n_spinbox.setValue(settings.T_N)
 
         self.prf_spinbox = QDoubleSpinBox()
         self.prf_spinbox.setFont(BASE_FONT)
-        self.prf_spinbox.setRange(0.0001, 10000)
+        self.prf_spinbox.setRange(0.0001, 10**7)
         self.prf_spinbox.setValue(settings.PRF)
+
+        self.signal_time_spinbox = QDoubleSpinBox()
+        self.signal_time_spinbox.setFont(BASE_FONT)
+        self.signal_time_spinbox.setRange(10**(-8), 1)
+        self.signal_time_spinbox.setValue(settings.SIGNAL_TIME)
 
         self.n_pulses_proc_spinbox = QSpinBox()
         self.n_pulses_proc_spinbox.setFont(BASE_FONT)
-        self.n_pulses_proc_spinbox.setRange(0, 1000)
+        self.n_pulses_proc_spinbox.setRange(1, 10000)
         self.n_pulses_proc_spinbox.setValue(settings.N_PULSES_PROC)
 
         self.operating_freq_spinbox = QSpinBox()
         self.operating_freq_spinbox.setFont(BASE_FONT)
-        self.operating_freq_spinbox.setRange(0, 1000)
+        self.operating_freq_spinbox.setRange(15*10**5, 15*10**10)
         self.operating_freq_spinbox.setValue(settings.OPERATING_FREQ)
 
         self.start_time_spinbox = QSpinBox()
@@ -70,21 +87,37 @@ class RadarSettings(QWidget):
         self.snr_detection_spinbox.setRange(1, 100)
         self.snr_detection_spinbox.setValue(settings.SNR_DETECTION)
 
+        self.scanning_v_min.valueChanged.connect(self.__validate_values)
+        self.scanning_v_max.valueChanged.connect(self.__validate_values)
+
     def __create_layout(self):
+        scanning_v_h_layout = QHBoxLayout()
+        scanning_v_h_layout.addWidget(self.scanning_v_min_label)
+        scanning_v_h_layout.addWidget(self.scanning_v_min)
+        scanning_v_h_layout.addWidget(self.scanning_v_max_label)
+        scanning_v_h_layout.addWidget(self.scanning_v_max)
+
         common_form_layout = QFormLayout()
         common_form_layout.addRow('Эффективная изотропная излучаемая мощность:', self.eirp_spinbox)
         common_form_layout.addRow('Эффективная площадь антенны:', self.seff_spinbox)
         common_form_layout.addRow('Ширина луча по азимуту, град:', self.bw_u_spinbox)
         common_form_layout.addRow('Ширина луча по углу места, град:', self.bw_v_spinbox)
-        common_form_layout.addRow('Пределы сканирования по углу места:', self.scanning_v)
         common_form_layout.addRow('Шумовая температура, К:', self.t_n_spinbox)
         common_form_layout.addRow('Частота повторения импульсов:', self.prf_spinbox)
+        common_form_layout.addRow('Пределы сканирования по углу места:', scanning_v_h_layout)
+        common_form_layout.addRow('Время сигнала:', self.signal_time_spinbox)
         common_form_layout.addRow('Количество импульсов в пачке:', self.n_pulses_proc_spinbox)
         common_form_layout.addRow('Рабочая частота:', self.operating_freq_spinbox)
         common_form_layout.addRow('Начальное время:', self.start_time_spinbox)
         common_form_layout.addRow('ОСШ для обнаружения:', self.snr_detection_spinbox)
 
         self.setLayout(common_form_layout)
+
+    def __validate_values(self):
+        min_value = self.scanning_v_min.value()
+        max_value = self.scanning_v_max.value()
+        if min_value >= max_value:
+            self.scanning_v_max.setValue(min_value + 1)
 
 
 class TargetSettings(QWidget):
@@ -105,10 +138,10 @@ class TargetSettings(QWidget):
         self.target_type_combobox.addItem(TypeTargetEnum.second.desc)
         self.target_type_combobox.setCurrentText(settings.TARGET_TYPE.desc)
 
-        self.scs_spinbox = QSpinBox()
-        self.scs_spinbox.setFont(BASE_FONT)
-        self.scs_spinbox.setRange(1, 1000)
-        self.scs_spinbox.setValue(settings.SCS)
+        self.epr_spinbox = QSpinBox()
+        self.epr_spinbox.setFont(BASE_FONT)
+        self.epr_spinbox.setRange(1, 1000)
+        self.epr_spinbox.setValue(settings.EPR)
 
         self.height_spinbox = QSpinBox()
         self.height_spinbox.setFont(BASE_FONT)
@@ -119,7 +152,7 @@ class TargetSettings(QWidget):
         common_form_layout = QFormLayout()
         common_form_layout.addRow('Скорость цели:', self.speed_spinbox)
         common_form_layout.addRow('Тип цели:', self.target_type_combobox)
-        common_form_layout.addRow('ЭПР:', self.scs_spinbox)
+        common_form_layout.addRow('ЭПР:', self.epr_spinbox)
         common_form_layout.addRow('Высота цели:', self.height_spinbox)
 
         self.setLayout(common_form_layout)
@@ -217,8 +250,10 @@ class SettingsDialog(QDialog):
         settings.SEFF = self.radar_settings.seff_spinbox.value()
         settings.BW_U = self.radar_settings.bw_u_spinbox.value()
         settings.BW_V = self.radar_settings.bw_v_spinbox.value()
-        # scanning_v TODO
         settings.T_N = self.radar_settings.t_n_spinbox.value()
+        settings.PRF = self.radar_settings.prf_spinbox.value()
+        settings.SCANNING_V = [self.radar_settings.scanning_v_min.value(), self.radar_settings.scanning_v_max.value()]
+        settings.SIGNAL_TIME = self.radar_settings.start_time_spinbox.value()
         settings.N_PULSES_PROC = self.radar_settings.n_pulses_proc_spinbox.value()
         settings.OPERATING_FREQ = self.radar_settings.operating_freq_spinbox.value()
         settings.START_TIME = self.radar_settings.start_time_spinbox.value()
@@ -227,6 +262,6 @@ class SettingsDialog(QDialog):
         settings.SPEED = self.target_settings.speed_spinbox.value()
         settings.TARGET_TYPE = TypeTargetEnum.get_target_type_from_desc(
             self.target_settings.target_type_combobox.currentText())
-        settings.SCS = self.target_settings.scs_spinbox.value()
+        settings.EPR = self.target_settings.epr_spinbox.value()
         settings.HEIGHT = self.target_settings.height_spinbox.value()
         super(SettingsDialog, self).accept()

@@ -12,3 +12,12 @@ class CoordinatesEntity:
 
     def to_q_point(self):
         return QPoint(self.x, self.y)
+
+    def to_dict(self):
+        return {'x': self.x, 'y': self.y, 'z': self.z}
+
+    def from_dict(self, data):
+        self.x = data['x']
+        self.y = data['y']
+        self.z = data['z']
+        return self

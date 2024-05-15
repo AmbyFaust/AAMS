@@ -25,5 +25,3 @@ class TypeTargetEnum(Enum):
                 return target_type
 
         return cls.first
-
-

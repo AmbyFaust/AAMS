@@ -7,7 +7,6 @@ from project.modeling.CSTransformator import GRCStoUV, UVtoLRCS
 from project.modeling.CSTransformator import UVtoGRCS
 
 
-
 # Класс Радар
 class RadarObj(Object):
     Trajectories = []
@@ -15,12 +14,19 @@ class RadarObj(Object):
     Id = 1
 
     # Конструктор Класса
-    def __init__(self, radar_params):
-        self.Id = RadarObj.Id
-        RadarObj.Id += 1
+    def __init__(self, radar_params, radar_id=None):
+        if radar_id is None:
+            self.Id = RadarObj.Id
+            RadarObj.Id += 1
+        else:
+            self.Id = radar_id
         self.Trajectories = []
-        self.StartCoords = radar_params.start_coords
-        self.ObjCoords = radar_params.start_coords
+        self.StartCoords = RectCS(
+            X=radar_params.start_coords['x'],
+            Y=radar_params.start_coords['y'],
+            Z=radar_params.start_coords['z']
+        )
+        self.ObjCoords = self.StartCoords
         self.StartTime = radar_params.start_time
         self.RadarParams = radar_params
         self.UBeam = 0
@@ -52,6 +58,14 @@ class RadarObj(Object):
         Vmeasured = np.random.normal(target_coordsSpH.V, stdV, 1)
         Rmeasured = np.random.normal(target_coordsSpH.R, stdR, 1)
         return mark(U=Umeasured, V=Vmeasured, R=Rmeasured, stdU=stdU, stdV=stdV, stdR=stdR, TargetId=targid)
+
+    def TrackingMeasure(self,target,time):
+        targetInfo = target.ReturnPlaneInformation(time)
+        targetCoordsUV = GRCStoUV(targetInfo.coordinates, self.ObjCoords)
+        TargetSNR = self.CalculateSNR(targetCoordsUV.R, targetInfo.RCS)
+        mark = self.CalcMistake(targetCoordsUV, TargetSNR, targetInfo.TargetId)
+        MarkCoordsGRCS = UVtoGRCS(UVCS(R=mark.R, U=mark.U, V=mark.V), self.StartCoords)
+        return(MarkCoordsGRCS)
 
     def MakeMeasurement(self, targets, time):
         BeamCoords = self.scanning_procces(time)
@@ -138,7 +152,7 @@ class RadarObj(Object):
         current_traj = self.Trajectories[one_traj-1]
         # print(current_traj.stack_of_coords.shape)
         [_, l,_] = current_traj.stack_of_coords.shape
-        if (l == 5):
+        if (l == 1):
             self.Trajectories[one_traj - 1] = current_traj._replace(is_confimed = True)
             print ('Supostat with id',current_traj.target_id,' is detected by locator with id',self.Id)
 

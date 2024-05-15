@@ -1,9 +1,10 @@
 import os
+import pandas as pd
 
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import pyqtSlot, Qt, QTimer
+from PyQt5.QtGui import QIcon, QPen
 from PyQt5.QtWidgets import QGraphicsView, QHBoxLayout, QWidget, QVBoxLayout, QLabel, QAction, QToolBar, QGroupBox, \
-    QLineEdit, QPushButton, QFileDialog
+    QLineEdit, QPushButton, QFileDialog, QProgressBar, QSlider, QGraphicsLineItem, QApplication
 
 from project import ObjectEnum
 from project.gui.app_window.controller import Controller
@@ -31,12 +32,20 @@ class AppWindow(QMainWindowBase):
         self.__create_toolbar()
         self.__create_layout()
 
+        self.dataframe = None
+        self.is_paused = True
+        self.lines = []
+        self.current_index = 0
+
         # соединение контроллера с другими объектами
         self.controller.update_radar_list.connect(self.radar_reviewer.update_objects)
         self.controller.update_targets_list.connect(self.target_reviewer.update_objects)
         self.controller.remove_gui_target.connect(self.map.remove_object)
         self.controller.remove_gui_radar.connect(self.map.remove_object)
         self.controller.redraw_radar.connect(self.map.redraw_radar)
+
+        self.modelling_timer = QTimer()
+        self.modelling_timer.timeout.connect(self.__update_slider_progress)
 
     def __create_widgets(self):
         settings_action = QAction("Настройки", self)
@@ -67,6 +76,15 @@ class AppWindow(QMainWindowBase):
         self.y_line_edit.setFont(BASE_FONT)
         self.y_line_edit.setReadOnly(True)
 
+        self.start_button = QPushButton('Старт')
+        self.start_button.setEnabled(False)
+        self.start_button.clicked.connect(self.__toggle_modelling)
+
+        self.slider_progress = QSlider(Qt.Horizontal)
+        self.slider_progress.setRange(0, 1)
+        self.slider_progress.setEnabled(False)
+        self.slider_progress.valueChanged.connect(self.__update_scene_modelling)
+
         self.calculate_btn = QPushButton('Рассчитать')
         self.calculate_btn.setFont(BASE_FONT)
         self.modeling_btn = QPushButton('Моделирование')
@@ -86,6 +104,10 @@ class AppWindow(QMainWindowBase):
         map_v_layout.addWidget(self.map_view)
         map_v_layout.addLayout(coordinates_h_layout)
 
+        scroll_h_layout = QHBoxLayout()
+        scroll_h_layout.addWidget(self.start_button)
+        scroll_h_layout.addWidget(self.slider_progress)
+
         btn_h_layout = QHBoxLayout()
         btn_h_layout.addWidget(self.calculate_btn)
         btn_h_layout.addWidget(self.modeling_btn)
@@ -94,6 +116,7 @@ class AppWindow(QMainWindowBase):
         objects_v_layout.addWidget(self.tool_bar)
         objects_v_layout.addWidget(self.radar_reviewer)
         objects_v_layout.addWidget(self.target_reviewer)
+        objects_v_layout.addLayout(scroll_h_layout)
         objects_v_layout.addLayout(btn_h_layout)
 
         common_h_layout = QHBoxLayout()
@@ -130,7 +153,7 @@ class AppWindow(QMainWindowBase):
         self.controller.calculate_signal.emit()
 
     def __modeling(self):
-        print(INPUT_FILE_PATH)
+        self.controller.modeling_signal.emit()
 
     @pyqtSlot(int, int)
     def __update_coordinates_widgets(self, x_position: int, y_position: int):
@@ -162,3 +185,64 @@ class AppWindow(QMainWindowBase):
 
     def __update_target_action_triggered(self):
         self.controller.update_selected_target()
+
+    def __toggle_modelling(self):
+        if self.is_paused:
+            self.__start_slider_progress()
+        else:
+            self.__pause_slider_progress()
+
+    def __start_slider_progress(self):
+        self.start_button.setText('Стоп')
+        self.is_paused = False
+        self.modelling_timer.start(1)
+
+    def __pause_slider_progress(self):
+        self.start_button.setText('Старт')
+        self.is_paused = True
+        self.modelling_timer.stop()
+
+    def __update_slider_progress(self):
+        current_value = self.slider_progress.value()
+
+        if current_value >= len(self.dataframe) - 1:
+            self.__pause_slider_progress()
+            self.slider_progress.setValue(len(self.dataframe) - 1)
+        else:
+            self.slider_progress.setValue(current_value + 1)
+
+    @pyqtSlot(object)
+    def load_modelling_dataframe(self, dataframe: pd.DataFrame):
+        self.map.remove_all_items()
+
+        self.dataframe = dataframe
+
+        self.slider_progress.setRange(0, len(self.dataframe) - 1)
+        self.slider_progress.setEnabled(True)
+        self.start_button.setEnabled(True)
+
+    @pyqtSlot(int)
+    def __update_scene_modelling(self, slider_progress_value: int):
+        try:
+            if slider_progress_value > self.current_index:
+                for i in range(self.current_index, slider_progress_value):
+                    if i + 1 < len(self.dataframe):
+                        x1, y1 = self.dataframe.iloc[i]['x'], self.dataframe.iloc[i]['y']
+                        x2, y2 = self.dataframe.iloc[i + 1]['x'], self.dataframe.iloc[i + 1]['y']
+
+                        line = QGraphicsLineItem(x1, y1, x2, y2)
+                        pen = QPen(Qt.black, 2)
+                        line.setPen(pen)
+                        self.map.addItem(line)
+                        self.lines.append(line)
+
+            else:
+                for i in range(self.current_index - 1, slider_progress_value, -1):
+                    if self.lines:
+                        line = self.lines.pop()
+                        self.map.removeItem(line)
+
+            self.current_index = slider_progress_value
+
+        except BaseException as exp:
+            print(exp)

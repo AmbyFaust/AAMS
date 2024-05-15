@@ -43,7 +43,9 @@ def LRCStoUV(LRCSTargCoords):
     x = LRCSTargCoords.X
     y = LRCSTargCoords.Y
     z = LRCSTargCoords.Z
+
     r = pow((pow(x, 2) + pow(y, 2) + pow(z, 2)), 0.5)
+    # u = 0.0
     if x > 0:
         u = math.atan(y / x)
 
@@ -52,12 +54,11 @@ def LRCStoUV(LRCSTargCoords):
 
     if (x == 0 and y < 0):
         u = -np.pi/2
-
-    if (x < 0 and y >= 0):
+    if x < 0 and y >= 0:
         u = np.pi - math.atan(y / x)
-
-    if (x < 0 and y < 0):
+    if x < 0 and y < 0:
         u = math.atan(y / x) - np.pi
+
     v = math.asin(z / r)
 
-    return UVCS(R=r,U = math.degrees(u),V = math.degrees(v))
+    return UVCS(R=r, U=math.degrees(u), V=math.degrees(v))

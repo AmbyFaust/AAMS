@@ -1,12 +1,18 @@
-from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
+import datetime
+import json
 
-from project import ObjectEnum
+from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
+import pandas as pd
+
+from project import ObjectEnum, settings
 from project.core.entities import RadarEntity, CoordinatesEntity, TargetEntity
-from project.gui.dialogs import RadarEditDialog
+from project.gui.dialogs import RadarEditDialog, ChoosingModelingFileDialog
 
 from project.gui.dialogs.target_edit_dialog import TargetEditDialog
 from project.gui.objects import TargetPath, RadarObject
 from project.settings import BASE_SIZE_OBJECT
+
+from ..modeling.SimulationManager import SimulationManager
 
 
 class Handler(QObject):
@@ -17,6 +23,7 @@ class Handler(QObject):
     target_updated = pyqtSignal(TargetEntity)
     radar_updated = pyqtSignal(RadarEntity)
     remove_from_map = pyqtSignal(object)
+    load_modelling_dataframe = pyqtSignal(object)
 
     def __init__(self, parent=None):
         super(Handler, self).__init__(parent)
@@ -37,15 +44,11 @@ class Handler(QObject):
                 id=self.radar_id,
                 coordinates=coordinates
             )
-            # radar_edit_dialog = RadarEditDialog(radar_instance=radar_entity, object_type=ObjectEnum.RADAR)
-            # if radar_edit_dialog.exec() == RadarEditDialog.Accepted:
+
             self.radars[self.radar_id] = radar_entity
             self.update_radars.emit(self.radars)
             self.radar_id += 1
             print('РЛС создано')
-            # else:
-            #     self.remove_from_map.emit(radar_object)
-            #     print('РЛС не создано')
 
         except BaseException as exp:
             print(f'Ошибка при создании РЛС: {exp}')
@@ -64,15 +67,10 @@ class Handler(QObject):
                 id=self.target_id,
                 coordinates=coordinates
             )
-            # target_edit_dialog = TargetEditDialog(target_instance=target_entity, object_type=ObjectEnum.TARGET)
-            # if target_edit_dialog.exec() == TargetEditDialog.Accepted:
             self.targets[self.target_id] = target_entity
             self.update_targets.emit(self.targets)
             self.target_id += 1
             print('Цель создана')
-            # else:
-            #     self.remove_from_map.emit(target_object)
-            #     print('Цель не создана')
 
         except BaseException as exp:
             print(f'Ошибка при создании цели: {exp}')
@@ -139,6 +137,27 @@ class Handler(QObject):
 
     @pyqtSlot()
     def calculate(self):
-        print(self.radars)  # смотри radar_entity
-        print(self.targets)  # смотри target_entity
+        json_object = {
+            'objects': {
+                'radars': [radar.to_dict() for radar in self.radars.values()],
+                'targets': [target.to_dict() for target in self.targets.values()]
+            },
+            'data': {}
+        }
+
+        filename = f'{settings.INPUT_FILE_PATH}/{datetime.datetime.now()}.json'
+
+        with open(filename, 'w+', encoding='utf-8') as file:
+            json.dump(json_object, file)
+
+        sm = SimulationManager(filename)
+        sm.modeling()
+
+    @pyqtSlot()
+    def modeling(self):
+        dialog = ChoosingModelingFileDialog()
+        if dialog.exec() == ChoosingModelingFileDialog.Accepted:
+            dataframe = pd.read_csv(f'{settings.OUTPUT_FILE_PATH}/data.csv')
+
+            self.load_modelling_dataframe.emit(dataframe)
 
