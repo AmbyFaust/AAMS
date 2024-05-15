@@ -145,7 +145,8 @@ class Handler(QObject):
             'data': {}
         }
 
-        filename = f'{settings.INPUT_FILE_PATH}/{datetime.datetime.now()}.json'
+        current_timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        filename = f'{settings.INPUT_FILE_PATH}\\{current_timestamp}.json'
 
         with open(filename, 'w+', encoding='utf-8') as file:
             json.dump(json_object, file)

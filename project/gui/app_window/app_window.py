@@ -53,7 +53,7 @@ class AppWindow(QMainWindowBase):
 
         self.map = GridScene(self, self.controller)
         self.map_view = QGraphicsView(self.map)
-        self.map_view.setGeometry(0, 0, 1300, 900)
+        self.map_view.setGeometry(0, 0, 13000, 9000)
         self.map.draw_grid(self.map_view.size())
         self.map.get_current_coordinates.connect(self.__update_coordinates_widgets)
 
@@ -213,9 +213,11 @@ class AppWindow(QMainWindowBase):
 
     @pyqtSlot(object)
     def load_modelling_dataframe(self, dataframe: pd.DataFrame):
-        self.map.remove_all_items()
+        self.map.remove_targets()
 
         self.dataframe = dataframe
+
+        print(self.dataframe['object_type'].unique())
 
         self.slider_progress.setRange(0, len(self.dataframe) - 1)
         self.slider_progress.setEnabled(True)

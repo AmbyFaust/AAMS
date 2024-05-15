@@ -72,7 +72,7 @@ class RadarSettings(QWidget):
         self.n_pulses_proc_spinbox.setRange(1, 10000)
         self.n_pulses_proc_spinbox.setValue(settings.N_PULSES_PROC)
 
-        self.operating_freq_spinbox = QSpinBox()
+        self.operating_freq_spinbox = QDoubleSpinBox()
         self.operating_freq_spinbox.setFont(BASE_FONT)
         self.operating_freq_spinbox.setRange(15*10**5, 15*10**10)
         self.operating_freq_spinbox.setValue(settings.OPERATING_FREQ)

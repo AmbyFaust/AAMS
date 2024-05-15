@@ -1,7 +1,7 @@
-from PyQt5.QtCore import Qt, QPoint, QSize, pyqtSlot, QTimer, pyqtSignal, QLine, QLineF
-from PyQt5.QtGui import QPen, QPixmap, QCursor, QPainterPath, QColor, QIcon
+from PyQt5.QtCore import Qt, QPoint, QSize, pyqtSlot, QTimer, pyqtSignal, QLineF
+from PyQt5.QtGui import QPen, QPixmap, QCursor, QColor
 from PyQt5.QtWidgets import QGraphicsScene, QGraphicsPixmapItem, QGraphicsSceneMouseEvent, QGraphicsEllipseItem, \
-    QGraphicsLineItem
+    QGraphicsSceneWheelEvent
 
 from project import ObjectEnum
 from project.core import RadarEntity
@@ -209,9 +209,6 @@ class GridScene(QGraphicsScene):
         except BaseException as exp:
             print(f'{exp}')
 
-    def remove_all_items(self):
-        # for radar_id in self.radars:
-        #     self.__remove_radar(radar_id)
-
-        for target_id in self.targets:
+    def remove_targets(self):
+        for target_id in list(self.targets.keys()):
             self.__remove_target(target_id)

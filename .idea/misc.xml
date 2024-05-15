@@ -3,5 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="$USER_HOME$/opt/anaconda3/envs/laba_2_project_env" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="$USER_HOME$/opt/anaconda3/envs/laba_2_project_env" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="recognition" project-jdk-type="Python SDK" />
 </project>
