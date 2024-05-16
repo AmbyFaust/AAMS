@@ -63,7 +63,7 @@ class Target(Object):
 
 
     def get_last_time_target(self):
-        return coordinates_dict[99][3]
+        return self.coordinates_dict[99][3]
 
 
     def move(self, time):
@@ -121,5 +121,5 @@ if __name__ == '__main__':
     coords = target.calculate_position_at_time(9)
     #inf = target.ReturnPlaneInformation(9)
     #print(inf)
-    print(coords)
-    print(coordinates_dict)
+    # print(coords)
+    # print(coordinates_dict)

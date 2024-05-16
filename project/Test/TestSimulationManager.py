@@ -6,10 +6,11 @@ from project.modeling.ObjectModels.CommandPostObj import CommandPostObj
 from project.modeling.ObjectModels.SimpleTestPlane import SimpleTestPlane
 from project.modeling.CSTransformator import GRCStoUV
 from project.modeling.CSTransformator import UVtoGRCS
-from mpl_toolkits import mplot3d
-import matplotlib.pyplot as plt
+# from mpl_toolkits import mplot3d
+# import matplotlib.pyplot as plt
 from project.modeling.ObjectModels.Launcher_and_missile import LaunchSystem
 from project.modeling.ObjectModels.TargetObj import Target
+
 SM = SimulationManager("SimulationConfig")
 start_coords_radar_1 = {'x':0,'y': -500,'z':0}
 start_coords_radar_2 = {'x':200,'y': 200,'z':0}
@@ -43,7 +44,7 @@ Liqudator_Radar_3 = RadarObj(Liqudator_Params_3)
 Launcher_3 = LaunchSystem(start_coords_radar_3['x'],start_coords_radar_3['y'],start_coords_radar_3['z'])
 Launcher_3.radarId = Liqudator_Radar_3.Id
 
-all_radars = [Liqudator_Radar_1, Liqudator_Radar_2,Liqudator_Radar_3]
+
 Comman_Post_SKB_7 = CommandPostObj()
 
 point1 = {'x':30000,'y':0,'z':1000}

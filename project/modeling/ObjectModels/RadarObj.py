@@ -68,10 +68,13 @@ class RadarObj(Object):
         return(MarkCoordsGRCS)
 
     def MakeMeasurement(self, targets, time):
+        # print(self.Id)
         BeamCoords = self.scanning_procces(time)
         # print('Направление луча:',BeamCoords)
         marks = []
+
         for target in targets:
+
             targetInfo = target.ReturnPlaneInformation(time)
             targetCoordsUV = GRCStoUV(targetInfo.coordinates, self.ObjCoords)
             # print('Положение цели',targetInfo.TargetId,':', targetCoordsUV)
@@ -81,8 +84,11 @@ class RadarObj(Object):
                 TargetSNR = self.CalculateSNR(targetCoordsUV.R, targetInfo.RCS)
                 # print('ОСШ от цели',targetInfo.TargetId,TargetSNR)
                 if TargetSNR > self.RadarParams.SNRDetection:
+
                     # print('TargetDetected')
+
                     mark = self.CalcMistake(targetCoordsUV,TargetSNR,targetInfo.TargetId)
+                    # print(targetInfo.TargetId, BeamCoords,mark)
                     # print('Истинные координаты цели ', targetInfo.coordinates)
                     # print('Координаты в УВР ', targetCoordsUV)
                     # print('Истинные координаты цели переведены обратно ', UVtoGRCS(targetCoordsUV, self.StartCoords))
@@ -110,8 +116,9 @@ class RadarObj(Object):
         # print(N_V_in_scan)
         N_U_in_scan = N_in_scan // (N_V)
         # print(N_U_in_scan)
-        Current_V = Vmin + (self.RadarParams.BW_V / 2) + self.RadarParams.BW_V*(N_V_in_scan)
-        Current_U = -180 + (self.RadarParams.BW_U / 2) + self.RadarParams.BW_U*(N_U_in_scan)
+        Current_V = round(Vmin + (self.RadarParams.BW_V / 2) + self.RadarParams.BW_V*(N_V_in_scan),4)
+        Current_U = round(-180 + (self.RadarParams.BW_U / 2) + self.RadarParams.BW_U*(N_U_in_scan),4)
+        # print (t, Current_U, Current_V)
         return [Current_U, Current_V]
 
     def secondary_processing(self, marks):
@@ -124,12 +131,11 @@ class RadarObj(Object):
             x = xyz.X
             y = xyz.Y
             z = xyz.Z
-
-            # print(u, v, r)
-            targ_id = mark[6]
+            # print(mark)
+            targ_id = mark.TargetId
             if not self.Trajectories:
                 self.intitiate_traj(targ_id, x, y, z)
-
+                # print('radar Id ',self.Id, 'initiated traj',self.Trajectories[0].stack_of_coords)
             else:
                 key = 0
                 for one_traj in range(1, len(self.Trajectories) + 1):
@@ -146,13 +152,14 @@ class RadarObj(Object):
                     self.intitiate_traj(targ_id, x, y, z)
 
     def intitiate_traj (self,target_id, x, y, z):
+        # print(x, y, z)
         initiation_traj = trajectory(np.array([[x], [y], [z]]),target_id,False)
         self.Trajectories.append(initiation_traj)
     def check_if_its_supostat (self,one_traj):
         current_traj = self.Trajectories[one_traj-1]
         # print(current_traj.stack_of_coords.shape)
         [_, l,_] = current_traj.stack_of_coords.shape
-        if (l == 5):
+        if (l == 2):
             self.Trajectories[one_traj - 1] = current_traj._replace(is_confimed = True)
             print ('Supostat with id',current_traj.target_id,' is detected by locator with id',self.Id)
 

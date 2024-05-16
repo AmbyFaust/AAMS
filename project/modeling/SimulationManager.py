@@ -16,7 +16,7 @@ class SimulationManager:
         self.radars = dict()
         self.targets = dict()
         self.launchers = dict()
-        #self.__load_objects()
+        self.__load_objects()
 
         self.rockets = []
         self.CurrModelingTime = 0
@@ -38,34 +38,46 @@ class SimulationManager:
                 self.__load_target_object(target_data)
 
     def modeling(self):
-        self.TimeStep = self.radars[1].RadarParams.NPulsesProc * (1 / self.radars[1].RadarParams.PRF)
+        if len(self.radars) > 0:
+            self.TimeStep = min([r.RadarParams.NPulsesProc / r.RadarParams.PRF for r in self.radars.values()])
+        targetWayTime  = []
+        for target in self.targets.values():
+            endTargetTime = target.get_last_time_target()
+            targetWayTime.append(endTargetTime)
+        self.endTime = min(targetWayTime) - self.TimeStep
         while self.CurrModelingTime < self.endTime:
-            self.modeling_step()
+            if self.__checkTargetsLifeStatus() == True:
+                self.modeling_step()
+            else:
+                break
 
         self.data.to_csv(os.path.dirname(self.path) + '/data.csv')
 
     def modeling_step(self):
         # Изменяем текущее время модели
-        self.CurrModelingTime += self.TimeStep
-        print("Время моделирования:", self.CurrModelingTime)
+        self.CurrModelingTime = round(self.CurrModelingTime + self.TimeStep,4)
+        # print("Время моделирования:", self.CurrModelingTime)
 
         # Моделируем ПОИ и ВОИ(первичка и вторичка)
         for radar_id, radar in self.radars.items():
             measurements_from_radar = radar.MakeMeasurement(self.targets.values(), self.CurrModelingTime)
-            radar.secondary_processing(measurements_from_radar)
+            if (len(measurements_from_radar)>0):
+                # print(self.CurrModelingTime," time and radar id", radar_id)
+                radar.secondary_processing(measurements_from_radar)
 
         # Моделируем ТОИ(третичка)
         for radar_id, radar in self.radars.items():
             all_radar_traj = radar.Trajectories
             for current_traj in all_radar_traj:
                 if current_traj.is_confimed:
-                    self.rockets.append(
-                        self.CommPost.tritial_processing(
-                            self.radars.values(),
-                            current_traj,
-                            self.launchers.values(),
-                            self.CurrModelingTime)
-                    )
+                    rocket = self.CommPost.tritial_processing(
+                        self.radars,
+                        current_traj,
+                        self.launchers.values(),
+                        self.CurrModelingTime)
+                    if rocket != None:
+                        self.rockets.append(rocket)
+
 
         # Сдвигаем все объекты(цели и ракеты) в соответствии с текущим временем (Если они в состоянии IsLive)
         for rocket in self.rockets:
@@ -85,9 +97,9 @@ class SimulationManager:
             )
             rocket.changeDirectionofFlight(targetCoord)
 
-        print('Targets')
+        # print('Targets')
         for target_id, target in self.targets.items():
-            print(target.CurrCoords)
+            # print(target.CurrCoords)
             self.data.loc[len(self.data)] = {
                 'object_type': 'target',
                 'object_id': target_id,
@@ -96,7 +108,7 @@ class SimulationManager:
                 'y': target.CurrCoords.Y,
                 'z': target.CurrCoords.Z,
             }
-        print('Rockets')
+        # print('Rockets')
         for rocket in self.rockets:
             print(rocket.coordinates)
             self.data.loc[len(self.data)] = {
@@ -142,6 +154,12 @@ class SimulationManager:
             z=launcher_data['start_coordinates']['z'],
             launcher_id=launcher_data['id']
         )
+    def __checkTargetsLifeStatus(self):
+        IsTargetsLive = True
+        for target in self.targets.values():
+            if target.Islive==False:
+                IsTargetsLive = False
+        return IsTargetsLive
 
 
 if __name__ == "__main__":
