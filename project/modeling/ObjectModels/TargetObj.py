@@ -116,5 +116,5 @@ if __name__ == '__main__':
     coords = target.calculate_position_at_time(9)
     #inf = target.ReturnPlaneInformation(9)
     #print(inf)
-    print(coords)
-    print(coordinates_dict)
+    # print(coords)
+    # print(coordinates_dict)
