@@ -18,6 +18,7 @@ class AppWindow(QMainWindowBase):
     """
     Главное окно приложения
     """
+
     def __init__(self, parent=None):
         super(AppWindow, self).__init__(parent)
 
@@ -34,7 +35,7 @@ class AppWindow(QMainWindowBase):
 
         self.dataframe = None
         self.is_paused = True
-        self.lines = []
+        self.lines = {}
         self.current_index = 0
 
         # соединение контроллера с другими объектами
@@ -217,32 +218,81 @@ class AppWindow(QMainWindowBase):
 
         self.dataframe = dataframe
 
-        print(self.dataframe['object_type'].unique())
-
         self.slider_progress.setRange(0, len(self.dataframe) - 1)
         self.slider_progress.setEnabled(True)
         self.start_button.setEnabled(True)
 
+    # @pyqtSlot(int)
+    # def __update_scene_modelling(self, slider_progress_value: int):
+    #     try:
+    #         if slider_progress_value > self.current_index:
+    #             for i in range(self.current_index, slider_progress_value):
+    #                 if i + 1 < len(self.dataframe):
+    #                     x1, y1 = self.dataframe.iloc[i]['x'], self.dataframe.iloc[i]['y']
+    #                     x2, y2 = self.dataframe.iloc[i + 1]['x'], self.dataframe.iloc[i + 1]['y']
+    #
+    #                     line = QGraphicsLineItem(x1, y1, x2, y2)
+    #                     pen = QPen(Qt.black, 2)
+    #                     line.setPen(pen)
+    #                     self.map.addItem(line)
+    #                     self.lines.append(line)
+    #
+    #         else:
+    #             for i in range(self.current_index - 1, slider_progress_value, -1):
+    #                 if self.lines:
+    #                     line = self.lines.pop()
+    #                     self.map.removeItem(line)
+    #
+    #         self.current_index = slider_progress_value
+    #
+    #     except BaseException as exp:
+    #         print(exp)
+
+    def __draw_objects_lines(self, object_points, obj_type):
+        print(obj_type)
+        if obj_type == 'rocket':
+            pen = QPen(Qt.green, 2)
+        else:
+            pen = QPen(Qt.black, 2)
+
+        print(object_points.items())
+
+        for obj_id, points in object_points.items():
+            for i in range(len(points) - 1):
+                x1, y1 = points[i]
+                x2, y2 = points[i + 1]
+
+                line = QGraphicsLineItem(x1, y1, x2, y2)
+                line.setPen(pen)
+                self.map.addItem(line)
+
+                if obj_id not in self.lines:
+                    self.lines[obj_id] = []
+                self.lines[obj_id].append(line)
+
     @pyqtSlot(int)
     def __update_scene_modelling(self, slider_progress_value: int):
         try:
-            if slider_progress_value > self.current_index:
-                for i in range(self.current_index, slider_progress_value):
-                    if i + 1 < len(self.dataframe):
-                        x1, y1 = self.dataframe.iloc[i]['x'], self.dataframe.iloc[i]['y']
-                        x2, y2 = self.dataframe.iloc[i + 1]['x'], self.dataframe.iloc[i + 1]['y']
+            targets_points = {}
+            rockets_points = {}
 
-                        line = QGraphicsLineItem(x1, y1, x2, y2)
-                        pen = QPen(Qt.black, 2)
-                        line.setPen(pen)
-                        self.map.addItem(line)
-                        self.lines.append(line)
+            for i in range(self.current_index, slider_progress_value):
+                row = self.dataframe.iloc[i]
+                obj_id = row['object_id']
+                obj_type = row['object_type']
+                point = (row['x'], row['y'])
 
-            else:
-                for i in range(self.current_index - 1, slider_progress_value, -1):
-                    if self.lines:
-                        line = self.lines.pop()
-                        self.map.removeItem(line)
+                if obj_type == 'target':
+                    if obj_id not in targets_points:
+                        targets_points[obj_id] = []
+                    targets_points[obj_id].append(point)
+                elif obj_type == 'rocket':
+                    if obj_type not in rockets_points:
+                        rockets_points[obj_id] = []
+                    rockets_points[obj_id].append(point)
+
+            self.__draw_objects_lines(targets_points, 'target')
+            self.__draw_objects_lines(rockets_points, 'rocket')
 
             self.current_index = slider_progress_value
 

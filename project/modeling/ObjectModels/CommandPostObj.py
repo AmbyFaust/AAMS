@@ -7,7 +7,6 @@ class CommandPostObj(Object):
     detect_id_object = []
     def tritial_processing(self, all_radars_map,current_traj,all_launchers, time):
         if current_traj.target_id in self.detect_id_object:
-            print(2222222)
             return None
         else:
             self.detect_id_object.append(current_traj.target_id)

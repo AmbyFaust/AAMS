@@ -1,4 +1,4 @@
-from PyQt5.QtCore import Qt, QPoint, QSize, pyqtSlot, QTimer, pyqtSignal, QLineF
+from PyQt5.QtCore import Qt, QPoint, QSize, pyqtSlot, QTimer, pyqtSignal, QLineF, QRectF
 from PyQt5.QtGui import QPen, QPixmap, QCursor, QColor
 from PyQt5.QtWidgets import QGraphicsScene, QGraphicsPixmapItem, QGraphicsSceneMouseEvent, QGraphicsEllipseItem, \
     QGraphicsSceneWheelEvent
@@ -55,8 +55,8 @@ class GridScene(QGraphicsScene):
                 last_point = self.current_object.points[-1]
                 self.removeItem(self.current_object.pop_vertex(-1))
                 last_vertex = QGraphicsEllipseItem(int(last_point.x()) - TARGET_POINT_RADIUS,
-                                                  int(last_point.y()) - TARGET_POINT_RADIUS,
-                                                  TARGET_POINT_RADIUS * 2, TARGET_POINT_RADIUS * 2)
+                                                   int(last_point.y()) - TARGET_POINT_RADIUS,
+                                                   TARGET_POINT_RADIUS * 2, TARGET_POINT_RADIUS * 2)
                 last_vertex.setBrush(QColor("red"))
                 self.addItem(last_vertex)
                 self.current_object.add_vertex(last_vertex, last_point)
@@ -150,6 +150,12 @@ class GridScene(QGraphicsScene):
             self.current_object.radar_item.setPos(
                 event.scenePos() - QPoint(BASE_SIZE_OBJECT.width() // 2, BASE_SIZE_OBJECT.height() // 2))
             self.addItem(self.current_object.radar_item)
+
+            self.current_object.radius_path.addEllipse(QRectF(-self.current_object.radius,
+                                                              -self.current_object.radius,
+                                                              2 * self.current_object.radius,
+                                                              2 * self.current_object.radius))
+
             self.current_object.radar_radius_item = self.addPath(self.current_object.radius_path, QPen(Qt.blue))
 
             self.current_object.radar_radius_item.setPos(event.scenePos())
@@ -199,6 +205,17 @@ class GridScene(QGraphicsScene):
                 radar_entity.start_coordinates.to_q_point() -
                 QPoint(BASE_SIZE_OBJECT.width() // 2, BASE_SIZE_OBJECT.height() // 2))
             self.addItem(redraw_radar.radar_item)
+
+            redraw_radar.radius = redraw_radar.set_radius(radar_entity.eirp, radar_entity.seff, radar_entity.t_n,
+                                                          radar_entity.prf, radar_entity.signal_time,
+                                                          radar_entity.n_pulses_proc, radar_entity.operating_freq,
+                                                          radar_entity.snr_detection)
+
+            redraw_radar.radius_path.addEllipse(QRectF(redraw_radar.radius,
+                                                       redraw_radar.radius,
+                                                       2 * redraw_radar.radius,
+                                                       2 * redraw_radar.radius))
+
             redraw_radar.radar_radius_item = self.addPath(redraw_radar.radius_path, QPen(Qt.blue))
 
             redraw_radar.radar_radius_item.setPos(radar_entity.start_coordinates.to_q_point())
