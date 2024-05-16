@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QVBoxLayout, QFormLayout, QLabel, QSpinBox, QComboBo
 from project import ObjectEnum, TypeTargetEnum
 from project.core import TargetEntity
 from . import ObjectEditDialog
-from project.settings import BASE_FONT
+from project import settings
 
 
 class TargetEditDialog(ObjectEditDialog):
@@ -16,15 +16,12 @@ class TargetEditDialog(ObjectEditDialog):
 
     def __create_widgets(self):
         self.speed_spin_box = QSpinBox()
-        self.speed_spin_box.setFont(BASE_FONT)
+        self.speed_spin_box.setFont(settings.BASE_FONT)
         self.speed_spin_box.setRange(1, 2000)
-        try:
-            self.speed_spin_box.setValue(self.target_instance.speed)
-        except:
-            self.speed_spin_box.setValue(0)
+        self.speed_spin_box.setValue(settings.SPEED)
 
         self.epr_spin_box = QSpinBox()
-        self.epr_spin_box.setFont(BASE_FONT)
+        self.epr_spin_box.setFont(settings.BASE_FONT)
         self.epr_spin_box.setRange(1, 2000)
         try:
             self.epr_spin_box.setValue(self.target_instance.epr)
@@ -32,19 +29,15 @@ class TargetEditDialog(ObjectEditDialog):
             self.epr_spin_box.setValue(0)
 
         self.height_spin_box = QSpinBox()
-        self.height_spin_box.setFont(BASE_FONT)
+        self.height_spin_box.setFont(settings.BASE_FONT)
         self.height_spin_box.setRange(1, 2000)
-        try:
-            self.height_spin_box.setValue(self.target_instance.coordinates[0].z)
-        except:
-            self.height_spin_box.setValue(0)
+        self.height_spin_box.setValue(settings.HEIGHT)
 
         self.type_combo_box = QComboBox()
-        self.type_combo_box.setFont(BASE_FONT)
-        for item in TypeTargetEnum:
-            self.type_combo_box.addItem(item.desc, item)
-            if item.num == self.target_instance.target_type.num:
-                self.type_combo_box.setCurrentIndex(self.type_combo_box.count() - 1)
+        self.type_combo_box.setFont(settings.BASE_FONT)
+        self.type_combo_box.addItem(TypeTargetEnum.first.desc)
+        self.type_combo_box.addItem(TypeTargetEnum.second.desc)
+        self.type_combo_box.setCurrentText(settings.TARGET_TYPE.desc)
 
     def __create_layouts(self):
         common_v_layout = QVBoxLayout()
@@ -67,7 +60,7 @@ class TargetEditDialog(ObjectEditDialog):
             self.target_instance.epr = self.epr_spin_box.value()
             for coordinate in self.target_instance.coordinates:
                 coordinate.z = self.height_spin_box.value()
-            self.target_instance.target_type = self.type_combo_box.currentData()
+            self.target_instance.target_type = TypeTargetEnum.get_target_type_from_desc(self.type_combo_box.currentText())
         except BaseException as exp:
             print(exp)
         super().accept()

@@ -4,6 +4,8 @@ from PyQt5.QtWidgets import QVBoxLayout, QFormLayout, QLabel, QSpinBox, QDoubleS
 from project import ObjectEnum, settings
 from project.core import RadarEntity
 from . import ObjectEditDialog
+from project import settings
+
 
 class RadarEditDialog(ObjectEditDialog):
     def __init__(self, radar_instance: RadarEntity, object_type: ObjectEnum, parent=None):
@@ -31,11 +33,14 @@ class RadarEditDialog(ObjectEditDialog):
 
         self.eirp_spinbox = QSpinBox()
         self.eirp_spinbox.setFont(settings.BASE_FONT)
+
         self.eirp_spinbox.setRange(0, 10**7)
+
         self.eirp_spinbox.setValue(settings.EIRP)
 
         self.seff_spinbox = QSpinBox()
         self.seff_spinbox.setFont(settings.BASE_FONT)
+
         self.seff_spinbox.setRange(0, 100)
         self.seff_spinbox.setValue(settings.SEFF)
 
@@ -65,6 +70,7 @@ class RadarEditDialog(ObjectEditDialog):
 
         self.t_n_spinbox = QSpinBox()
         self.t_n_spinbox.setFont(settings.BASE_FONT)
+
         self.t_n_spinbox.setRange(273, 10000)
         self.t_n_spinbox.setValue(settings.T_N)
 
@@ -85,6 +91,7 @@ class RadarEditDialog(ObjectEditDialog):
 
         self.operating_freq_spinbox = QDoubleSpinBox()
         self.operating_freq_spinbox.setFont(settings.BASE_FONT)
+
         self.operating_freq_spinbox.setRange(15*10**5, 15*10**10)
         self.operating_freq_spinbox.setValue(settings.OPERATING_FREQ)
 

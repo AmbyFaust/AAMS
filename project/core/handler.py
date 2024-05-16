@@ -161,3 +161,4 @@ class Handler(QObject):
             dataframe = pd.read_csv(f'{settings.OUTPUT_FILE_PATH}/data.csv')
 
             self.load_modelling_dataframe.emit(dataframe)
+
