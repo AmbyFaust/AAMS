@@ -75,13 +75,15 @@ class SimulationManager:
 
     def modeling_step(self):
         # Изменяем текущее время модели
-        self.CurrModelingTime += self.TimeStep
-        print("Время моделирования:", self.CurrModelingTime)
+        self.CurrModelingTime = round(self.CurrModelingTime + self.TimeStep,4)
+        # print("Время моделирования:", self.CurrModelingTime)
 
         # Моделируем ПОИ и ВОИ(первичка и вторичка)
         for radar_id, radar in self.radars.items():
             measurements_from_radar = radar.MakeMeasurement(self.targets.values(), self.CurrModelingTime)
-            radar.secondary_processing(measurements_from_radar)
+            if (len(measurements_from_radar)>0):
+                # print(self.CurrModelingTime," time and radar id", radar_id)
+                radar.secondary_processing(measurements_from_radar)
 
         # Моделируем ТОИ(третичка)
         for radar_id, radar in self.radars.items():
@@ -114,9 +116,9 @@ class SimulationManager:
             )
             rocket.changeDirectionofFlight(targetCoord)
 
-        print('Targets')
+        # print('Targets')
         for target_id, target in self.targets.items():
-            print(target.CurrCoords)
+            # print(target.CurrCoords)
             self.data.loc[len(self.data)] = {
                 'object_type': 'target',
                 'object_id': target_id,
@@ -125,7 +127,7 @@ class SimulationManager:
                 'y': target.CurrCoords.Y,
                 'z': target.CurrCoords.Z,
             }
-        print('Rockets')
+        # print('Rockets')
         for rocket in self.rockets:
             print(rocket.coordinates)
             self.data.loc[len(self.data)] = {
