@@ -217,8 +217,6 @@ class AppWindow(QMainWindowBase):
 
         self.dataframe = dataframe
 
-        print(self.dataframe['object_type'].unique())
-
         self.slider_progress.setRange(0, len(self.dataframe) - 1)
         self.slider_progress.setEnabled(True)
         self.start_button.setEnabled(True)

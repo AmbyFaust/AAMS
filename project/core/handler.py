@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 
 from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
 import pandas as pd
@@ -48,8 +49,7 @@ class Handler(QObject):
             self.radars[self.radar_id] = radar_entity
             self.update_radars.emit(self.radars)
             self.radar_id += 1
-            print('РЛС создано')
-
+            logging.info(f'РЛС c id={self.radar_id} создана')
         except BaseException as exp:
             print(f'Ошибка при создании РЛС: {exp}')
 
@@ -70,7 +70,7 @@ class Handler(QObject):
             self.targets[self.target_id] = target_entity
             self.update_targets.emit(self.targets)
             self.target_id += 1
-            print('Цель создана')
+            logging.info(f'Цель c id={self.target_id} создана')
 
         except BaseException as exp:
             print(f'Ошибка при создании цели: {exp}')
@@ -85,7 +85,7 @@ class Handler(QObject):
 
             self.radar_deleted.emit(radar_id)
         except BaseException as exp:
-            print(f'РЛИ с id = {radar_id} не была удалена: {exp}')
+            print(f'РЛС с id = {radar_id} не была удалена: {exp}')
 
     @pyqtSlot(int)
     def remove_target(self, target_id: int):
@@ -114,8 +114,9 @@ class Handler(QObject):
                 return
 
             self.radar_updated.emit(self.radars[radar_id])
+            logging.info('РЛC изменена')
         except BaseException as exp:
-            print(f'Не удалось изменить РЛИ с id = {radar_id} не удалось изменить: {exp}')
+            print(f'Не удалось изменить РЛС с id = {radar_id} не удалось изменить: {exp}')
 
     @pyqtSlot(int)
     def modify_target(self, target_id: int):
@@ -132,6 +133,7 @@ class Handler(QObject):
                 return
 
             self.target_updated.emit(self.targets[target_id])
+            logging.info('Цель изменена')
         except BaseException as exp:
             print(f'Не удалось изменить цель с id = {target_id} не удалось изменить: {exp}')
 
@@ -161,4 +163,3 @@ class Handler(QObject):
             dataframe = pd.read_csv(f'{settings.OUTPUT_FILE_PATH}/data.csv')
 
             self.load_modelling_dataframe.emit(dataframe)
-

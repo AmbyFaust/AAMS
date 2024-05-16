@@ -1,3 +1,5 @@
+import logging
+
 from PyQt5.QtCore import Qt, QPoint, QSize, pyqtSlot, QTimer, pyqtSignal, QLineF
 from PyQt5.QtGui import QPen, QPixmap, QCursor, QColor
 from PyQt5.QtWidgets import QGraphicsScene, QGraphicsPixmapItem, QGraphicsSceneMouseEvent, QGraphicsEllipseItem, \
@@ -171,7 +173,7 @@ class GridScene(QGraphicsScene):
         target_path = self.targets[target_id]
         self.__remove_target_path(target_path)
         self.targets.pop(target_id)
-        print(f'Цель с id={target_id} удалена')
+        logging.info(f'Цель с id={target_id} удалена')
 
     def __remove_target_path(self, target_path: TargetPath):
         for vertex in target_path.vertexes:
@@ -183,7 +185,7 @@ class GridScene(QGraphicsScene):
         self.removeItem(self.radars[radar_id].radar_item)
         self.removeItem(self.radars[radar_id].radar_radius_item)
         self.radars.pop(radar_id)
-        print(f'РЛС с id={radar_id} удалена')
+        logging.info(f'РЛС с id={radar_id} удалена')
 
     @pyqtSlot(RadarEntity)
     def redraw_radar(self, radar_entity: RadarEntity):
