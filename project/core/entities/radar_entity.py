@@ -12,6 +12,7 @@ class RadarEntity(BaseEntity):
                  scanning_v: int = settings.SCANNING_V,
                  t_n: int = settings.T_N,
                  prf: int = settings.PRF,
+                 signal_time: int = settings.SIGNAL_TIME,
                  n_pulses_proc: int = settings.N_PULSES_PROC,
                  operating_freq: int = settings.OPERATING_FREQ,
                  start_time: int = settings.START_TIME,
