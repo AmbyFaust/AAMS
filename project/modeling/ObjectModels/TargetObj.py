@@ -29,9 +29,14 @@ class Target(Object):
         y_coords = [point[1] for point in self.control_points]
         z_coords = [point[2] for point in self.control_points]
 
-        spline_x = interp1d(np.arange(len(self.control_points)), x_coords, kind='cubic')
-        spline_y = interp1d(np.arange(len(self.control_points)), y_coords, kind='cubic')
-        spline_z = interp1d(np.arange(len(self.control_points)), z_coords, kind='cubic')
+        if len(self.control_points) >= 4:
+            interpolation_method = 'cubic'
+        else:
+            interpolation_method = 'linear'
+
+        spline_x = interp1d(np.arange(len(self.control_points)), x_coords, kind=interpolation_method)
+        spline_y = interp1d(np.arange(len(self.control_points)), y_coords, kind=interpolation_method)
+        spline_z = interp1d(np.arange(len(self.control_points)), z_coords, kind=interpolation_method)
 
 
         num_points = 100  # Изменим коэффициент на 10
