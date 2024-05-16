@@ -71,6 +71,7 @@ class Missile(Object):
             if self.DetonationRange >= dist:
                 bum = True
                 self.detonate(target)
+
         if bum == True:
             for target in targets:
                 direction_vector = np.array(target.CurrCoords) - np.array(self.coordinates)
@@ -78,8 +79,9 @@ class Missile(Object):
                 # Вычисляем длину вектора направления
                 dist = np.linalg.norm(direction_vector)
 
-                if self.DamageRange >= dist:
-                    self.detonate(target)
+                if target.Islive:
+                    if self.DamageRange >= dist:
+                        self.detonate(target)
 
 
     def move(self, time):
@@ -89,8 +91,8 @@ class Missile(Object):
         self.coordinates = CalculatedCoords
         #print('self.target_coordinates = ', self.target_coordinates)
         #print('self.coordinates after move = ', self.coordinates)
-        self.rocket_trajectory.append(self.coordinates)
-        pass
+        if self.coordinates:
+            self.rocket_trajectory.append(self.coordinates)
 
     def distance_to_target(self):
         direction_vector = np.array(self.target_coordinates) - np.array(self.coordinates)
@@ -147,17 +149,6 @@ class Missile(Object):
       # Сохраняем траекторию в поле объекта
 
     def get_coordinates_at_time(self, time):
-
-
-        if self.target_coordinates is None:
-            #print("Cannot get coordinates. Target coordinates are not set.")
-            return None
-
-        if not self.coordinates:
-            #print("Cannot get coordinates. Initial coordinates are not set.")
-            return None
-
-
         #print('зашли в get_coordinates_at_time')
         #print('self.coordinates = ', self.coordinates)
         #print('self.target_coordinates = ', self.target_coordinates)
@@ -173,25 +164,15 @@ class Missile(Object):
         # Вычисляем дистанцию, которую прошла ракета за заданное время
         distance_traveled = self.speed * (time - self.time)
 
-        # Если дистанция превышает расстояние до цели, то ракета достигла цели
-        if distance_traveled > direction_length:
-            print('Error')
-            return None
-
         #print('direction_vector = ', direction_vector)
         #print('direction_unit_vector = ', direction_unit_vector)
         #print('distance_traveled = ', distance_traveled)
-
-
-
 
 
         # Вычисляем новые координаты ракеты
         new_x = self.coordinates.X + direction_unit_vector[0] * distance_traveled
         new_y = self.coordinates.Y + direction_unit_vector[1] * distance_traveled
         new_z = self.coordinates.Z + direction_unit_vector[2] * distance_traveled
-
-
 
         #print('new_x = ', new_x)
 
