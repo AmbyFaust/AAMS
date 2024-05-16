@@ -1,6 +1,6 @@
 import logging
 
-from PyQt5.QtCore import Qt, QPoint, QSize, pyqtSlot, QTimer, pyqtSignal, QLineF
+from PyQt5.QtCore import Qt, QPoint, QSize, pyqtSlot, QTimer, pyqtSignal, QLineF, QRectF
 from PyQt5.QtGui import QPen, QPixmap, QCursor, QColor
 from PyQt5.QtWidgets import QGraphicsScene, QGraphicsPixmapItem, QGraphicsSceneMouseEvent, QGraphicsEllipseItem, \
     QGraphicsSceneWheelEvent
