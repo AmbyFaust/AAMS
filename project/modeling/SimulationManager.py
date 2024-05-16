@@ -108,13 +108,14 @@ class SimulationManager:
         # Проверяем условия подрыва и выдаём координаты цели для полёта ракеты  (если есть ракеты)
         for rocket in self.rockets:
             # Проверяем условия подрыва и в случае подрыва задаём всем объектам флаг (IsLive = false)
-            rocket.checkDetonationConditions(self.targets.values())
-            # Ракета должна знать к кому радару она относится и какой цели летит
-            targetCoord = self.radars[rocket.radarId].TrackingMeasure(
-                self.targets[rocket.targetId],
-                self.CurrModelingTime
-            )
-            rocket.changeDirectionofFlight(targetCoord)
+            if rocket.Islive:
+                rocket.checkDetonationConditions(self.targets.values())
+                # Ракета должна знать к кому радару она относится и какой цели летит
+                targetCoord = self.radars[rocket.radarId].TrackingMeasure(
+                    self.targets[rocket.targetId],
+                    self.CurrModelingTime
+                )
+                rocket.changeDirectionofFlight(targetCoord)
 
         # print('Targets')
         for target_id, target in self.targets.items():
@@ -129,7 +130,6 @@ class SimulationManager:
             }
         # print('Rockets')
         for rocket in self.rockets:
-            print(rocket.coordinates)
             self.data.loc[len(self.data)] = {
                 'object_type': 'rocket',
                 'object_id': rocket.Id,
@@ -176,8 +176,10 @@ class SimulationManager:
 
     def __checkTargetsLifeStatus(self):
         IsTargetsLive = True
+        targetsStatus = []
         for target in self.targets.values():
-            if not target.Islive:
-                IsTargetsLive = False
+            targetsStatus.append(target.Islive)
+        if not any(targetsStatus):
+            IsTargetsLive = False
         return IsTargetsLive
 

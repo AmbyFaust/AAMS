@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-from PyQt5.QtCore import pyqtSlot, Qt, QTimer
+from PyQt5.QtCore import pyqtSlot, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QIcon, QPen
 from PyQt5.QtWidgets import QGraphicsView, QHBoxLayout, QWidget, QVBoxLayout, QLabel, QAction, QToolBar, QGroupBox, \
     QLineEdit, QPushButton, QFileDialog, QProgressBar, QSlider, QGraphicsLineItem, QApplication
@@ -18,6 +18,8 @@ class AppWindow(QMainWindowBase):
     """
     Главное окно приложения
     """
+
+    send_time = pyqtSignal(float)
 
     def __init__(self, parent=None):
         super(AppWindow, self).__init__(parent)
@@ -47,6 +49,8 @@ class AppWindow(QMainWindowBase):
 
         self.modelling_timer = QTimer()
         self.modelling_timer.timeout.connect(self.__update_slider_progress)
+
+        self.send_time.connect(self.map.redraw_radar_beam_path)
 
     def __create_widgets(self):
         settings_action = QAction("Настройки", self)
@@ -249,26 +253,25 @@ class AppWindow(QMainWindowBase):
     #         print(exp)
 
     def __draw_objects_lines(self, object_points, obj_type):
-        print(obj_type)
         if obj_type == 'rocket':
             pen = QPen(Qt.green, 2)
         else:
             pen = QPen(Qt.black, 2)
-
-        print(object_points.items())
 
         for obj_id, points in object_points.items():
             for i in range(len(points) - 1):
                 x1, y1 = points[i]
                 x2, y2 = points[i + 1]
 
+                print(x1, y1, x2, y2)
+
                 line = QGraphicsLineItem(x1, y1, x2, y2)
                 line.setPen(pen)
                 self.map.addItem(line)
 
                 if obj_id not in self.lines:
-                    self.lines[obj_id] = []
-                self.lines[obj_id].append(line)
+                    self.lines[(obj_id, obj_type)] = []
+                self.lines[(obj_id, obj_type)].append(line)
 
     @pyqtSlot(int)
     def __update_scene_modelling(self, slider_progress_value: int):
@@ -281,15 +284,21 @@ class AppWindow(QMainWindowBase):
                 obj_id = row['object_id']
                 obj_type = row['object_type']
                 point = (row['x'], row['y'])
+                time = row['time']
+
+                self.send_time.emit(time)
 
                 if obj_type == 'target':
                     if obj_id not in targets_points:
                         targets_points[obj_id] = []
                     targets_points[obj_id].append(point)
                 elif obj_type == 'rocket':
-                    if obj_type not in rockets_points:
+                    if obj_id not in rockets_points:
                         rockets_points[obj_id] = []
                     rockets_points[obj_id].append(point)
+
+            # if slider_progress_value < self.current_index:
+
 
             self.__draw_objects_lines(targets_points, 'target')
             self.__draw_objects_lines(rockets_points, 'rocket')

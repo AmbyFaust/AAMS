@@ -15,7 +15,6 @@ class RadarObject:
 
         self.radius = self.set_radius()
         self.radius_path = QPainterPath()
-        # self.radius_path.addEllipse(QRectF(-self.radius, -self.radius, 2 * self.radius, 2 * self.radius))
         self.radar_radius_item = None
 
     def set_radius(self, eirp = settings.EIRP,

@@ -175,6 +175,10 @@ class GridScene(QGraphicsScene):
         except BaseException as exp:
             print(f'Ошибка при удалении объекта "{object_type.desc}" с id = {object_id}: {exp}')
 
+    @pyqtSlot(float)
+    def redraw_radar_beam_path(self, time: float):
+        pass
+
     def __remove_target(self, target_id: int):
         target_path = self.targets[target_id]
         self.__remove_target_path(target_path)
