@@ -3,6 +3,7 @@ import math
 
 
 class CommandPostObj(Object):
+
     detect_id_object = []
     def tritial_processing(self, all_radars_map,current_traj,all_launchers, time):
         if current_traj.target_id in self.detect_id_object:
@@ -12,10 +13,24 @@ class CommandPostObj(Object):
             convinient_radar = self.find_convinient_radar(all_radars_map,current_traj)
 
             for one_launcher in all_launchers:
+
                 if (one_launcher.radarId == convinient_radar.Id):
-                    launched_rocket = one_launcher.launch_missile(convinient_radar.Id,current_traj.target_id, time)
-                    print('The launcher of the radar with id ', convinient_radar.Id, ' launched a rocket to liquidate ',current_traj.target_id)
-                    return launched_rocket
+                    if (one_launcher.remaining_missiles > 0):
+                        launched_rocket = one_launcher.launch_missile(convinient_radar.Id,current_traj.target_id, time)
+                        print('The launcher of the radar with id ', convinient_radar.Id, ' launched a rocket to liquidate ',current_traj.target_id)
+                        return launched_rocket
+                    else:
+                        for radar in all_radars_map.values():
+                            for one_launcher in all_launchers:
+                                if (one_launcher.radarId == radar.Id):
+                                    if (one_launcher.remaining_missiles > 0):
+                                        launched_rocket = one_launcher.launch_missile(convinient_radar.Id,
+                                                                                      current_traj.target_id, time)
+                                        print('The launcher of the radar with id ', convinient_radar.Id,
+                                              ' launched a rocket to liquidate ', current_traj.target_id)
+                                        return launched_rocket
+
+
             return None
 
 
