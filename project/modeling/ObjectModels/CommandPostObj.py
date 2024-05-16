@@ -20,6 +20,7 @@ class CommandPostObj(Object):
                         print('The launcher of the radar with id ', convinient_radar.Id, ' launched a rocket to liquidate ',current_traj.target_id)
                         return launched_rocket
                     else:
+                        k = 0
                         for radar in all_radars_map.values():
                             for one_launcher in all_launchers:
                                 if (one_launcher.radarId == radar.Id):
@@ -28,7 +29,11 @@ class CommandPostObj(Object):
                                                                                       current_traj.target_id, time)
                                         print('The launcher of the radar with id ', convinient_radar.Id,
                                               ' launched a rocket to liquidate ', current_traj.target_id)
+                                        k=1
                                         return launched_rocket
+                        if k==0:
+                            print("Supostat win")
+                            return None
 
 
             return None
