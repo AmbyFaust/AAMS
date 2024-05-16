@@ -85,6 +85,7 @@ class SimulationManager:
                 # print(self.CurrModelingTime," time and radar id", radar_id)
                 radar.secondary_processing(measurements_from_radar)
 
+
         # Моделируем ТОИ(третичка)
         for radar_id, radar in self.radars.items():
             all_radar_traj = radar.Trajectories
@@ -176,8 +177,10 @@ class SimulationManager:
 
     def __checkTargetsLifeStatus(self):
         IsTargetsLive = True
+        targetsStatus = []
         for target in self.targets.values():
-            if not target.Islive:
-                IsTargetsLive = False
+            targetsStatus.append(target.Islive)
+        if not any(targetsStatus):
+            IsTargetsLive = False
         return IsTargetsLive
 
