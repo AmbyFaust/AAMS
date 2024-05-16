@@ -263,7 +263,7 @@ class AppWindow(QMainWindowBase):
                 x1, y1 = points[i]
                 x2, y2 = points[i + 1]
 
-                print(x1, y1, x2, y2)
+                # print(x1, y1, x2, y2)
 
                 line = QGraphicsLineItem(x1, y1, x2, y2)
                 line.setPen(pen)

@@ -38,7 +38,8 @@ class Handler(QObject):
         try:
             coordinates = CoordinatesEntity(
                 x=radar_object.radar_item.x() + BASE_SIZE_OBJECT.width() // 2,
-                y=radar_object.radar_item.y() + BASE_SIZE_OBJECT.height() // 2
+                y=radar_object.radar_item.y() + BASE_SIZE_OBJECT.height() // 2,
+                z=0
             )
 
             radar_entity = RadarEntity(
