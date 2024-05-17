@@ -32,6 +32,7 @@ class AppManager(QObject):
         self.main_menu_widget.exit_app.connect(self.__exit_app)
 
         self.app_window = AppWindow()
+        self.app_window.close_event_signal.connect(self.__show_main_menu)
 
     def __create_services(self):
         self.handler = Handler()
@@ -49,6 +50,9 @@ class AppManager(QObject):
     def __exit_app(self):
         self.app_window.close()
         self.main_menu_widget.close()
+
+    def __show_main_menu(self):
+        self.main_menu_widget.show()
 
     def __connect_gui_services(self):
         # соединение окна приложения с обработчиком

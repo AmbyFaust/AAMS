@@ -18,18 +18,19 @@ class RadarObject:
         self.radius_path = QPainterPath()
         self.radar_radius_item = None
 
-    def set_radius(self, eirp = settings.EIRP,
-                         seff = settings.SEFF,
-                         t_n = settings.T_N,
-                         signal_time = settings.SIGNAL_TIME,
-                         n_pulses_proc = settings.N_PULSES_PROC,
-                         snr_detection = settings.SNR_DETECTION,
-                         RCS = settings.EPR):
-
+    @staticmethod
+    def set_radius(eirp=settings.EIRP,
+                   seff=settings.SEFF,
+                   t_n=settings.T_N,
+                   signal_time=settings.SIGNAL_TIME,
+                   n_pulses_proc=settings.N_PULSES_PROC,
+                   snr_detection=settings.SNR_DETECTION,
+                   RCS=settings.EPR):
         print(eirp)
-        #DetRange = ((eirp * seff * n_pulses_proc * RCS * signal_time) /
-         #           (((4 * np.pi) ** 2)*snr_detection * 1.38*10**-23 *t_n))**1/4
+        # DetRange = ((eirp * seff * n_pulses_proc * RCS * signal_time) /
+        #           (((4 * np.pi) ** 2)*snr_detection * 1.38*10**-23 *t_n))**1/4
 
-        DetRange = ((eirp * seff * n_pulses_proc * RCS * signal_time) / ((4*np.pi)**2 * snr_detection *  1.38*10**-23 *t_n))**(1/4)
-        #print(DetRange)
+        DetRange = ((eirp * seff * n_pulses_proc * RCS * signal_time) / (
+                    (4 * np.pi) ** 2 * snr_detection * 1.38 * 10 ** -23 * t_n)) ** (1 / 4)
+        # print(DetRange)
         return 100
