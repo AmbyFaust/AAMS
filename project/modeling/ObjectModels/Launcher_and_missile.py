@@ -49,7 +49,7 @@ class Missile(Object):
         self.target_coordinates = None
         self.trajectory = []  # Поле для хранения траектории полета
         self.rocket_trajectory = [launch_coordinates]
-        self.DetonationRange = 100
+        self.DetonationRange = 40
         self.DamageRange = 200
 
     def give_coords(self):

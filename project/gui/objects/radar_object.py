@@ -1,3 +1,4 @@
+import numpy as np
 from PyQt5.QtCore import QRectF
 from PyQt5.QtGui import QPixmap, QPainterPath
 from PyQt5.QtWidgets import QGraphicsPixmapItem
@@ -20,10 +21,10 @@ class RadarObject:
     def set_radius(self, eirp = settings.EIRP,
                          seff = settings.SEFF,
                          t_n = settings.T_N,
-                         prf = settings.PRF,
                          signal_time = settings.SIGNAL_TIME,
                          n_pulses_proc = settings.N_PULSES_PROC,
-                         operating_freq = settings.OPERATING_FREQ,
-                         snr_detection = settings.SNR_DETECTION):
-
+                         snr_detection = settings.SNR_DETECTION,
+                         RCS = settings.EPR):
+        DetRange = (eirp * seff * n_pulses_proc * RCS * signal_time /
+                    ((4 * np.pi) ** 2)*snr_detection * 1.38*10**-23 *t_n)
         return 100

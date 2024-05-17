@@ -1,3 +1,4 @@
+import logging
 import os
 import json
 import pandas as pd
@@ -9,7 +10,7 @@ from .ObjectModels.RadarObj import RadarObj
 from .ObjectModels.TargetObj import Target
 from .ObjectModels.Launcher_and_missile import LaunchSystem
 from project.modeling.ObjectModels.CommandPostObj import CommandPostObj
-
+import time
 
 class SimulationManager:
     def __init__(self, path):
@@ -77,6 +78,8 @@ class SimulationManager:
         # Изменяем текущее время модели
         self.CurrModelingTime = round(self.CurrModelingTime + self.TimeStep,4)
         # print("Время моделирования:", self.CurrModelingTime)
+        logging.info("Время моделирования:", self.CurrModelingTime)
+
 
         # Моделируем ПОИ и ВОИ(первичка и вторичка)
         for radar_id, radar in self.radars.items():
@@ -84,7 +87,6 @@ class SimulationManager:
             if (len(measurements_from_radar)>0):
                 # print(self.CurrModelingTime," time and radar id", radar_id)
                 radar.secondary_processing(measurements_from_radar)
-
 
         # Моделируем ТОИ(третичка)
         for radar_id, radar in self.radars.items():

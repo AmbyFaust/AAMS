@@ -11,7 +11,7 @@ class Target(Object):
     Id = 1
 
     def __init__(self, type, ObjectName, epr, velocity, control_points, target_id=None):
-        self.num_points = 20
+        self.num_points = 100
         if target_id is None:
             self.Id = Target.Id
             Target.Id += 1
@@ -92,8 +92,9 @@ class Target(Object):
         return RectCS(X=interp_coords[0], Y=interp_coords[1], Z=interp_coords[2])
 
     def ReturnPlaneInformation(self,time):
-        CalculatedCoords =self.calculate_position_at_time(time)
-        return target_params(RCS=self.epr, coordinates=CalculatedCoords, TargetId=self.Id)
+        #CalculatedCoords =self.calculate_position_at_time(time)
+        #print(self.CurrCoords)
+        return target_params(RCS=self.epr, coordinates=self.CurrCoords, TargetId=self.Id)
 
     def plot_trajectory(self):
 
