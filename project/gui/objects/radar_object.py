@@ -25,6 +25,11 @@ class RadarObject:
                          n_pulses_proc = settings.N_PULSES_PROC,
                          snr_detection = settings.SNR_DETECTION,
                          RCS = settings.EPR):
-        DetRange = (eirp * seff * n_pulses_proc * RCS * signal_time /
-                    ((4 * np.pi) ** 2)*snr_detection * 1.38*10**-23 *t_n)
-        return 100
+
+        print(eirp)
+        #DetRange = ((eirp * seff * n_pulses_proc * RCS * signal_time) /
+         #           (((4 * np.pi) ** 2)*snr_detection * 1.38*10**-23 *t_n))**1/4
+
+        DetRange = ((eirp * seff * n_pulses_proc * RCS * signal_time) / ((4*np.pi)**2 * snr_detection *  1.38*10**-23 *t_n))**(1/4)
+        print(DetRange)
+        return DetRange
