@@ -22,7 +22,7 @@ class ChoosingModelingFileDialog(QDialog):
     def __create_widgets(self):
         self.input_file_path_lineedit = QLineEdit()
         self.input_file_path_lineedit.setReadOnly(True)
-        self.input_file_path_lineedit.setText(str(settings.OUTPUT_FILE_PATH))
+        # self.input_file_path_lineedit.setText(str(settings.OUTPUT_FILE_PATH))
         self.input_file_path_lineedit.setFont(BASE_FONT)
 
         self.input_file_button = QPushButton('...')
@@ -39,7 +39,7 @@ class ChoosingModelingFileDialog(QDialog):
         main_v_layout = QVBoxLayout()
 
         input_file_layout = QHBoxLayout()
-        input_file_layout.addWidget(QLabel('Директория входного файла: '))
+        input_file_layout.addWidget(QLabel('Путь до файла: '))
         input_file_layout.addWidget(self.input_file_path_lineedit)
         input_file_layout.addWidget(self.input_file_button)
 
@@ -60,12 +60,13 @@ class ChoosingModelingFileDialog(QDialog):
             print(exp)
 
     @staticmethod
-    def __select_folder(window_title: str = 'Выбрать директорию') -> typing.Union[str, None]:
+    def __select_folder(window_title: str = 'Выбрать файл') -> typing.Union[str, None]:
         file_dialog = QOpenFilesDialog()
         file_dialog.setWindowTitle(window_title)
         file_dialog.setOption(QOpenFilesDialog.ShowDirsOnly)
-        file_dialog.setFileMode(QOpenFilesDialog.Directory)
-        file_dialog.setDirectory('.')
+        file_dialog.setFileMode(QOpenFilesDialog.ExistingFile)
+        file_dialog.setDirectory(settings.OUTPUT_FILE_PATH)
+        file_dialog.setNameFilter("CSV файлы (*.csv)")
         if file_dialog.exec() != QOpenFilesDialog.Accepted:
             return None
         if len(file_dialog.selectedFiles()) > 0:

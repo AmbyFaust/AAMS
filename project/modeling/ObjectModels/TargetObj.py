@@ -11,6 +11,7 @@ class Target(Object):
     Id = 1
 
     def __init__(self, type, ObjectName, epr, velocity, control_points, target_id=None):
+        self.num_points = 20
         if target_id is None:
             self.Id = Target.Id
             Target.Id += 1
@@ -39,8 +40,8 @@ class Target(Object):
         spline_z = interp1d(np.arange(len(self.control_points)), z_coords, kind=interpolation_method)
 
 
-        num_points = 100  # Изменим коэффициент на 10
-        t = np.linspace(0, len(self.control_points) - 1, num_points)
+          # Изменим коэффициент на 10
+        t = np.linspace(0, len(self.control_points) - 1, self.num_points)
         x_interp = spline_x(t)
         y_interp = spline_y(t)
         z_interp = spline_z(t)
@@ -49,13 +50,13 @@ class Target(Object):
         coordinates_dict = {}
         # for i in range(len(self.control_points)):
         #    coordinates_dict[i] = (self.control_points[i][0], self.control_points[i][1])
-        # for i in range(num_points):
+        # for i in range(self.num_points):
         #   coordinates_dict[i] = (x_interp[i], y_interp[i])
         # return coordinates_dict
 
         t = 0
         coordinates_dict[0] = [x_interp[0], y_interp[0], z_interp[0], t]
-        for i in range(1, num_points):
+        for i in range(1, self.num_points):
             distance = ((x_interp[i] - x_interp[i - 1]) ** 2 + (y_interp[i] - y_interp[i - 1]) ** 2 + (z_interp[i] - z_interp[i - 1]) ** 2) ** 0.5
             t += distance / self.velocity
             coordinates_dict[i] = [x_interp[i], y_interp[i], z_interp[i], t]
@@ -63,7 +64,7 @@ class Target(Object):
 
 
     def get_last_time_target(self):
-        return self.coordinates_dict[99][3]
+        return self.coordinates_dict[self.num_points-1][3]
 
 
     def move(self, time):

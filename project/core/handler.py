@@ -38,7 +38,8 @@ class Handler(QObject):
         try:
             coordinates = CoordinatesEntity(
                 x=radar_object.radar_item.x() + BASE_SIZE_OBJECT.width() // 2,
-                y=radar_object.radar_item.y() + BASE_SIZE_OBJECT.height() // 2
+                y=radar_object.radar_item.y() + BASE_SIZE_OBJECT.height() // 2,
+                z=0
             )
 
             radar_entity = RadarEntity(
@@ -160,6 +161,14 @@ class Handler(QObject):
     def modeling(self):
         dialog = ChoosingModelingFileDialog()
         if dialog.exec() == ChoosingModelingFileDialog.Accepted:
-            dataframe = pd.read_csv(f'{settings.OUTPUT_FILE_PATH}/data.csv')
+            dataframe = pd.read_csv(f'{settings.OUTPUT_FILE_PATH}')
 
             self.load_modelling_dataframe.emit(dataframe)
+
+    @pyqtSlot()
+    def remove_all_objects(self):
+        for target_id in list(self.targets.keys()):
+            self.remove_target(target_id)
+
+        for radar_id in list(self.radars.keys()):
+            self.remove_radar(radar_id)

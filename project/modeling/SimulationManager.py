@@ -133,7 +133,7 @@ class SimulationManager:
         for rocket in self.rockets:
             self.data.loc[len(self.data)] = {
                 'object_type': 'rocket',
-                'object_id': rocket.Id,
+                'object_id': rocket.id,
                 'time': self.CurrModelingTime,
                 'x': rocket.coordinates[0],
                 'y': rocket.coordinates[1],

@@ -21,15 +21,15 @@ INPUT_FILE_PATH = os.path.join(os.getcwd(), 'results')
 OUTPUT_FILE_PATH = os.path.join(os.getcwd(), 'results')
 
 # Радар
-EIRP = 10**5
+EIRP = 10**6
 SEFF = 3
-BW_U = 3
-BW_V = 3
+BW_U = 6
+BW_V = 6
 SCANNING_V = [0, 60]
 T_N = 1000
-PRF = 10**6
+PRF = 10**5
 SIGNAL_TIME = 10**(-6)
-N_PULSES_PROC = 1000
+N_PULSES_PROC = 100
 OPERATING_FREQ = 15*10**9
 START_TIME = 0
 SNR_DETECTION = 10

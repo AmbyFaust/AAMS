@@ -80,6 +80,7 @@ class RadarObj(Object):
             # print('Положение цели',targetInfo.TargetId,':', targetCoordsUV)
             # print('Положение луча', BeamCoords)
             # print(targetCoordsUV)
+            # print(BeamCoords)
             if abs(BeamCoords[0]-targetCoordsUV.U) < self.RadarParams.BW_U/2 and abs(BeamCoords[1]-targetCoordsUV.V) <self.RadarParams.BW_V/2:
                 TargetSNR = self.CalculateSNR(targetCoordsUV.R, targetInfo.RCS)
                 # print('ОСШ от цели',targetInfo.TargetId,TargetSNR)

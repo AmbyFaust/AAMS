@@ -34,8 +34,6 @@ class CommandPostObj(Object):
                         if k==0:
                             print("Supostat win")
                             return None
-
-
             return None
 
 
