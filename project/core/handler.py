@@ -161,7 +161,7 @@ class Handler(QObject):
     def modeling(self):
         dialog = ChoosingModelingFileDialog()
         if dialog.exec() == ChoosingModelingFileDialog.Accepted:
-            dataframe = pd.read_csv(f'{settings.OUTPUT_FILE_PATH}/data.csv')
+            dataframe = pd.read_csv(f'{settings.OUTPUT_FILE_PATH}')
 
             self.load_modelling_dataframe.emit(dataframe)
 

@@ -92,7 +92,7 @@ class AppWindow(QMainWindowBase):
 
         self.calculate_btn = QPushButton('Рассчитать')
         self.calculate_btn.setFont(BASE_FONT)
-        self.modeling_btn = QPushButton('Моделирование')
+        self.modeling_btn = QPushButton('Демонстрация')
         self.modeling_btn.setFont(BASE_FONT)
 
         self.central_widget = QWidget()
