@@ -37,7 +37,7 @@ class AppWindow(QMainWindowBase):
 
         self.dataframe = None
         self.is_paused = True
-        self.lines = {}
+        self.lines = []
         self.current_index = 0
 
         # соединение контроллера с другими объектами
@@ -139,6 +139,9 @@ class AppWindow(QMainWindowBase):
         self.create_radar_action.setIcon(QIcon(RADAR_ICON_PATH))
         self.create_radar_action.triggered.connect(self.__create_radar)
 
+        self.clear_map_action = QAction('Очистить поле')
+        self.clear_map_action.triggered.connect(self.__clear_map)
+
         self.radar_reviewer.delete_action.triggered.connect(self.__remove_radar_action_triggered)
         self.target_reviewer.delete_action.triggered.connect(self.__remove_target_action_triggered)
 
@@ -153,6 +156,7 @@ class AppWindow(QMainWindowBase):
         self.tool_bar.setMovable(False)
         self.tool_bar.addAction(self.create_target_path_action)
         self.tool_bar.addAction(self.create_radar_action)
+        self.tool_bar.addAction(self.clear_map_action)
 
     def __calculate(self):
         self.controller.calculate_signal.emit()
@@ -172,6 +176,13 @@ class AppWindow(QMainWindowBase):
     def __create_target(self):
         if self.map.current_obj_type is None:
             self.map.current_obj_type = ObjectEnum.TARGET
+
+    def __clear_map(self):
+        for line in self.lines:
+            self.map.removeItem(line)
+        self.controller.delete_all_objects()
+        self.start_button.setEnabled(False)
+        self.slider_progress.setEnabled(False)
 
     def __radar_selected(self, radar_id: int):
         self.controller.is_radar_selected(radar_id)
@@ -226,52 +237,24 @@ class AppWindow(QMainWindowBase):
         self.slider_progress.setEnabled(True)
         self.start_button.setEnabled(True)
 
-    # @pyqtSlot(int)
-    # def __update_scene_modelling(self, slider_progress_value: int):
-    #     try:
-    #         if slider_progress_value > self.current_index:
-    #             for i in range(self.current_index, slider_progress_value):
-    #                 if i + 1 < len(self.dataframe):
-    #                     x1, y1 = self.dataframe.iloc[i]['x'], self.dataframe.iloc[i]['y']
-    #                     x2, y2 = self.dataframe.iloc[i + 1]['x'], self.dataframe.iloc[i + 1]['y']
-    #
-    #                     line = QGraphicsLineItem(x1, y1, x2, y2)
-    #                     pen = QPen(Qt.black, 2)
-    #                     line.setPen(pen)
-    #                     self.map.addItem(line)
-    #                     self.lines.append(line)
-    #
-    #         else:
-    #             for i in range(self.current_index - 1, slider_progress_value, -1):
-    #                 if self.lines:
-    #                     line = self.lines.pop()
-    #                     self.map.removeItem(line)
-    #
-    #         self.current_index = slider_progress_value
-    #
-    #     except BaseException as exp:
-    #         print(exp)
-
-    def __draw_objects_lines(self, object_points, obj_type):
+    def __draw_objects_lines(self, object_points, obj_type, line_id):
         if obj_type == 'rocket':
             pen = QPen(Qt.green, 2)
         else:
             pen = QPen(Qt.black, 2)
 
         for obj_id, points in object_points.items():
+            if len(points) == 1:
+                print(self.dataframe.iloc[line_id]['object_id', 'object_type'])
             for i in range(len(points) - 1):
                 x1, y1 = points[i]
                 x2, y2 = points[i + 1]
-
-                # print(x1, y1, x2, y2)
 
                 line = QGraphicsLineItem(x1, y1, x2, y2)
                 line.setPen(pen)
                 self.map.addItem(line)
 
-                if obj_id not in self.lines:
-                    self.lines[(obj_id, obj_type)] = []
-                self.lines[(obj_id, obj_type)].append(line)
+                self.lines.append(line)
 
     @pyqtSlot(int)
     def __update_scene_modelling(self, slider_progress_value: int):
@@ -297,11 +280,14 @@ class AppWindow(QMainWindowBase):
                         rockets_points[obj_id] = []
                     rockets_points[obj_id].append(point)
 
-            # if slider_progress_value < self.current_index:
+            if slider_progress_value < self.current_index:
+                for i in range(self.current_index - 1, slider_progress_value, -1):
+                    if self.lines:
+                        line = self.lines.pop()
+                        self.map.removeItem(line)
 
-
-            self.__draw_objects_lines(targets_points, 'target')
-            self.__draw_objects_lines(rockets_points, 'rocket')
+            self.__draw_objects_lines(targets_points, 'target', slider_progress_value - 1)
+            self.__draw_objects_lines(rockets_points, 'rocket', slider_progress_value - 1)
 
             self.current_index = slider_progress_value
 

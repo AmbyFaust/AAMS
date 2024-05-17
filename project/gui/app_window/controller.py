@@ -18,6 +18,7 @@ class Controller(QObject):
     redraw_radar = pyqtSignal(object)
     calculate_signal = pyqtSignal()
     modeling_signal = pyqtSignal()
+    remove_all_objects = pyqtSignal()
 
     def __init__(self, parent=None):
         super(Controller, self).__init__(parent)
@@ -125,3 +126,6 @@ class Controller(QObject):
             self.redraw_radar.emit(radar_entity)
         except BaseException as exp:
             print(f'Обновление ')
+
+    def delete_all_objects(self):
+        self.remove_all_objects.emit()

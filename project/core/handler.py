@@ -164,3 +164,11 @@ class Handler(QObject):
             dataframe = pd.read_csv(f'{settings.OUTPUT_FILE_PATH}/data.csv')
 
             self.load_modelling_dataframe.emit(dataframe)
+
+    @pyqtSlot()
+    def remove_all_objects(self):
+        for target_id in list(self.targets.keys()):
+            self.remove_target(target_id)
+
+        for radar_id in list(self.radars.keys()):
+            self.remove_radar(radar_id)
