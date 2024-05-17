@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
@@ -25,7 +27,6 @@ class LaunchSystem(Object):
 
     def launch_missile(self, targetId, time):
         if self.current_missiles_launched < self.max_missiles and self.remaining_missiles > 0:
-            missile_id = str(self.Id) + "_missile_" + str(self.current_missiles_launched + 1)
             self.current_missiles_launched += 1
             self.remaining_missiles -= 1
             missile = Missile(self.Id, targetId, self.coordinates, time)
@@ -182,15 +183,15 @@ class Missile(Object):
 
     def detonate(self, target):
         if self.target_coordinates is not None:
-            print(f"Missile {self.id} detonated at target coordinates {self.target_coordinates}.")
+            logging.info(f"Missile {self.id} detonated at target coordinates {self.target_coordinates}.")
             self.Islive = False
             target.Islive = False
         else:
-            print(f"Missile {self.id} cannot detonate without target coordinates.")
+            logging.info(f"Missile {self.id} cannot detonate without target coordinates.")
 
     def self_destruct(self):
         self.Islive = False
-        print(f"Missile {self.id} self-destructed.")
+        logging.info(f"Missile {self.id} self-destructed.")
 
 
 

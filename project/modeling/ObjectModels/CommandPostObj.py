@@ -17,10 +17,10 @@ class CommandPostObj(Object):
             for one_launcher in list(all_launchers):
 
                 if (one_launcher.Id == convinient_radar.Id):
-                    logging.info('В ПУ осталось',one_launcher.remaining_missiles, 'ракет')
+                    logging.info(f"В ПУ осталось {one_launcher.remaining_missiles} ракет")
                     if (one_launcher.remaining_missiles > 0):
                         launched_rocket = one_launcher.launch_missile(current_traj.target_id, time)
-                        logging.info('The launcher of the radar with id ', convinient_radar.Id, ' launched a rocket to liquidate ',current_traj.target_id)
+                        logging.info(f"The launcher of the radar with id {convinient_radar.Id}  launched a rocket to liquidate {current_traj.target_id} ")
                         return launched_rocket
                     else:
                         k = 0

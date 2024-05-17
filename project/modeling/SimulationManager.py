@@ -78,7 +78,7 @@ class SimulationManager:
         # Изменяем текущее время модели
         self.CurrModelingTime = round(self.CurrModelingTime + self.TimeStep,4)
         # print("Время моделирования:", self.CurrModelingTime)
-        logging.info("Время моделирования:", self.CurrModelingTime)
+        logging.info(f"Время моделирования: {self.CurrModelingTime}")
 
 
         # Моделируем ПОИ и ВОИ(первичка и вторичка)

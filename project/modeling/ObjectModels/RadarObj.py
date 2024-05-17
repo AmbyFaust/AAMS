@@ -79,7 +79,7 @@ class RadarObj(Object):
             targetCoordsUV = GRCStoUV(targetInfo.coordinates, self.ObjCoords)
             # print('Положение цели',targetInfo.TargetId,':', targetCoordsUV)
             # print('Положение луча', BeamCoords)
-            logging.info('Положение луча', BeamCoords, 'Радар с Id = ', self.Id)
+            logging.info(f"Положение луча {BeamCoords} Радар с Id = {self.Id}")
             # print(targetCoordsUV)
             # print(BeamCoords)
             if abs(BeamCoords[0]-targetCoordsUV.U) < self.RadarParams.BW_U/2 and abs(BeamCoords[1]-targetCoordsUV.V) <self.RadarParams.BW_V/2:
@@ -95,7 +95,7 @@ class RadarObj(Object):
                     # print('Координаты в УВР ', targetCoordsUV)
                     # print('Истинные координаты цели переведены обратно ', UVtoGRCS(targetCoordsUV, self.StartCoords))
                     # print('Измеренные координаты цели ', UVtoGRCS(UVCS(mark.U, mark.V, mark.R), self.StartCoords))
-                    logging.info('Отметка в радаре с Id', self.Id, mark)
+                    logging.info(f"Отметка в радаре с Id {self.Id} : {mark}")
                     marks.append(mark)
         # self.Measurement += 1
         return marks
@@ -164,7 +164,7 @@ class RadarObj(Object):
         [_, l,_] = current_traj.stack_of_coords.shape
         if (l == 2):
             self.Trajectories[one_traj - 1] = current_traj._replace(is_confimed = True)
-            logging.info('Supostat with id',current_traj.target_id,' is detected by locator with id',self.Id)
+            logging.info(f"Supostat with id {current_traj.target_id} is detected by locator with id {self.Id}")
 
 
 if __name__ == "__main__":

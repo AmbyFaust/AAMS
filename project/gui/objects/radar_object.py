@@ -31,5 +31,5 @@ class RadarObject:
          #           (((4 * np.pi) ** 2)*snr_detection * 1.38*10**-23 *t_n))**1/4
 
         DetRange = ((eirp * seff * n_pulses_proc * RCS * signal_time) / ((4*np.pi)**2 * snr_detection *  1.38*10**-23 *t_n))**(1/4)
-        print(DetRange)
-        return DetRange
+        #print(DetRange)
+        return 100
